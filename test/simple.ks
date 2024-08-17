@@ -1,0 +1,1 @@
+Row 1 (RS) : K5, [k1] twice, ssk. 

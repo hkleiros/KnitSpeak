@@ -1,0 +1,81 @@
+cabal-version: 2.2
+
+-- This file has been generated from package.yaml by hpack version 0.36.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           KnitSpeakParser
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/hkleiros/KnitSpeakParser#readme>
+homepage:       https://github.com/hkleiros/KnitSpeakParser#readme
+author:         Hanne-Kristin Schrøder Leiros
+maintainer:     hkleiros@uio.com
+copyright:      2024 Hanne-Kristin Schrøder Leiros
+license:        BSD-3-Clause
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/hkleiros/KnitSpeakParser
+
+library
+  exposed-modules:
+      KSSyntax
+      KSParser
+  other-modules:
+      General
+      KSInterpreter
+      Lib
+      Paths_KnitSpeakParser
+  autogen-modules:
+      Paths_KnitSpeakParser
+  hs-source-dirs:
+      src
+  ghc-options: -W -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  build-depends:
+      base >=4.7 && <5
+    , containers
+    , parsec
+  default-language: Haskell2010
+
+executable KnitSpeakParser-exe
+  main-is: Main.hs
+  other-modules:
+      General
+      KSInterpreter
+      KSParser
+      KSSyntax
+      Lib
+      Paths_KnitSpeakParser
+  autogen-modules:
+      Paths_KnitSpeakParser
+  hs-source-dirs:
+      app
+      src
+  ghc-options: -W -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      KnitSpeakParser
+    , base >=4.7 && <5
+    , containers
+    , parsec
+  default-language: Haskell2010
+
+test-suite KnitSpeakParser-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_KnitSpeakParser
+  autogen-modules:
+      Paths_KnitSpeakParser
+  hs-source-dirs:
+      test
+  ghc-options: -W -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      KnitSpeakParser
+    , base >=4.7 && <5
+    , containers
+    , parsec
+  default-language: Haskell2010

@@ -1,0 +1,68 @@
+name:                KnitSpeakParser
+version:             0.1.0.0
+github:              "hkleiros/KnitSpeakParser"
+license:             BSD-3-Clause
+author:              "Hanne-Kristin Schørder Leiros"
+maintainer:          "hkleiros@uio.com"
+copyright:           "2024 Hanne-Kristin Schrøder leiros"
+
+extra-source-files:
+- README.md
+- CHANGELOG.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/hkleiros/KnitSpeakParser#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- containers
+- parsec
+
+ghc-options:
+- -W
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
+
+
+library:
+  source-dirs: src
+  exposed-modules:
+    - KSSyntax
+    - KSParser
+
+executables:
+  KnitSpeakParser-exe:
+    main:                Main.hs
+    source-dirs:         
+    - app
+    - src
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - KnitSpeakParser
+
+tests:
+  KnitSpeakParser-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - KnitSpeakParser
