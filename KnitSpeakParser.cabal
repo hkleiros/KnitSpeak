@@ -8,11 +8,11 @@ name:           KnitSpeakParser
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/hkleiros/KnitSpeakParser#readme>
 homepage:       https://github.com/hkleiros/KnitSpeakParser#readme
-author:         Hanne-Kristin Schrøder Leiros
+bug-reports:    https://github.com/hkleiros/KnitSpeakParser/issues
+author:         Hanne-Kristin Schørder Leiros
 maintainer:     hkleiros@uio.com
-copyright:      2024 Hanne-Kristin Schrøder Leiros
+copyright:      2024 Hanne-Kristin Schrøder leiros
 license:        BSD-3-Clause
-license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
