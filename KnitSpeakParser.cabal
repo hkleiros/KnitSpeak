@@ -27,6 +27,8 @@ library
       KSParser
   other-modules:
       General
+      KnittelParser
+      Knittels
       KSInterpreter
       Lib
       Paths_KnitSpeakParser
@@ -45,6 +47,8 @@ executable KnitSpeakParser-exe
   main-is: Main.hs
   other-modules:
       General
+      KnittelParser
+      Knittels
       KSInterpreter
       KSParser
       KSSyntax

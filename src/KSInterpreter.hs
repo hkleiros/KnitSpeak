@@ -1,6 +1,7 @@
 module KSInterpreter where 
 
 import KSSyntax
+import Knittels
 import Control.Monad
 import Control.Arrow (second)
 import Data.List

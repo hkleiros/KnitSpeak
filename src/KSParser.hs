@@ -1,11 +1,12 @@
 module KSParser (ParseError, parseString) where
-import General ( lexeme, parens, skipSymbol, symbol )
+import General ( lexeme, parens, skipSymbol, symbol, num)
 import KSSyntax
 import Prelude hiding (lines) -- NOTE: Kan være lurt å ikke hide dem og heller bytte navn ? 
 import Text.ParserCombinators.Parsec hiding (Line)
 import Data.Char (isDigit)
 import Data.Functor (($>))
 import Data.List (singleton)
+import KnittelParser 
 
 
 parseString :: String -> Either ParseError Pattern 
@@ -39,7 +40,7 @@ line =
 
 
 course :: Parser Course
--- NOTE: kan forenkles mye 
+-- NOTE: kan sikkert forenkles mye 
 {- string "ro" også bestemme basert på ws, w, unds, und ? 
 evt kombinere to og to? -}
 course =
@@ -75,12 +76,11 @@ instruction =
     <|>
     Knittel <$> knittel
 
--- TODO: subinstructions
--- Nødvendig??  
+
 subinstructions :: Parser Instructions
 subinstructions = (rep <|> (Knittel <$> knittel)) `sepBy` try (symbol "," >> notFollowedBy (symbol "repeat"))
 
--- TODO: spearator parser 
+
 
 loop :: Parser Instruction
 loop =
@@ -92,7 +92,7 @@ loop =
         skipSymbol "*"
         Loop subs <$> end
 
--- TODO: rep
+
 rep :: Parser Instruction
 rep =
     do  skipSymbol "["
@@ -112,7 +112,6 @@ times =
 
 
 knittels :: Parser Instruction
--- må backtracke til før "," når den failer hmm
 knittels = Knittels <$> knittel `sepBy` symbol ","
 
     where sep = do  skipSymbol ","
@@ -121,6 +120,7 @@ knittels = Knittels <$> knittel `sepBy` symbol ","
 
 
 -- TODO: Knittel! 
+{-
 knittel :: Parser Knittel
 knittel =
     try (lexeme (
@@ -136,7 +136,7 @@ knittel =
         try ( lexeme (string "tog"
         return KNtog n)) 
         -- TODO: Finn ut av hvordan vi skiller mellom k2tog og k2
-        -}
+            vi bruker try-}
     <|>
     try (
     do  _ <- string "k" <|> string "K"
@@ -164,11 +164,11 @@ knittel =
     do  skipSymbol "Purl"
         return Purl
     <|>
-    do  skipSymbol "Slip"
+    do  try (skipSymbol "Slip") <|> skipSymbol "sl"
         n <- num
-        Slip n <$> yarnPlacement
+        Slip n <$> yarnPlacement-}
 
-
+{-
 yarnPlacement :: Parser YarnPlacement
 yarnPlacement =
     do  skipSymbol "wyif"
@@ -187,6 +187,7 @@ side =
         return W
     <|>
     do  return None
+    -}
 
 
 end :: Parser EndSts
@@ -225,7 +226,3 @@ nzNum =
         unexpected "0 is not a valid number of times"
     <|>
     num
-
-num :: Parser Integer
-num = do ds <- lexeme $ many1 $ satisfy isDigit
-         return (read ds)

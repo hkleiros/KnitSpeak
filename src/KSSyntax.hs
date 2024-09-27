@@ -2,6 +2,7 @@
 
 module KSSyntax where
 import Control.Monad ( join )
+import Knittels (Knittel)
 
 type Pattern = [Line]
 
@@ -31,27 +32,29 @@ type Instructions = [Instruction]
 data Instruction =
           Loop Instructions EndSts
         | Rep Instructions Times -- FIXME: hva skal i lista? [Knittel], men funker ikke helt. 
-        | Knittels [Knittel]
+        | Knittels [Knittel] -- TODO: brukes aldri, trengs den egt? 
         | Knittel Knittel
     deriving (Eq, Show, Read)
-type InstructionNum = Integer -- må sjekke om de er negative 🫠 er det like greit å bare ha Integers også sjekke at de ikke er 0? har vi lov å ha 0? Skal vi bare skippe da eller si feil? 
 
+{--- må sjekke om de er negative 🫠 er det like greit å bare ha Integers også sjekke at de ikke er 0? har vi lov å ha 0? Skal vi bare skippe da eller si feil? 
+type InstructionNum = Integer -}
 type EndSts = Integer
 type Times = Integer
 
 -- TODO: utvid 
-data Knittel = -- riktig bruk av ordet knittel? Blir det slitsomt å definer alle 252 på denne måten? 
+{-data Knittel = -- riktig bruk av ordet knittel? Blir det slitsomt å definer alle 252 på denne måten? 
           K     InstructionNum
         | P     InstructionNum
         | Slip  InstructionNum YarnPlacement
-        | BO    InstructionNum -- NOTE: vi definerer ikke avfellingsteknikk i knitspeak, men kan tenkes på til senere
-        | KNtog Integer
         | Knit  -- NOTE: skal kanskje være en instruction fordi den omhandler hele raden
         | Purl  -- NOTE: samme som over
+        | BO    InstructionNum -- NOTE: vi definerer ikke avfellingsteknikk i knitspeak, men kan tenkes på til senere
+        | KNtog Integer
         | Yo
         | Kfb
         | Ssk
     deriving (Eq, Show, Read)
-
-data YarnPlacement = Wyif | Wyib
+-}
+{-data YarnPlacement = Wyif | Wyib
     deriving (Eq, Show, Read)
+-}
