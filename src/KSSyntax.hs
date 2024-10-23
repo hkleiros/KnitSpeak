@@ -72,9 +72,9 @@ type EndSts = Integer
 type Times = Integer
 
 instance Show Instruction where
-    show (Loop is 0)   = join ["*", intercalate ", " (map show is), ", rep from *"]
-    show (Loop is 1)   = join ["*", intercalate ", " (map show is), ", rep from * to last st"]
-    show (Loop is es)  = join ["*" ,intercalate ", " (map show is), ", rep from * to last ", show es, " sts"]
+    show (Loop is 0)   = join ["*", intercalate ", " (map show is), ", repeat from *"]
+    show (Loop is 1)   = join ["*", intercalate ", " (map show is), ", repeat from * to last st"]
+    show (Loop is es)  = join ["*" ,intercalate ", " (map show is), ", repeat from * to last ", show es, " sts"]
     show (Rep is 2)    = join ["[", intercalate ", " (map show is), "] twice"]
     show (Rep is es)   = join ["[", intercalate ", " (map show is), "] ", show es, " times"]
     show (Knittel  k ) = show k

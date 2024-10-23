@@ -6,6 +6,8 @@ import KSParser           (parseString)
 import System.Exit        (die)
 import System.Environment (getArgs)
 import Data.List (intercalate)
+import Control.Monad (join)
+
 
 run :: Pattern -> IO ()
 run p =
@@ -16,27 +18,35 @@ run p =
        Just e  -> putStrLn ("*** Runtime error: " ++ show e)
 
 {- NOTE: kan denne endres til å ta en mappe, og kjøre alle programmer i den, 
-se hvilke som får feil og hvilke som får like datastrukturer også printe stats 
--}
+se hvilke som får feil og hvilke som får like datastrukturer også printe stats. -}
 main :: IO ()
 main = do args <- getArgs
           case args of
-            ["-i", file] -> do --TODO: fjern? 
+            ["-i", file] -> do -- TODO: fjern? 
               s <- readFile file
               run $ read s
             ["-p", file] -> do
-              s <- readFile file
-              case parseString s of
-                Left e  -> putStrLn $ "*** Parse error: " ++ show e
-                Right p -> putStrLn $ intercalate "\n" (map show p)
+                s <- readFile file
+                case parseString s of
+                    Left e  -> putStrLn $ "*** Parse error: " ++ show e
+                    Right p -> putStrLn $ programStr p
             [file] -> do
-              s <- readFile file
-              case parseString s of
-                Left e -> putStrLn $ "*** Parse error: " ++ show e
-                Right p -> run p
+                s <- readFile file
+                case parseString s of
+                    Left e -> putStrLn $ "*** Parse error: " ++ show e
+                    Right ast -> 
+                        do  putStrLn $ programStr ast
+                            case parseString $ programStr ast of
+                                Left e     -> putStrLn $ "*** Parse error on generated KS: " ++ show e
+                                Right ast2 -> putStrLn $ join ["File: ", file, "\n", "AST are equal: ", show  (ast == ast2), "\n", programStr ast2]
+
             _ ->
-              die "Usage:\n\
-                    \  knitSpeak -p PATTERN.ks    (parse only)"
+                die "Usage:\n\
+                    \  knitSpeak -p PATTERN.ks    (parse only)\n\
+                    \ knitSpeak PATTERN.ks       (parse & interpret)"
                     {-\n\ 
                     \ knitSpeak -i PATTERN.ast    (interpret only)\n\
-                    \  knitSpeak PATTERN.ks       (parse & interpret)"-}
+                    -}
+
+programStr :: Pattern -> String 
+programStr p = intercalate "\n" (map show p)
