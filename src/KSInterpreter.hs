@@ -1,10 +1,10 @@
 module KSInterpreter where 
 
-import KSSyntax
-import Knittels
-import Control.Monad
+import KSSyntax ( Pattern )
+import Knittels ()
+import Control.Monad ()
 import Control.Arrow (second)
-import Data.List
+import Data.List ()
 
 type Output = [String]
 -- TODO: redefiner

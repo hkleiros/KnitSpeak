@@ -1,6 +1,7 @@
 module General where
 import Text.ParserCombinators.Parsec
 import Data.Char (isDigit)
+import Data.Functor (void)
 
 squigly     :: Parser a -> Parser a
 squigly     =  between (skipSymbol "{") (skipSymbol "}")
@@ -11,7 +12,7 @@ parens      =  between (skipSymbol "(") (skipSymbol ")")
 symbol      :: String -> Parser String
 symbol c    =  lexeme (string c) 
 lexeme      :: Parser a -> Parser a
-lexeme p    =  p <* many space
+lexeme p    =  p <* many (void space <|> comment)
 
 skipSymbol   :: String -> Parser ()
 skipSymbol s =  lexeme $ 
@@ -22,3 +23,12 @@ skipSymbol s =  lexeme $
 num :: Parser Integer
 num = do ds <- lexeme $ many1 $ satisfy isDigit
          return (read ds)
+
+
+comment :: Parser ()
+comment = 
+    try (
+        do  skipSymbol "(" 
+            _ <- manyTill anyChar (skipSymbol ")")
+            return ()
+    )

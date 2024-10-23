@@ -5,6 +5,7 @@ import KSInterpreter        (execute)
 import KSParser           (parseString)
 import System.Exit        (die)
 import System.Environment (getArgs)
+import Data.List (intercalate)
 
 run :: Pattern -> IO ()
 run p =
@@ -14,6 +15,9 @@ run p =
        Nothing -> return ()
        Just e  -> putStrLn ("*** Runtime error: " ++ show e)
 
+{- NOTE: kan denne endres til å ta en mappe, og kjøre alle programmer i den, 
+se hvilke som får feil og hvilke som får like datastrukturer også printe stats 
+-}
 main :: IO ()
 main = do args <- getArgs
           case args of
@@ -24,7 +28,7 @@ main = do args <- getArgs
               s <- readFile file
               case parseString s of
                 Left e  -> putStrLn $ "*** Parse error: " ++ show e
-                Right p -> putStrLn $ show p
+                Right p -> putStrLn $ intercalate "\n" (map show p)
             [file] -> do
               s <- readFile file
               case parseString s of

@@ -1,12 +1,19 @@
 module KSParser (ParseError, parseString) where
-import General ( lexeme, parens, skipSymbol, symbol, num)
+import General ( lexeme,  skipSymbol, symbol, num)
 import KSSyntax
+    ( Line(..),
+      Course(..),
+      Instructions,
+      Instruction(..),
+      LineNums,
+      Pattern,
+      EndSts,
+      Times )
 import Prelude hiding (lines) -- NOTE: Kan være lurt å ikke hide dem og heller bytte navn ? 
 import Text.ParserCombinators.Parsec hiding (Line)
-import Data.Char (isDigit)
 import Data.Functor (($>))
 import Data.List (singleton)
-import KnittelParser 
+import KnittelParser ( side, knittel ) 
 
 
 parseString :: String -> Either ParseError Pattern 
@@ -110,84 +117,15 @@ times =
         skipSymbol "times"
         return n
 
-
+{-
 knittels :: Parser Instruction
 knittels = Knittels <$> knittel `sepBy` symbol ","
 
     where sep = do  skipSymbol ","
                     notFollowedBy (skipSymbol "repeat" <|> skipSymbol "[")
                     return ()
+-}
 
-
--- TODO: Knittel! 
-{-
-knittel :: Parser Knittel
-knittel =
-    try (lexeme (
-    do  _ <- string "k" <|> string "K"
-        n <- num
-        notFollowedBy (symbol "tog")
-        return (K n)))
-        {-
-        choice [ (symbol "tog")  $> KNtog ,
-            notFollowedBy (symbol "tog") $> K
-        ]
-        -- NOTE: option parseren? 
-        try ( lexeme (string "tog"
-        return KNtog n)) 
-        -- TODO: Finn ut av hvordan vi skiller mellom k2tog og k2
-            vi bruker try-}
-    <|>
-    try (
-    do  _ <- string "k" <|> string "K"
-        n <- num
-        skipSymbol "tog"
-        return (KNtog n))
-    <|>
-    try (
-    do  _ <- string "p" <|> string "P"
-        n <- lexeme num
-        return (P n))
-    <|>
-    do  skipSymbol "yo" <|> skipSymbol "Yo"
-        return Yo
-    <|>
-    do  skipSymbol "kfb"
-        return Kfb
-    <|>
-    do  skipSymbol "ssk"
-        return Ssk
-    <|>
-    do  skipSymbol "Knit"
-        return Knit
-    <|>
-    do  skipSymbol "Purl"
-        return Purl
-    <|>
-    do  try (skipSymbol "Slip") <|> skipSymbol "sl"
-        n <- num
-        Slip n <$> yarnPlacement-}
-
-{-
-yarnPlacement :: Parser YarnPlacement
-yarnPlacement =
-    do  skipSymbol "wyif"
-        return Wyif
-    <|>
-    do  skipSymbol "wyib"
-        return Wyib
-
-
-side :: Parser Side
-side =
-    do  parens (skipSymbol "RS")
-        return R
-    <|>
-    do  parens (skipSymbol "WS")
-        return W
-    <|>
-    do  return None
-    -}
 
 
 end :: Parser EndSts
