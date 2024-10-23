@@ -47,9 +47,6 @@ line =
 
 
 course :: Parser Course
--- NOTE: kan sikkert forenkles mye 
-{- string "ro" også bestemme basert på ws, w, unds, und ? 
-evt kombinere to og to? -}
 course =
     try (
     do  skipSymbol "Rows"
@@ -74,7 +71,6 @@ instructions :: Parser Instructions
 instructions = instruction `sepBy` try (symbol "," >> notFollowedBy (symbol "repeat"))
 
 
--- TODO: instructions
 instruction :: Parser Instruction
 instruction =
     loop
@@ -117,16 +113,6 @@ times =
         skipSymbol "times"
         return n
 
-{-
-knittels :: Parser Instruction
-knittels = Knittels <$> knittel `sepBy` symbol ","
-
-    where sep = do  skipSymbol ","
-                    notFollowedBy (skipSymbol "repeat" <|> skipSymbol "[")
-                    return ()
--}
-
-
 
 end :: Parser EndSts
 end =
@@ -142,12 +128,11 @@ end =
                 do  skipSymbol "st"
                     return 1
 
--- Numbs
+
 numbs :: Parser LineNums
 numbs = nums `chainl1` separator
     where separator = (try (symbol "," >> symbol "and") <|> symbol "," <|> symbol "and")   $> (++)
 
--- nums
 nums :: Parser LineNums -- lager lister
 nums = try (do  ds <- num
                 notFollowedBy (symbol "-")
@@ -157,7 +142,6 @@ nums = try (do  ds <- num
             y <- num
             return [x..y]
 
--- nzNum
 nzNum :: Parser Integer
 nzNum =
     do  skipSymbol "0"
