@@ -24,6 +24,7 @@ data Knittel = -- riktig bruk av ordet knittel? Blir det slitsomt å definer all
         | KNtog InstructionNum
         | KNtogTBL InstructionNum
         | BO InstructionNum
+
 -- generated from `generate_parser.py`
 
         |   Tbl

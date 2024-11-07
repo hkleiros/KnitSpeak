@@ -14,6 +14,7 @@ import Text.ParserCombinators.Parsec hiding (Line)
 import Data.Functor (($>))
 import Data.List (singleton)
 import KnittelParser ( side, knittel ) 
+import Knittels ( Knittel(Knit, Purl) ) 
 
 
 parseString :: String -> Either ParseError Pattern 
@@ -94,6 +95,15 @@ loop =
         skipSymbol "from"
         skipSymbol "*"
         Loop subs <$> end
+    <|>
+    try(
+    do  skipSymbol "Knit"
+        Loop [Knittel Knit] <$> end )
+    <|> 
+    try (
+    do  skipSymbol "Purl"
+        Loop [Knittel Purl] <$> end ) 
+
 
 
 rep :: Parser Instruction

@@ -58,7 +58,7 @@ knittel =
         return Purl)
     <|>
     try(
-    do  skipSymbol "Slip" <|> skipSymbol "sl"
+    do  try (skipSymbol "Slip") <|> skipSymbol "sl"
         n <- num
         Slip n <$> yarnPlacement)
     <|>
@@ -68,8 +68,8 @@ knittel =
         skipSymbol "sts"
         return (BO n))
     <|>
--- generated from `generate_parser.py`
 
+-- generated from `generate_parser.py`
     
   try(
     do  skipSymbol "tbl"
@@ -610,8 +610,9 @@ knittel =
 
 yarnPlacement :: Parser YarnPlacement
 yarnPlacement =
+    try(
     do  skipSymbol "wyif"
-        return Wyif
+        return Wyif)
     <|>
     do  skipSymbol "wyib"
         return Wyib
