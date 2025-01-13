@@ -31,6 +31,7 @@ library
       Knittels
       KSInterpreter
       Lib
+      Symmetry
       Paths_KnitSpeakParser
   autogen-modules:
       Paths_KnitSpeakParser
@@ -53,6 +54,7 @@ executable KnitSpeakParser-exe
       KSParser
       KSSyntax
       Lib
+      Symmetry
       Paths_KnitSpeakParser
   autogen-modules:
       Paths_KnitSpeakParser

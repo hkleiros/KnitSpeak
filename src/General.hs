@@ -10,7 +10,7 @@ brackets    =  between (skipSymbol "[")  (skipSymbol "]")
 parens      :: Parser a -> Parser a
 parens      =  between (skipSymbol "(") (skipSymbol ")")
 symbol      :: String -> Parser String
-symbol c    =  lexeme (string c) 
+symbol c    =  string c <* many space
 lexeme      :: Parser a -> Parser a
 lexeme p    =  p <* many (void space <|> comment)
 
@@ -22,7 +22,7 @@ skipSymbol (s: ss) =  lexeme $
 
 
 num :: Parser Integer
-num = do ds <- lexeme $ many1 $ satisfy isDigit
+num = do ds <- many1 $ satisfy isDigit <* many space
          return (read ds)
 
 

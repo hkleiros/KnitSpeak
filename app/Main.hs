@@ -36,7 +36,7 @@ main = do args <- getArgs
                     Left e -> putStrLn $ "*** Parse error: " ++ show e
                     Right ast -> 
                             case parseString $ programStr ast of
-                                Left e     -> putStrLn $ "*** Parse error on generated KS: " ++ show e
+                                Left e     -> putStrLn $ "*** Parse error on generated KS: " ++ show e ++ "\n" ++ show ast
                                 Right ast2 -> putStrLn $ join ["File: ", file, "\n", "AST are equal: ", show  (ast == ast2) , "\n", programStr ast2]
 
             _ ->

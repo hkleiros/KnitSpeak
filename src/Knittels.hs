@@ -27,7 +27,7 @@ data Knittel = -- riktig bruk av ordet knittel? Blir det slitsomt å definer all
 
 -- generated from `generate_parser.py`
 
-        |   Tbl
+        | Tbl
         | CO
         | CtrDblInc
         | IncL

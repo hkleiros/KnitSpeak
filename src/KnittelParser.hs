@@ -620,8 +620,9 @@ yarnPlacement =
 
 side :: Parser Side
 side =
+    try(
     do  parens (skipSymbol "RS")
-        return R
+        return R)
     <|>
     do  parens (skipSymbol "WS")
         return W
