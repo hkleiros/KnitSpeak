@@ -70,8 +70,9 @@ knittel =
     <|>
 
 -- generated from `generate_parser.py`
+
     
-  try(
+    try(
     do  skipSymbol "tbl"
         return Tbl)
     <|>
@@ -628,5 +629,3 @@ side =
         return W
     <|>
     do  return None
-
-         

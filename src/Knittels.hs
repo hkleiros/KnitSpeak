@@ -13,7 +13,7 @@ instance Show YarnPlacement where
     show Wyif = " wyif"
     show Wyib = " wyib"
 
-
+    
 data Knittel = -- riktig bruk av ordet knittel? Blir det slitsomt å definer alle 252 på denne måten? 
           K     InstructionNum
         | KTBL  InstructionNum
@@ -27,7 +27,6 @@ data Knittel = -- riktig bruk av ordet knittel? Blir det slitsomt å definer all
 
 -- generated from `generate_parser.py`
 
-        | Tbl
         | CO
         | CtrDblInc
         | IncL
@@ -128,7 +127,6 @@ instance Show Knittel where
     show (KNtogTBL n1)                    = join ["k", show n1, "tog tbl"]
     show (BO n)                           = join ["BO ", show n, " sts"]
 
-    show Tbl                              = "tbl"
     show CO                               = "CO"
     show CtrDblInc                        = "ctr dbl inc"
     show IncL                             = "incL"
