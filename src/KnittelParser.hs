@@ -2,235 +2,201 @@ module KnittelParser where
 import KSSyntax
 import Knittels
 import Text.ParserCombinators.Parsec
-import General 
+import General
+
+tbl :: Parser (Maybe TBL)
+tbl =   try (do skipSymbol  "tbl"
+                return (Just TBL))
+        <|>
+        return Nothing
+
 
 knittel :: Parser Knittel
 knittel =
-    try(
-    do  skipSymbol "k" <|> skipSymbol "K"
-        n <- num
-        skipSymbol "tbl" 
-        return (KTBL n))
-    <|>
-    try(
-    do  skipSymbol "k" <|> skipSymbol "K"
-        n <- num
-        notFollowedBy (symbol "tog" <|> symbol "tbl")
-        return (K n))
-    <|>
     try (
-    do  skipSymbol "k"
-        n1 <- num
-        skipSymbol "tog"
-        skipSymbol "tbl"
-        return (KNtogTBL  n1))
+    do  skipSymbol "k" <|> skipSymbol "K"
+        n <- num
+        notFollowedBy (symbol "tog")
+        KInst (K n) . KArity 1 <$> tbl)
     <|>
     try (
     do  skipSymbol "k" <|> skipSymbol "K"
         n1 <- num
         skipSymbol "tog"
-        return (KNtog  n1))
+        KInst (KNtog  n1) . KArity 2 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "p" <|> skipSymbol "P"
         n <- num
         notFollowedBy (symbol "tog")
-        return (P n))
+        KInst (P n) . KArity 1 <$> tbl)
     <|>
-    try(
-    do  skipSymbol "yo" <|> skipSymbol "Yo"
-        return Yo)
-    <|>
-    try(
-    do  skipSymbol "kfb"
-        return Kfb)
-    <|>
-    try(
-    do  skipSymbol "ssk"
-        return Ssk)
-    <|>
-    try(
+    try (
     do  skipSymbol "Knit"
-        return Knit)
+        KInst Knit . KArity (-1) <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "Purl"
-        return Purl)
+        KInst Purl . KArity (-1) <$> tbl)
     <|>
-    try(
+    try (
     do  try (skipSymbol "Slip") <|> skipSymbol "sl"
         n <- num
-        Slip n <$> yarnPlacement)
+        yp <- yarnPlacement
+        KInst (Slip n yp) . KArity 1 <$> tbl)
     <|>
-    try(
-    do  skipSymbol "BO" 
+    try (  -- TODO: make number optional 
+    do  skipSymbol "BO"
         n <- num
         skipSymbol "sts"
-        return (BO n))
+        KInst (BO n) . KArity 1 <$> tbl)
     <|>
 
 -- generated from `generate_parser.py`
 
-    
-    try(
-    do  skipSymbol "tbl"
-        return Tbl)
-    <|>
-    try(
+    try (
     do  skipSymbol "CO"
-        return CO)
+        KInst CO . KArity 1 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "ctr"
         skipSymbol "dbl"
         skipSymbol "inc"
-        return CtrDblInc)
+        KInst CtrDblInc . KArity 1 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "incL"
-        return IncL)
+        KInst IncL . KArity 0 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "incLp"
-        return IncLp)
+        KInst IncLp . KArity 0 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "incR"
-        return IncR)
+        KInst IncR . KArity 0 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "incRp"
-        return IncRp)
+        KInst IncRp . KArity 0 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "kfb"
-        return Kfb)
+        KInst Kfb . KArity 1 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "pfb"
-        return Pfb)
+        KInst Pfb . KArity 1 <$> tbl)
     <|>
-    try(
-    do  skipSymbol "st"
-        return St)
-    <|>
-    try(
+    try (
     do  skipSymbol "yo"
-        return Yo)
+        KInst Yo . KArity 0 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "bunny"
         skipSymbol "ears"
         skipSymbol "back"
         skipSymbol "dec"
-        return BunnyEarsBackDec)
+        KInst BunnyEarsBackDec . KArity 3 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "bunny"
         skipSymbol "ears"
         skipSymbol "back"
         skipSymbol "yo"
-        return BunnyEarsBackYo)
+        KInst BunnyEarsBackYo . KArity 3 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "bunny"
         skipSymbol "ears"
         skipSymbol "dec"
-        return BunnyEarsDec)
+        KInst BunnyEarsDec . KArity 3 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "bunny"
         skipSymbol "ears"
         skipSymbol "yo"
-        return BunnyEarsYo)
+        KInst BunnyEarsYo . KArity 3 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "cdd"
         skipSymbol "twisted"
-        return CddTwisted)
+        KInst CddTwisted . KArity 3 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "cddp"
-        return Cddp)
+        KInst Cddp . KArity 3 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "cddp"
         skipSymbol "twisted"
-        return CddpTwisted)
+        KInst CddpTwisted . KArity 3 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "ssk"
-        return Ssk)
+        KInst Ssk . KArity 2 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "ssp"
-        return Ssp)
+        KInst Ssp . KArity 2 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "sssp"
-        return Sssp)
+        KInst Sssp . KArity 3 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "KBL"
-        return KBL)
+        KInst KBL . KArity 1 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "KBR"
-        return KBR)
+        KInst KBR . KArity 1 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "PB"
-        return PB)
+        KInst PB . KArity 0 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "PBk"
-        return PBk)
+        KInst PBk . KArity 1 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "PBp"
-        return PBp)
+        KInst PBp . KArity 1 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "PBsl"
-        return PBsl)
+        KInst PBsl . KArity 1 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "SB"
-        return SB)
+        KInst SB . KArity 0 <$> tbl)
     <|>
-    try(
-    do  skipSymbol "cn"
-        return Cn)
-    <|>
-    try(
-    do  skipSymbol "sts"
-        return Sts)
-    <|>
-    try(
+    try (
     do  skipSymbol "brSl"
-        return BrSl)
+        KInst BrSl . KArity 1 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "dip"
         skipSymbol "st"
-        return DipSt)
+        KInst DipSt . KArity 1 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "drop"
         skipSymbol "st"
-        return DropSt)
+        KInst DropSt . KArity 1 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "MB"
-        return MB)
+        KInst MB . KArity 1 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "MK"
-        return MK)
+        KInst MK . KArity 1 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "w&t"
-        return WAndt)
+        KInst WAndt . KArity 1 <$> tbl)
     <|>
 
     -- Combined knittels: 1_to_4Inc 1_to_5Inc 1_to_6Inc 1_to_7Inc 1_to_8Inc 1_to_9Inc
@@ -241,23 +207,23 @@ knittel =
         skipSymbol "-"
         n2 <- num
         skipSymbol "inc"
-        return (N_to_NInc  n1 n2))
+        KInst (N_to_NInc  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "M1L"
-        return M1L)
+        KInst M1L . KArity 1 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "M1Lp"
-        return M1Lp)
+        KInst M1Lp . KArity 1 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "M1R"
-        return M1R)
+        KInst M1R . KArity 1 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "M1Rp"
-        return M1Rp)
+        KInst M1Rp . KArity 1 <$> tbl)
     <|>
     -- Combined knittels: K2togTwisted K3togTwisted
     try (
@@ -265,14 +231,14 @@ knittel =
         n1 <- num
         skipSymbol "tog"
         skipSymbol "twisted"
-        return (KNtogTwisted  n1))
+        KInst (KNtogTwisted  n1) . KArity (sum [n1]) <$> tbl)
     <|>
     -- Combined knittels: P2tog P3tog P4tog P5tog P6tog P7tog P8tog P9tog
     try (
     do  skipSymbol "p"
         n1 <- num
         skipSymbol "tog"
-        return (PNtog  n1))
+        KInst (PNtog  n1) . KArity (sum [n1]) <$> tbl)
     <|>
     -- Combined knittels: P2togTwisted P3togTwisted
     try (
@@ -280,36 +246,36 @@ knittel =
         n1 <- num
         skipSymbol "tog"
         skipSymbol "twisted"
-        return (PNtogTwisted  n1))
+        KInst (PNtogTwisted  n1) . KArity (sum [n1]) <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "sl1-k2tog-psso"
-        return Sl1_k2tog_psso)
+        KInst Sl1_k2tog_psso . KArity 3 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "sl2-k1-p2sso"
-        return Sl2_k1_p2sso)
+        KInst Sl2_k1_p2sso . KArity 3 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "sl1"
         skipSymbol "wb"
-        return Sl1Wb)
+        KInst Sl1Wb . KArity 1 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "p2so-yo-k1"
-        return P2so_yo_k1)
+        KInst P2so_yo_k1 . KArity 2 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "p3so-k1-yo-k1"
-        return P3so_k1_yo_k1)
+        KInst P3so_k1_yo_k1 . KArity 3 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "p3so-k1-yo-ssk"
-        return P3so_k1_yo_ssk)
+        KInst P3so_k1_yo_ssk . KArity 4 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "sl1-k1-yo-k1-psso"
-        return Sl1_k1_yo_k1_psso)
+        KInst Sl1_k1_yo_k1_psso . KArity 3 <$> tbl)
     <|>
     -- Combined knittels: Sl1_k1_yo_psso Sl1_k2_yo_psso
     try (
@@ -322,7 +288,7 @@ knittel =
         skipSymbol "yo"
         skipSymbol "-"
         skipSymbol "psso"
-        return (SlN_kN_yo_psso  n1 n2))
+        KInst (SlN_kN_yo_psso  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
     -- Combined knittels: Sl1_k2_psso Sl1_k3_psso
     try (
@@ -333,7 +299,7 @@ knittel =
         n2 <- num
         skipSymbol "-"
         skipSymbol "psso"
-        return (SlN_kN_psso  n1 n2))
+        KInst (SlN_kN_psso  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
     -- Combined knittels: Sl1_p2_psso Sl1_p3_psso
     try (
@@ -344,11 +310,11 @@ knittel =
         n2 <- num
         skipSymbol "-"
         skipSymbol "psso"
-        return (SlN_pN_psso  n1 n2))
+        KInst (SlN_pN_psso  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "sl1-p3so-k2tog-yo-k1"
-        return Sl1_p3so_k2tog_yo_k1)
+        KInst Sl1_p3so_k2tog_yo_k1 . KArity 4 <$> tbl)
     <|>
     -- Combined knittels: Yo_k2_pyo Yo_k3_pyo
     try (
@@ -358,7 +324,7 @@ knittel =
         n1 <- num
         skipSymbol "-"
         skipSymbol "pyo"
-        return (Yo_kN_pyo  n1))
+        KInst (Yo_kN_pyo  n1) . KArity (sum [n1]) <$> tbl)
     <|>
     -- Combined knittels: Yo_p2_pyo Yo_p3_pyo
     try (
@@ -368,7 +334,7 @@ knittel =
         n1 <- num
         skipSymbol "-"
         skipSymbol "pyo"
-        return (Yo_pN_pyo  n1))
+        KInst (Yo_pN_pyo  n1) . KArity (sum [n1]) <$> tbl)
     <|>
     -- Combined knittels: 2_to_2Gather 2_to_3Gather 2_to_5Gather 2_to_7Gather 2_to_9Gather 3_to_2Gather 3_to_3Gather 3_to_5Gather 3_to_7Gather 3_to_9Gather 5_to_3Gather 5_to_5Gather 5_to_7Gather 5_to_9Gather 7_to_3Gather 7_to_5Gather 7_to_7Gather 7_to_9Gather
     try (
@@ -378,14 +344,14 @@ knittel =
         skipSymbol "-"
         n2 <- num
         skipSymbol "gather"
-        return (N_to_NGather  n1 n2))
+        KInst (N_to_NGather  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
     -- Combined knittels: Wrap2Sts Wrap3Sts Wrap4Sts Wrap5Sts Wrap6Sts Wrap7Sts Wrap8Sts Wrap9Sts
     try (
     do  skipSymbol "wrap"
         n1 <- num
         skipSymbol "sts"
-        return (WrapNSts  n1))
+        KInst (WrapNSts  n1) . KArity (sum [n1]) <$> tbl)
     <|>
     -- Combined knittels: 1'1LeftThreadThru 2'2LeftThreadThru 3'3LeftThreadThru 4'4LeftThreadThru 5'5LeftThreadThru
     try (
@@ -395,7 +361,7 @@ knittel =
         skipSymbol "left"
         skipSymbol "thread"
         skipSymbol "thru"
-        return (N'NLeftThreadThru  n1 n2))
+        KInst (N'NLeftThreadThru  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
     -- Combined knittels: 1'1PurledLeftThreadThru 2'2PurledLeftThreadThru 3'3PurledLeftThreadThru 4'4PurledLeftThreadThru 5'5PurledLeftThreadThru
     try (
@@ -406,7 +372,7 @@ knittel =
         skipSymbol "left"
         skipSymbol "thread"
         skipSymbol "thru"
-        return (N'NPurledLeftThreadThru  n1 n2))
+        KInst (N'NPurledLeftThreadThru  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
     -- Combined knittels: 1'1RightThreadThru 2'2RightThreadThru 3'3RightThreadThru 4'4RightThreadThru 5'5RightThreadThru
     try (
@@ -416,7 +382,7 @@ knittel =
         skipSymbol "right"
         skipSymbol "thread"
         skipSymbol "thru"
-        return (N'NRightThreadThru  n1 n2))
+        KInst (N'NRightThreadThru  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
     -- Combined knittels: 1'1PurledRightThreadThru 2'2PurledRightThreadThru 3'3PurledRightThreadThru 4'4PurledRightThreadThru 5'5PurledRightThreadThru
     try (
@@ -427,7 +393,7 @@ knittel =
         skipSymbol "right"
         skipSymbol "thread"
         skipSymbol "thru"
-        return (N'NPurledRightThreadThru  n1 n2))
+        KInst (N'NPurledRightThreadThru  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
     -- Combined knittels: 1'1LC 1'2LC 1'3LC 2'1LC 2'2LC 2'3LC 3'1LC 3'2LC 3'3LC 4'1LC 4'2LC 4'3LC 4'4LC 5'5LC 6'6LC 7'7LC 8'8LC
     try (
@@ -435,7 +401,7 @@ knittel =
         skipSymbol "/"
         n2 <- num
         skipSymbol "LC"
-        return (N'NLC  n1 n2))
+        KInst (N'NLC  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
     -- Combined knittels: 1'1LPC 1'2LPC 1'3LPC 2'1LPC 2'2LPC 2'3LPC 3'1LPC 3'2LPC 3'3LPC 4'1LPC 4'2LPC 4'3LPC 4'4LPC
     try (
@@ -443,7 +409,7 @@ knittel =
         skipSymbol "/"
         n2 <- num
         skipSymbol "LPC"
-        return (N'NLPC  n1 n2))
+        KInst (N'NLPC  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
     -- Combined knittels: 1'1LT 1'2LT 2'1LT
     try (
@@ -451,7 +417,7 @@ knittel =
         skipSymbol "/"
         n2 <- num
         skipSymbol "LT"
-        return (N'NLT  n1 n2))
+        KInst (N'NLT  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
     -- Combined knittels: 1'1LPT 1'2LPT 2'1LPT
     try (
@@ -459,7 +425,7 @@ knittel =
         skipSymbol "/"
         n2 <- num
         skipSymbol "LPT"
-        return (N'NLPT  n1 n2))
+        KInst (N'NLPT  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
     -- Combined knittels: 1'1LSC 1'2LSC 1'3LSC
     try (
@@ -467,12 +433,12 @@ knittel =
         skipSymbol "/"
         n2 <- num
         skipSymbol "LSC"
-        return (N'NLSC  n1 n2))
+        KInst (N'NLSC  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "1/1"
         skipSymbol "LSAC"
-        return One'1LSAC)
+        KInst One'1LSAC . KArity 2 <$> tbl)
     <|>
     -- Combined knittels: 1'1'1LC 1'2'1LC 2'1'2LC 2'2'2LC 3'1'3LC
     try (
@@ -482,7 +448,7 @@ knittel =
         skipSymbol "/"
         n3 <- num
         skipSymbol "LC"
-        return (N'N'NLC  n1 n2 n3))
+        KInst (N'N'NLC  n1 n2 n3) . KArity (sum [n1, n2, n3]) <$> tbl)
     <|>
     -- Combined knittels: 1'1'1LPC 1'2'1LPC 2'1'2LPC 2'2'2LPC 3'1'3LPC
     try (
@@ -492,17 +458,17 @@ knittel =
         skipSymbol "/"
         n3 <- num
         skipSymbol "LPC"
-        return (N'N'NLPC  n1 n2 n3))
+        KInst (N'N'NLPC  n1 n2 n3) . KArity (sum [n1, n2, n3]) <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "1/1/1"
         skipSymbol "LT"
-        return One'1'1LT)
+        KInst One'1'1LT . KArity 3 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "1/1/1"
         skipSymbol "LPT"
-        return One'1'1LPT)
+        KInst One'1'1LPT . KArity 3 <$> tbl)
     <|>
     -- Combined knittels: 1'1'1LCC 1'2'1LCC 2'1'2LCC 2'2'2LCC
     try (
@@ -512,7 +478,7 @@ knittel =
         skipSymbol "/"
         n3 <- num
         skipSymbol "LCC"
-        return (N'N'NLCC  n1 n2 n3))
+        KInst (N'N'NLCC  n1 n2 n3) . KArity (sum [n1, n2, n3]) <$> tbl)
     <|>
     -- Combined knittels: 1'1RC 1'2RC 1'3RC 2'1RC 2'2RC 2'3RC 3'1RC 3'2RC 3'3RC 4'1RC 4'2RC 4'3RC 4'4RC 5'5RC 6'6RC 7'7RC 8'8RC
     try (
@@ -520,7 +486,7 @@ knittel =
         skipSymbol "/"
         n2 <- num
         skipSymbol "RC"
-        return (N'NRC  n1 n2))
+        KInst (N'NRC  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
     -- Combined knittels: 1'1RPC 1'2RPC 1'3RPC 2'1RPC 2'2RPC 2'3RPC 3'1RPC 3'2RPC 3'3RPC 4'1RPC 4'2RPC 4'3RPC 4'4RPC
     try (
@@ -528,7 +494,7 @@ knittel =
         skipSymbol "/"
         n2 <- num
         skipSymbol "RPC"
-        return (N'NRPC  n1 n2))
+        KInst (N'NRPC  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
     -- Combined knittels: 1'1RT 1'2RT 2'1RT
     try (
@@ -536,7 +502,7 @@ knittel =
         skipSymbol "/"
         n2 <- num
         skipSymbol "RT"
-        return (N'NRT  n1 n2))
+        KInst (N'NRT  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
     -- Combined knittels: 1'1RPT 1'2RPT 2'1RPT
     try (
@@ -544,7 +510,7 @@ knittel =
         skipSymbol "/"
         n2 <- num
         skipSymbol "RPT"
-        return (N'NRPT  n1 n2))
+        KInst (N'NRPT  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
     -- Combined knittels: 1'1RSC 1'2RSC 1'3RSC
     try (
@@ -552,12 +518,12 @@ knittel =
         skipSymbol "/"
         n2 <- num
         skipSymbol "RSC"
-        return (N'NRSC  n1 n2))
+        KInst (N'NRSC  n1 n2) . KArity (sum [n1, n2]) <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "1/1"
         skipSymbol "RSAC"
-        return One'1RSAC)
+        KInst One'1RSAC . KArity 2 <$> tbl)
     <|>
     -- Combined knittels: 1'1'1RC 1'2'1RC 2'1'2RC 2'2'2RC 3'1'3RC
     try (
@@ -567,7 +533,7 @@ knittel =
         skipSymbol "/"
         n3 <- num
         skipSymbol "RC"
-        return (N'N'NRC  n1 n2 n3))
+        KInst (N'N'NRC  n1 n2 n3) . KArity (sum [n1, n2, n3]) <$> tbl)
     <|>
     -- Combined knittels: 1'1'1RPC 1'2'1RPC 2'1'2RPC 2'2'2RPC 3'1'3RPC
     try (
@@ -577,17 +543,17 @@ knittel =
         skipSymbol "/"
         n3 <- num
         skipSymbol "RPC"
-        return (N'N'NRPC  n1 n2 n3))
+        KInst (N'N'NRPC  n1 n2 n3) . KArity (sum [n1, n2, n3]) <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "1/1/1"
         skipSymbol "RT"
-        return One'1'1RT)
+        KInst One'1'1RT . KArity 3 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "1/1/1"
         skipSymbol "RPT"
-        return One'1'1RPT)
+        KInst One'1'1RPT . KArity 3 <$> tbl)
     <|>
     -- Combined knittels: 1'1'1RCC 1'2'1RCC 2'1'2RCC 2'2'2RCC
     try (
@@ -597,21 +563,21 @@ knittel =
         skipSymbol "/"
         n3 <- num
         skipSymbol "RCC"
-        return (N'N'NRCC  n1 n2 n3))
+        KInst (N'N'NRCC  n1 n2 n3) . KArity (sum [n1, n2, n3]) <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "k1"
         skipSymbol "below"
-        return K1Below)
+        KInst K1Below . KArity 0 <$> tbl)
     <|>
-    try(
+    try (
     do  skipSymbol "p1"
         skipSymbol "below"
-        return P1Below)
+        KInst P1Below . KArity 0 <$> tbl)
 
 yarnPlacement :: Parser YarnPlacement
 yarnPlacement =
-    try(
+    try (
     do  skipSymbol "wyif"
         return Wyif)
     <|>
@@ -621,7 +587,7 @@ yarnPlacement =
 
 side :: Parser Side
 side =
-    try(
+    try (
     do  parens (skipSymbol "RS")
         return R)
     <|>

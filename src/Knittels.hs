@@ -1,8 +1,22 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use camelCase" #-}
 
-module Knittels where
-import Control.Monad ( join )
+module Knittels (Knittel(..), KName(..), KArity(..), TBL(..), InstructionNum, YarnPlacement(..)) where
+import Control.Monad (join)
+import Data.Maybe (isNothing)
+
+data Knittel = KInst KName KArity deriving (Eq, Read)
+
+instance Show Knittel where
+    show (KInst k (KArity _ t))
+        | t == Just TBL = join [show k, " tbl"]
+        | isNothing t   = show k
+
+data KArity = KArity Integer (Maybe TBL)
+        deriving(Show, Eq, Read)
+
+data TBL = TBL
+        deriving(Show, Eq, Read)
 
 type InstructionNum = Integer 
 
@@ -13,16 +27,14 @@ instance Show YarnPlacement where
     show Wyif = " wyif"
     show Wyib = " wyib"
 
-    
-data Knittel = -- riktig bruk av ordet knittel? Blir det slitsomt å definer alle 252 på denne måten? 
+
+data KName = -- riktig bruk av ordet knittel? Blir det slitsomt å definer alle 252 på denne måten? 
           K     InstructionNum
-        | KTBL  InstructionNum
         | P     InstructionNum
-        | Slip  InstructionNum YarnPlacement
         | Knit  -- NOTE: bør mulighens være en instruction fordi den omhandler hele raden
         | Purl  -- NOTE: samme som over
+        | Slip  InstructionNum YarnPlacement
         | KNtog InstructionNum
-        | KNtogTBL InstructionNum
         | BO InstructionNum
 
 -- generated from `generate_parser.py`
@@ -35,7 +47,6 @@ data Knittel = -- riktig bruk av ordet knittel? Blir det slitsomt å definer all
         | IncRp
         | Kfb
         | Pfb
-        | St
         | Yo
         | BunnyEarsBackDec
         | BunnyEarsBackYo
@@ -54,8 +65,6 @@ data Knittel = -- riktig bruk av ordet knittel? Blir det slitsomt å definer all
         | PBp
         | PBsl
         | SB
-        | Cn
-        | Sts
         | BrSl
         | DipSt
         | DropSt
@@ -116,15 +125,13 @@ data Knittel = -- riktig bruk av ordet knittel? Blir det slitsomt å definer all
         | P1Below
     deriving (Eq, Read)
 
-instance Show Knittel where
+instance Show KName where
     show (K n)                            = join ["k", show n]
-    show (KTBL n)                         = join ["k", show n, " tbl"]
     show (P n)                            = join ["p", show n]
-    show (Slip n yp)                      = join ["sl", show n, show yp]
     show Knit                             = "Knit"
     show Purl                             = "Purl"
+    show (Slip n yp)                      = join ["sl", show n, show yp]
     show (KNtog n1)                       = join ["k", show n1, "tog"]
-    show (KNtogTBL n1)                    = join ["k", show n1, "tog tbl"]
     show (BO n)                           = join ["BO ", show n, " sts"]
 
     show CO                               = "CO"
@@ -135,7 +142,6 @@ instance Show Knittel where
     show IncRp                            = "incRp"
     show Kfb                              = "kfb"
     show Pfb                              = "pfb"
-    show St                               = "st"
     show Yo                               = "yo"
     show BunnyEarsBackDec                 = "bunny ears back dec"
     show BunnyEarsBackYo                  = "bunny ears back yo"
@@ -154,8 +160,6 @@ instance Show Knittel where
     show PBp                              = "PBp"
     show PBsl                             = "PBsl"
     show SB                               = "SB"
-    show Cn                               = "cn"
-    show Sts                              = "sts"
     show BrSl                             = "brSl"
     show DipSt                            = "dip st"
     show DropSt                           = "drop st"
