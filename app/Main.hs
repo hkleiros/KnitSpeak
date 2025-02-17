@@ -3,6 +3,7 @@ module Main (main) where
 import KSSyntax
 import KSInterpreter        (execute)
 import KSParser           (parseString)
+import Symmetry           (symmetrical, mirror)
 import System.Exit        (die)
 import System.Environment (getArgs)
 import Data.List (intercalate)
@@ -22,30 +23,43 @@ se hvilke som får feil og hvilke som får like datastrukturer også printe stat
 main :: IO ()
 main = do args <- getArgs
           case args of
-            ["-i", file] -> do -- TODO: fjern? 
+            {-["-i", file] -> do -- TODO: fjern? 
               s <- readFile file
-              run $ read s
+              run $ read s -} 
             ["-p", file] -> do
                 s <- readFile file
                 case parseString s of
                     Left e  -> putStrLn $ "*** Parse error: " ++ show e
                     Right p -> putStrLn $ programStr p
+            ["-s", file] -> do
+                s <- readFile file
+                case parseString s of
+                    Left e   -> putStrLn $ "*** Parse error: " ++ show e
+                    Right p  -> putStrLn $ join ["Pattern is symmetrical?", show (p == symmetrical p), "\n\nInverted and reversed:", programStr p, "\n\n", programStr $ symmetrical p]
+            ["-l", file] -> do
+                s <- readFile file
+                case parseString s of
+                    Left e   -> putStrLn $ "*** Parse error: " ++ show e
+                    Right p  -> putStrLn $ join ["Pattern is equal?", show (p == invert p), "\n\nInverted", programStr p, "\n\n", programStr $ invert p]
+            
             [file] -> do
                 s <- readFile file
                 case parseString s of
                     Left e -> putStrLn $ "*** Parse error: " ++ show e
-                    Right ast -> 
+                    Right ast ->
                             case parseString $ programStr ast of
                                 Left e     -> putStrLn $ "*** Parse error on generated KS: " ++ show e ++ "\n" ++ show ast
-                                Right ast2 -> putStrLn $ join ["File: ", file, "\n", "AST are equal: ", show  (ast == ast2) , "\n", programStr ast2]
+                                Right ast2 -> putStrLn $ join ["File: ", file, "\n", "ASTs are equal: ", show  (ast == ast2) , "\n", programStr ast2]
 
             _ ->
                 die "Usage:\n\
-                    \  knitSpeak -p PATTERN.ks    (parse only)\n\
-                    \ knitSpeak PATTERN.ks       (parse & interpret)"
+                    \ knitSpeak -p PATTERN.ks    (parse only)\n\
+                    \ knitSpeak -s PATTERN.ks    (mirror)\n\
+                    \ knitSpeak -l PATTERN.ks    (invert operations)\n\
+                    \ knitSpeak    PATTERN.ks    (parse & assert show works propperly)\n"
                     {-\n\ 
-                    \ knitSpeak -i PATTERN.ast    (interpret only)\n\
+                    \ knitSpeak -i PATTERN.ast   (interpret only)\n\
                     -}
 
-programStr :: Pattern -> String 
-programStr p = intercalate "\n" (map show p)
+programStr :: Pattern -> String
+programStr p = intercalate "\n" $ map show p

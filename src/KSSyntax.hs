@@ -22,7 +22,7 @@ data Side = R | W | None
 
 type Instructions = [Instruction]
 
--- NOTE: ønsker vi å ikke tillate mer enn en loop i lista og hindre at vi har loops med loops, reps med reps etc.?
+-- NOTE: vi burde kanskje sjekke at det ikke er loops i loops? 
 data Instruction =
       Loop Instructions EndSts
     | Rep Instructions Times 

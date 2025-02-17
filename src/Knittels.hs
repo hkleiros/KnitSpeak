@@ -5,14 +5,14 @@ module Knittels (Knittel(..), KName(..), KArity(..), TBL(..), InstructionNum, Ya
 import Control.Monad (join)
 import Data.Maybe (isNothing)
 
-data Knittel = KInst KName KArity deriving (Eq, Read)
+data Knittel = KInst KName KArity (Maybe TBL) deriving (Eq, Read)
 
 instance Show Knittel where
-    show (KInst k (KArity _ t))
+    show (KInst k (KArity _) t)
         | t == Just TBL = join [show k, " tbl"]
         | isNothing t   = show k
 
-data KArity = KArity Integer (Maybe TBL)
+newtype KArity = KArity Integer
         deriving(Show, Eq, Read)
 
 data TBL = TBL

@@ -13,8 +13,8 @@ import Prelude hiding (lines) -- NOTE: Kan være lurt å ikke hide dem og heller
 import Text.ParserCombinators.Parsec hiding (Line)
 import Data.Functor (($>))
 import Data.List (singleton)
-import KnittelParser ( side, knittel )
-import Knittels (Knittel(..), KName (Knit, Purl), KArity (..), TBL)
+import KnittelParser ( side, knittel, tbl)
+import Knittels (Knittel(..), KName (Knit, Purl), KArity (..))
 
 
 parseString :: String -> Either ParseError Pattern
@@ -98,11 +98,13 @@ loop =
     <|>
     try (
     do  skipSymbol "Knit"
-        Loop [Knittel (KInst Knit (KArity (-1) Nothing))] <$> end )
+        t <- tbl
+        Loop [Knittel (KInst Knit (KArity (-1)) t)] <$> end )
     <|>
     try (
     do  skipSymbol "Purl"
-        Loop [Knittel (KInst Purl (KArity (-1) Nothing))] <$> end )
+        t <- tbl
+        Loop [Knittel (KInst Purl (KArity (-1)) t)] <$> end )
 
 
 
