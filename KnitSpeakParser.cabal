@@ -26,12 +26,14 @@ library
       KSSyntax
       KSParser
   other-modules:
+      Flip
       General
       KnittelParser
       Knittels
       KSInterpreter
       Lib
-      Symmetry
+      Minimize
+      Mirror
       Paths_KnitSpeakParser
   autogen-modules:
       Paths_KnitSpeakParser
@@ -47,6 +49,7 @@ library
 executable KnitSpeakParser-exe
   main-is: Main.hs
   other-modules:
+      Flip
       General
       KnittelParser
       Knittels
@@ -54,7 +57,8 @@ executable KnitSpeakParser-exe
       KSParser
       KSSyntax
       Lib
-      Symmetry
+      Minimize
+      Mirror
       Paths_KnitSpeakParser
   autogen-modules:
       Paths_KnitSpeakParser

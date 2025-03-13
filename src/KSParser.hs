@@ -20,8 +20,8 @@ import Knittels (Knittel(..), KName (Knit, Purl), KArity (..))
 parseString :: String -> Either ParseError Pattern
 parseString s =
     case parse patternParser "" s of
-        Left  error -> Left error
-        Right e    -> return e
+        Left  e -> Left e
+        Right r -> return r
     where
         patternParser =
             do lexeme (return ())
@@ -154,7 +154,7 @@ nums = try (do  ds <- num
             y <- num
             return [x..y]
 
-nzNum :: Parser Integer
+nzNum :: Parser Int
 nzNum =
     do  skipSymbol "0"
         unexpected "0 is not a valid number of times"

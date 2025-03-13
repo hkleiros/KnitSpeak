@@ -51,19 +51,28 @@ knittel =
         yp <- yarnPlacement 
         KInst (Slip n yp) (KArity 1) <$> tbl)
     <|>
-    try(  -- TODO: make number optional 
+    try(  
     do  skipSymbol "BO" 
         n <- num
         skipSymbol "sts"
-        KInst (BO n) (KArity 1) <$> tbl)
+        KInst (BO (Just n)) (KArity 1) <$> tbl)
     <|>
-
--- generated from `generate_parser.py`
-
+    try(
+    do  skipSymbol "BO"
+        KInst (BO Nothing) (KArity 1) <$> tbl)
+    <|>
+    try(  -- TODO: make number optional 
+    do  skipSymbol "CO" 
+        n <- num
+        skipSymbol "sts"
+        KInst (CO (Just n)) (KArity 1) <$> tbl)
+    <|>
     try(
     do  skipSymbol "CO"
-        KInst CO (KArity 1) <$> tbl)
+        KInst (CO Nothing) (KArity 1) <$> tbl)
     <|>
+-- generated from `generate_parser.py`
+
     try(
     do  skipSymbol "ctr"
         skipSymbol "dbl"

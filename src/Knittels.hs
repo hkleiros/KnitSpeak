@@ -12,13 +12,13 @@ instance Show Knittel where
         | t == Just TBL = join [show k, " tbl"]
         | isNothing t   = show k
 
-newtype KArity = KArity Integer
+newtype KArity = KArity Int
         deriving(Show, Eq, Read)
 
 data TBL = TBL
         deriving(Show, Eq, Read)
 
-type InstructionNum = Integer 
+type InstructionNum = Int 
 
 data YarnPlacement = Wyif | Wyib
     deriving (Eq, Read)
@@ -35,11 +35,11 @@ data KName = -- riktig bruk av ordet knittel? Blir det slitsomt å definer alle 
         | Purl  -- NOTE: samme som over
         | Slip  InstructionNum YarnPlacement
         | KNtog InstructionNum
-        | BO InstructionNum
+        | BO    (Maybe InstructionNum)
+        | CO    (Maybe InstructionNum)
 
 -- generated from `generate_parser.py`
 
-        | CO
         | CtrDblInc
         | IncL
         | IncLp
@@ -132,9 +132,11 @@ instance Show KName where
     show Purl                             = "Purl"
     show (Slip n yp)                      = join ["sl", show n, show yp]
     show (KNtog n1)                       = join ["k", show n1, "tog"]
-    show (BO n)                           = join ["BO ", show n, " sts"]
+    show (BO (Just n))                    = join ["BO ", show n, " sts"]
+    show (BO Nothing)                     = "BO"
+    show (CO (Just n))                    = join ["CO", show n, " sts"]
+    show (CO Nothing)                     = "CO"
 
-    show CO                               = "CO"
     show CtrDblInc                        = "ctr dbl inc"
     show IncL                             = "incL"
     show IncLp                            = "incLp"

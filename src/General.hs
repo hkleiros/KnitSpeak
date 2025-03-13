@@ -21,7 +21,7 @@ skipSymbol (s: ss) =  lexeme $
         return ()
 
 
-num :: Parser Integer
+num :: Parser Int
 num = do ds <- many1 $ satisfy isDigit <* many space
          return (read ds)
 
