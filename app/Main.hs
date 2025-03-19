@@ -5,7 +5,7 @@ import KSSyntax
 import KSParser             (parseString)
 import Mirror               (mirror, invert)
 import Flip                 (flipPattern)
-import Minimize             (minimize)
+import Minimize             (minimize, unroll)
 import System.Environment   (getArgs)
 import System.Exit          (die)
 import Control.Monad        (join)
@@ -68,7 +68,13 @@ main = do args <- getArgs
                 s <- readFile file
                 case parseString s of
                     Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                    Right p  -> putStrLn $ join ["Pattern is minimal? ", show (p == minimize p), "\n\n", programStr p, "\n\nMinimized:\n", programStr $ minimize p]
+                    Right p  -> putStrLn $ join ["Pattern is minimal? ", show (p == minimize (unroll p)), "\n\n", programStr p, "\n\nMinimized:\n", programStr $ minimize $ unroll p]
+
+            ["-u", file] -> do
+                s <- readFile file
+                case parseString s of
+                    Left e   -> putStrLn $ "*** Parse error: " ++ show e
+                    Right p  -> putStrLn $ join [ programStr p, "\n\nUnrolled:\n", programStr $ unroll p]
 
             [file] -> do
                 s <- readFile file
