@@ -1,5 +1,5 @@
 module KSParser (ParseError, parseString) where
-import General ( lexeme,  skipSymbol, symbol, num)
+import General ( lexeme,  skipSymbol, symbol, num, parens)
 import KSSyntax
     ( Line(..),
       Course(..),
@@ -8,12 +8,24 @@ import KSSyntax
       LineNums,
       Pattern,
       EndSts,
-      Times )
+      Times,
+      Side (..) )
 import Prelude hiding (lines) -- NOTE: Kan være lurt å ikke hide dem og heller bytte navn ? 
-import Text.ParserCombinators.Parsec hiding (Line)
+import Text.ParserCombinators.Parsec
+    ( chainl1,
+      eof,
+      notFollowedBy,
+      sepBy,
+      (<|>),
+      many,
+      parse,
+      unexpected,
+      ParseError,
+      Parser,
+      try ) -- hiding (Line)
 import Data.Functor (($>))
 import Data.List (singleton)
-import KnittelParser ( side, knittel, tbl)
+import KnittelParser (knittel, tbl)
 import Knittels (Knittel(..), KName (Knit, Purl), KArity (..))
 
 
@@ -99,12 +111,12 @@ loop =
     try (
     do  skipSymbol "Knit"
         t <- tbl
-        Loop [Knittel (KInst Knit (KArity (-1)) t)] <$> end )
+        Loop [Knittel (KInst Knit 0 (KArity (-1)) t)] <$> end )
     <|>
     try (
     do  skipSymbol "Purl"
         t <- tbl
-        Loop [Knittel (KInst Purl (KArity (-1)) t)] <$> end )
+        Loop [Knittel (KInst Purl 0 (KArity (-1)) t)] <$> end )
 
 
 
@@ -160,3 +172,15 @@ nzNum =
         unexpected "0 is not a valid number of times"
     <|>
     num
+
+
+side :: Parser Side
+side =
+    try(
+    do  parens (skipSymbol "RS")
+        return R)
+    <|>
+    do  parens (skipSymbol "WS")
+        return W
+    <|>
+    do  return None

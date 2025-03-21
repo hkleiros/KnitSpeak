@@ -68,10 +68,10 @@ toRanges = go Nothing
     where
     go :: Maybe (Int, Int) -> [Int] -> [String]
     go Nothing (n:ns) = go (Just (n, n)) ns
-    go (Just (start, latest)) (n:ns) | latest + 1 == n = go (Just (start, n)) ns
-    go (Just (start, latest))    ns  | start == latest = show start : go Nothing ns
-                                     | start + 1 == latest = show start : show latest : go Nothing ns
-                                     | otherwise = (show start ++ "-" ++ show latest) : go Nothing ns
+    go (Just (start, latest)) (n:ns) | latest + 1 == n      = go (Just (start, n)) ns
+    go (Just (start, latest))    ns  | start == latest      = show start : go Nothing ns
+                                     | start + 1 == latest  = show start : show latest : go Nothing ns
+                                     | otherwise            = (show start ++ "-" ++ show latest) : go Nothing ns
     go _ _ = []
 
 
@@ -81,8 +81,8 @@ instance Show Side where
     show W = " (WS)"
 
 instance Show Instruction where
-    show (Loop [Knittel (KInst Knit _ _)] es) = "Knit" ++ endStitches es
-    show (Loop [Knittel (KInst Purl _ _)] es) = "Purl" ++ endStitches es
+    show (Loop [Knittel (KInst Knit _ _ _)] es) = "Knit" ++ endStitches es
+    show (Loop [Knittel (KInst Purl _ _ _)] es) = "Purl" ++ endStitches es
     show (Loop is es)  = join ["*" ,intercalate ", " (map show is), ", repeat from *", endStitches es]
     show (Rep is 2)    = join ["[", intercalate ", " (map show is), "] twice"]
     show (Rep is es)   = join ["[", intercalate ", " (map show is), "] ", show es, " times"]

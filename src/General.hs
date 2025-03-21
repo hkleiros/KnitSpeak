@@ -1,5 +1,17 @@
 module General where
 import Text.ParserCombinators.Parsec
+    ( anyChar,
+      satisfy,
+      space,
+      string,
+      between,
+      manyTill,
+      (<|>),
+      many,
+      many1,
+      Parser,
+      try, 
+      optional)
 import Data.Functor (void)
 import Data.Char (isDigit, toUpper, toLower)
 
@@ -25,6 +37,9 @@ num :: Parser Int
 num = do ds <- many1 $ satisfy isDigit <* many space
          return (read ds)
 
+maybeINum :: Parser Int
+maybeINum = try ( num <* optional (skipSymbol "sts") )
+            <|> return 1 
 
 comment :: Parser ()
 comment = 

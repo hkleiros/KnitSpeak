@@ -24,37 +24,37 @@ flipInstruction (Knittel    k,  _) = Knittel (flippedKnittel   k)
 
 
 flippedKnittel :: Knittel -> Knittel
-flippedKnittel (KInst (K n) a t)            = KInst (P n) a t
-flippedKnittel (KInst (P n) a t)            = KInst (K n) a t
-flippedKnittel (KInst (Slip n Wyib) a t)    = KInst (Slip n Wyif) a t
-flippedKnittel (KInst (Slip n Wyif) a t)    = KInst (Slip n Wyib) a t
-flippedKnittel (KInst Knit a t)             = KInst Purl a t
-flippedKnittel (KInst Purl a t)             = KInst Knit a t
-flippedKnittel (KInst K1Below a t)          = KInst P1Below a t
-flippedKnittel (KInst P1Below a t)          = KInst K1Below a t
+flippedKnittel (KInst K r a t)            = KInst P r a t
+flippedKnittel (KInst P r a t)            = KInst K r a t
+flippedKnittel (KInst (Slip n Wyib) r a t)    = KInst (Slip n Wyif) r a t
+flippedKnittel (KInst (Slip n Wyif) r a t)    = KInst (Slip n Wyib) r a t
+flippedKnittel (KInst Knit r a t)             = KInst Purl r a t
+flippedKnittel (KInst Purl r a t)             = KInst Knit r a t
+flippedKnittel (KInst K1Below r a t)          = KInst P1Below r a t
+flippedKnittel (KInst P1Below r a t)          = KInst K1Below r a t
 
 -- Decreases
-flippedKnittel (KInst (KNtog n) a t)        = KInst (PNtog n) a t
-flippedKnittel (KInst (PNtog n) a t)        = KInst (KNtog n) a t
-flippedKnittel (KInst Ssk a t)              = KInst Ssp a t
-flippedKnittel (KInst Ssp a t)              = KInst Ssk a t
+flippedKnittel (KInst (KNtog n) r a t)        = KInst (PNtog n) r a t
+flippedKnittel (KInst (PNtog n) r a t)        = KInst (KNtog n) r a t
+flippedKnittel (KInst Ssk r a t)              = KInst Ssp r a t
+flippedKnittel (KInst Ssp r a t)              = KInst Ssk r a t
 
-flippedKnittel (KInst Sssp a _)             = KInst (KNtog 3) a (Just TBL)
-flippedKnittel (KInst (KNtogTwisted n) a t) = KInst (PNtogTwisted n) a t
+flippedKnittel (KInst Sssp r a _)             = KInst (KNtog 3) r a (Just TBL)
+flippedKnittel (KInst (KNtogTwisted n) r a t) = KInst (PNtogTwisted n) r a t
 
 -- Increases
-flippedKnittel (KInst Kfb a t)              = KInst Pfb a t
-flippedKnittel (KInst Pfb a t)              = KInst Kfb a t
+flippedKnittel (KInst Kfb r a t)              = KInst Pfb r a t
+flippedKnittel (KInst Pfb r a t)              = KInst Kfb r a t
 
-flippedKnittel (KInst IncL a t)             = KInst IncLp a t
-flippedKnittel (KInst IncLp a t)            = KInst IncL a t
-flippedKnittel (KInst IncR a t)             = KInst IncRp a t
-flippedKnittel (KInst IncRp a t)            = KInst IncR a t
+flippedKnittel (KInst IncL r a t)             = KInst IncLp r a t
+flippedKnittel (KInst IncLp r a t)            = KInst IncL r a t
+flippedKnittel (KInst IncR r a t)             = KInst IncRp r a t
+flippedKnittel (KInst IncRp r a t)            = KInst IncR r a t
 
-flippedKnittel (KInst M1L a t)              = KInst M1Lp a t
-flippedKnittel (KInst M1Lp a t)             = KInst M1L a t
-flippedKnittel (KInst M1R a t)              = KInst M1Rp a t
-flippedKnittel (KInst M1Rp a t)             = KInst M1R a t
+flippedKnittel (KInst M1L r a t)              = KInst M1Lp r a t
+flippedKnittel (KInst M1Lp r a t)             = KInst M1L r a t
+flippedKnittel (KInst M1R r a t)              = KInst M1Rp r a t
+flippedKnittel (KInst M1Rp r a t)             = KInst M1R r a t
 
 -- Cables 
 {-No fully purled cables are defined :(-}

@@ -5,12 +5,16 @@ module Knittels (Knittel(..), KName(..), KArity(..), TBL(..), InstructionNum, Ya
 import Control.Monad (join)
 import Data.Maybe (isNothing)
 
-data Knittel = KInst KName KArity (Maybe TBL) deriving (Eq, Read)
+data Knittel = KInst KName InstructionNum KArity (Maybe TBL) deriving (Eq, Read)
 
 instance Show Knittel where
-    show (KInst k (KArity _) t)
-        | t == Just TBL = join [show k, " tbl"]
-        | isNothing t   = show k
+    show (KInst k n _ t)
+        | isNothing t   = show k ++ showINum
+        | otherwise = join [show k, showINum, " tbl"]
+        
+        where showINum  | n == 1 = ""
+                        | k == K  || k == P = show n
+                        | otherwise = " " ++ show n 
 
 newtype KArity = KArity Int
         deriving(Show, Eq, Read)
@@ -18,7 +22,7 @@ newtype KArity = KArity Int
 data TBL = TBL
         deriving(Show, Eq, Read)
 
-type InstructionNum = Int 
+type InstructionNum = Int
 
 data YarnPlacement = Wyif | Wyib
     deriving (Eq, Read)
@@ -28,26 +32,25 @@ instance Show YarnPlacement where
     show Wyib = " wyib"
 
 
-data KName = -- riktig bruk av ordet knittel? Blir det slitsomt å definer alle 252 på denne måten? 
-          K     InstructionNum
-        | P     InstructionNum
-        | Knit  -- NOTE: bør mulighens være en instruction fordi den omhandler hele raden
+data KName =
+          Knit  -- NOTE: bør mulighens være en instruction fordi den omhandler hele raden
         | Purl  -- NOTE: samme som over
         | Slip  InstructionNum YarnPlacement
         | KNtog InstructionNum
-        | BO    (Maybe InstructionNum)
-        | CO    (Maybe InstructionNum)
+        | Kfb
+        | Pfb
 
--- generated from `generate_parser.py`
-
+        -- Generated from `generate_parser.py
+        | K
+        | P
+        | CO
         | CtrDblInc
         | IncL
         | IncLp
         | IncR
         | IncRp
-        | Kfb
-        | Pfb
         | Yo
+        | BO
         | BunnyEarsBackDec
         | BunnyEarsBackYo
         | BunnyEarsDec
@@ -125,26 +128,26 @@ data KName = -- riktig bruk av ordet knittel? Blir det slitsomt å definer alle 
         | P1Below
     deriving (Eq, Read)
 
+
 instance Show KName where
-    show (K n)                            = join ["k", show n]
-    show (P n)                            = join ["p", show n]
+    show (Slip n yp)                      = join ["sl", show n, show yp]
     show Knit                             = "Knit"
     show Purl                             = "Purl"
-    show (Slip n yp)                      = join ["sl", show n, show yp]
     show (KNtog n1)                       = join ["k", show n1, "tog"]
-    show (BO (Just n))                    = join ["BO ", show n, " sts"]
-    show (BO Nothing)                     = "BO"
-    show (CO (Just n))                    = join ["CO", show n, " sts"]
-    show (CO Nothing)                     = "CO"
+    show Kfb                              = "kfb"
+    show Pfb                              = "pfb"
 
+    -- Generated from `generate_parser.py
+    show K                                = "k"
+    show P                                = "p"
+    show CO                               = "CO"
     show CtrDblInc                        = "ctr dbl inc"
     show IncL                             = "incL"
     show IncLp                            = "incLp"
     show IncR                             = "incR"
     show IncRp                            = "incRp"
-    show Kfb                              = "kfb"
-    show Pfb                              = "pfb"
     show Yo                               = "yo"
+    show BO                               = "BO"
     show BunnyEarsBackDec                 = "bunny ears back dec"
     show BunnyEarsBackYo                  = "bunny ears back yo"
     show BunnyEarsDec                     = "bunny ears dec"

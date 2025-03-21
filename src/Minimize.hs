@@ -6,7 +6,7 @@ import Data.Foldable (maximumBy)
 import Control.Applicative ( ZipList(ZipList, getZipList) )
 import Data.List (tails)
 import Control.Monad (join)
-import Knittels (Knittel (..), KName (..))
+import Knittels (Knittel (..))
 
 
 minimize :: Pattern -> Pattern
@@ -18,9 +18,10 @@ m [] = []
 m is =
     case slidingWindow is of
         [] -> is
-        r -> let (s, t, i, l) = maximumBy (compare `on` snd4) r
-             in m (take i is) ++ [Rep (m s) t] ++ m (drop (i + (l * t)) is)
-
+        r  -> let (s, t, i, l) = maximumBy (compare `on` snd4) r
+              in case s of
+                [Knittel (KInst k _ a tbl)] -> m (take i is) ++ [Knittel (KInst k t a tbl) ] ++ m (drop (i + (l*t)) is )
+                p                           -> m (take i is) ++ [Rep (m p) t] ++ m (drop (i + (l * t)) is)
 
 slidingWindow :: Eq a => [a] -> [([a], Int, Int, Int)]
 slidingWindow [] = [([], 1, 0, 0)]
@@ -30,7 +31,6 @@ slidingWindow is  =
               (\x ->
                 zipWith (\ w i -> (w, numberOfTimes w x (drop i is), i, x)) (windows x is) [0, 1 ..]
               )
-
 
 numberOfTimes :: Eq a => [a] -> Int -> [a] -> Int
 numberOfTimes [] _ [] = 0
@@ -48,20 +48,11 @@ unroll = map (\(Course r is) -> Course r $ unrollInstructions is)
 unrollInstructions :: Instructions -> Instructions
 unrollInstructions ((Rep r t) : is)   =  join (replicate t (unrollInstructions r)) ++ is
 unrollInstructions ((Knittel k) : is) = unrollKnittel k ++ unrollInstructions is
-unrollInstructions (l : is)           = l : unrollInstructions is -- NOTE: loops
+unrollInstructions (l : is)           = l : unrollInstructions is -- NOTE: We dont unroll Loops
 unrollInstructions [] = []
 
 unrollKnittel :: Knittel -> Instructions
-unrollKnittel (KInst kn a t) = let (k, n) = size kn in replicate n (Knittel (KInst k a t))
-
-
-size :: KName -> (KName, Int)
-size (K n)         = (K 1, n)
-size (P n)         = (P 1, n)
-size (Slip n p)    = (Slip 1 p, n)
---size (BO (Just n)) = (BO Nothing, n)
---size (CO (Just n)) = (CO Nothing, n)
-size k = (k, 1)
+unrollKnittel (KInst kn r a t) = replicate r (Knittel (KInst kn 1 a t))
 
 
 snd4 :: (a, b, c, d) -> b
