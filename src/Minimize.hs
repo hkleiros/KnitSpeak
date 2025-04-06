@@ -10,26 +10,29 @@ import Knittels (Knittel (..))
 
 
 minimize :: Pattern -> Pattern
-minimize = map (\(Course r is) -> Course r $ m is)
-
+minimize = map (\(Course r is) -> Course r  (m is))
+-- TODO: also combine courses with the same instructions 
 
 m :: Instructions -> Instructions
 m [] = []
 m is =
-    case slidingWindow is of
+    case slidingWindow is of -- Get all repeating substructures 
         [] -> is
-        r  -> let (s, t, i, l) = maximumBy (compare `on` snd4) r
+        r  -> let (s, t, i, l) = maximumBy (compare `on` snd4) r --- Choose the one with largest number of repeats 
               in case s of
-                [Knittel (KInst k _ a tbl)] -> m (take i is) ++ [Knittel (KInst k t a tbl) ] ++ m (drop (i + (l*t)) is )
-                p                           -> m (take i is) ++ [Rep (m p) t] ++ m (drop (i + (l * t)) is)
+                -- Call m again on the list and repeat
+                [Knittel (KInst k _ a tbl)] -> m $ take i is ++ [Knittel (KInst k t a tbl) ] ++ drop (i + (l*t)) is 
+                p                           -> m $ take i is ++ [Rep (m p) t] ++ drop (i + (l * t)) is 
 
 slidingWindow :: Eq a => [a] -> [([a], Int, Int, Int)]
 slidingWindow [] = [([], 1, 0, 0)]
-slidingWindow is  =
+slidingWindow l  =
         filter (\x -> snd4 x > 1) $
-            [1 .. length is `div` 2 ] >>=
-              (\x ->
-                zipWith (\ w i -> (w, numberOfTimes w x (drop i is), i, x)) (windows x is) [0, 1 ..]
+            [1 .. length l `div` 2 ] >>=
+              (\wSize ->
+                zipWith
+                  (\ w i -> (w, numberOfTimes w wSize (drop i l), i, wSize))
+                  (windows wSize l) [0, 1 ..]
               )
 
 numberOfTimes :: Eq a => [a] -> Int -> [a] -> Int
@@ -43,12 +46,14 @@ numberOfTimes rep w p | rep == take w p =  go 1
 
 ------------ Unroll ------------
 unroll :: Pattern -> Pattern
+-- TODO:  also replicate r
 unroll = map (\(Course r is) -> Course r $ unrollInstructions is)
+          where replicateCourse = undefined
 
 unrollInstructions :: Instructions -> Instructions
 unrollInstructions ((Rep r t) : is)   =  join (replicate t (unrollInstructions r)) ++ is
 unrollInstructions ((Knittel k) : is) = unrollKnittel k ++ unrollInstructions is
-unrollInstructions (l : is)           = l : unrollInstructions is -- NOTE: We dont unroll Loops
+unrollInstructions (l : is)           = l : unrollInstructions is -- NOTE: dont unroll Loops
 unrollInstructions [] = []
 
 unrollKnittel :: Knittel -> Instructions

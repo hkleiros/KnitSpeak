@@ -1,5 +1,5 @@
 module KSParser (ParseError, parseString) where
-import General ( lexeme,  skipSymbol, symbol, num, parens)
+import General ( lexeme,  skipSymbol, symbol, num, parens, brackets, squigly)
 import KSSyntax
     ( Line(..),
       Course(..),
@@ -10,8 +10,8 @@ import KSSyntax
       EndSts,
       Times,
       Side (..) )
-import Prelude hiding (lines) -- NOTE: Kan være lurt å ikke hide dem og heller bytte navn ? 
-import Text.ParserCombinators.Parsec
+import Prelude hiding (lines)
+import Text.Parsec
     ( chainl1,
       eof,
       notFollowedBy,
@@ -21,19 +21,20 @@ import Text.ParserCombinators.Parsec
       parse,
       unexpected,
       ParseError,
-      Parser,
-      try ) -- hiding (Line)
+      --Parser,
+      try,
+      optional )
+import Text.Parsec.String (Parser)
 import Data.Functor (($>))
 import Data.List (singleton)
 import KnittelParser (knittel, tbl)
 import Knittels (Knittel(..), KName (Knit, Purl), KArity (..))
 
-
 parseString :: String -> Either ParseError Pattern
 parseString s =
     case parse patternParser "" s of
-        Left  e -> Left e
-        Right r -> return r
+        Left e -> Left e
+        Right p -> return p
     where
         patternParser =
             do lexeme (return ())
@@ -41,13 +42,28 @@ parseString s =
                eof
                return e
 
+--import Text.Parsec.Error (newErrorMessage)
+--import Text.Parsec.Pos (newPos)
+{-
+    case parse patternParser "" s of
+        Left  e -> Left e
+-- TODO: get pos of second loop 
+        Right r -> 
+            let n = maximum (map count r) in 
+            if n > 1 then Left (newErrorMessage  (Message "two loops not allowed in line ") (newPos "main" 0 0))
+            else Right r
+-}
+{-
+        count :: Line -> Int
+        count (Course _ is) = countLoops is
+        countLoops :: Instructions -> Int
+        countLoops [] = 0 
+        countLoops (Loop _ _ : xs) = 1 + countLoops xs
+        countLoops (_ : xs) = countLoops xs
+-}
 
 pattern :: Parser Pattern
-pattern = do lines
-
-
-lines :: Parser [Line]
-lines = many line
+pattern = many line
 
 
 line :: Parser Line
@@ -55,7 +71,7 @@ line =
     do  c  <- course
         skipSymbol ":"
         is <-  instructions
-        skipSymbol "."
+        optional (skipSymbol ".")
         return (Course c is)
 
 
@@ -73,11 +89,12 @@ course =
     <|>
     try (
     do  skipSymbol "Rounds"
-        Round <$> numbs)
+        r <- numbs
+        Round r <$> side)
     <|>
-
     do  skipSymbol "Round"
-        Round <$> numbs
+        r <- numbs
+        Round r <$> side
 
 
 instructions :: Parser Instructions
@@ -122,9 +139,7 @@ loop =
 
 rep :: Parser Instruction
 rep =
-    do  skipSymbol "["
-        si <- subinstructions
-        skipSymbol "]"
+    do  si <- brackets subinstructions
         Rep si <$> times
 
 
@@ -176,11 +191,12 @@ nzNum =
 
 side :: Parser Side
 side =
-    try(
-    do  parens (skipSymbol "RS")
-        return R)
-    <|>
-    do  parens (skipSymbol "WS")
-        return W
+    do  m <- parens s <|> brackets s <|> squigly s
+        case m of
+            "RS" -> return R
+            "WS" -> return W
+            _    -> return None -- Will not ever be used but patternmatching
     <|>
     do  return None
+
+    where   s = lexeme  (symbol "RS") <|> lexeme (symbol "WS")

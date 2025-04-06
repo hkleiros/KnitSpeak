@@ -1,65 +1,67 @@
 module KnittelParser (tbl, knittel, yarnPlacement) where
+
+import General (maybeINum, num, skipSymbol)
 import Knittels
-    ( KName(..),
-      YarnPlacement(..),
-      TBL(..),
-      KArity(KArity),
-      Knittel(..) )
-import Text.ParserCombinators.Parsec
-    ( Parser, (<|>), try )
-import General ( num, skipSymbol, maybeINum) 
+  ( KArity (KArity),
+    KName (..),
+    Knittel (..),
+    TBL (..),
+    YarnPlacement (..),
+  )
+import Text.Parsec.String (Parser)
+import Text.Parsec
+  ( notFollowedBy,
+    try,
+    (<|>))
 
 tbl :: Parser (Maybe TBL)
-tbl =   try (do skipSymbol  "tbl"
-                return (Just TBL))
-        <|>
-        return Nothing
-
+tbl =
+  try
+    ( do
+        skipSymbol "tbl"
+        return (Just TBL)
+    )
+    <|> return Nothing
 
 knittel :: Parser Knittel
 knittel =
-    try(
-    do  skipSymbol "kfb"
+  try
+    ( do
+        skipSymbol "kfb"
         r <- maybeINum
         KInst Kfb r (KArity 1) <$> tbl)
-    <|>
-    try(
-    do  skipSymbol "pfb"
-        r <- maybeINum
-        KInst Pfb r (KArity 1) <$> tbl)
-    <|>
-    try (
-    do  skipSymbol "k" <|> skipSymbol "K"
-        n1 <- num
-        skipSymbol "tog"
-        n2 <- maybeINum
-        KInst (KNtog  n1) n2 (KArity 2) <$> tbl)
-    <|>
-    try(
-    do  skipSymbol "Knit"
-        KInst Knit 0 (KArity (-1)) <$> tbl)
-    <|>
-    try(
-    do  skipSymbol "Purl"
-        KInst Purl 0 (KArity (-1)) <$> tbl)
-    <|>
-    try(
-    do  try (skipSymbol "Slip") <|> skipSymbol "sl"
-        n <- num
-        yp <- yarnPlacement 
-        KInst (Slip n yp) n  (KArity 1) <$> tbl)
-
+    <|> try
+      ( do
+          skipSymbol "pfb"
+          r <- maybeINum
+          KInst Pfb r (KArity 1) <$> tbl)
+    <|> try
+      ( do
+          skipSymbol "k"
+          n <- maybeINum
+          notFollowedBy (skipSymbol "tog")
+          KInst K n (KArity 1) <$> tbl)
+    <|> try
+      ( do
+          skipSymbol "p"
+          n <- maybeINum
+          notFollowedBy (skipSymbol "tog")
+          KInst P n (KArity 1) <$> tbl)
+    <|> try
+      ( do
+          skipSymbol "Knit"
+          KInst Knit 0 (KArity (-1)) <$> tbl)
+    <|> try
+      ( do
+          skipSymbol "Purl"
+          KInst Purl 0 (KArity (-1)) <$> tbl)
+    <|> try
+      ( do
+          try (skipSymbol "Slip") <|> skipSymbol "sl"
+          n <- num
+          yp <- yarnPlacement
+          KInst (Slip n yp) n (KArity 1) <$> tbl)
 -- Generated from `generate_parser.py
-    <|>
-    try(
-    do  skipSymbol "k"
-        r <- maybeINum
-        KInst K r (KArity 1) <$> tbl)
-    <|>
-    try(
-    do  skipSymbol "p"
-        r <- maybeINum
-        KInst P r (KArity 1) <$> tbl)
     <|>
     try(
     do  skipSymbol "CO"
@@ -263,6 +265,14 @@ knittel =
     do  skipSymbol "M1Rp"
         r <- maybeINum
         KInst M1Rp r (KArity 1) <$> tbl)
+    <|>
+    -- Combined operations: k2tog, k3tog, k4tog, k5tog, k6tog, k7tog, k8tog, k9tog
+    try (
+    do  skipSymbol "k"
+        n1 <- num
+        skipSymbol "tog"
+        r <- maybeINum
+        KInst (KNtog n1) r (KArity (sum [n1])) <$> tbl)
     <|>
     -- Combined operations: k2tog twisted, k3tog twisted
     try (

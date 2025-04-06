@@ -22,6 +22,8 @@ dependencies:
 - base >= 4.7 && < 5
 - containers
 - parsec
+- extra
+- filepath
 
 ghc-options:
 - -W

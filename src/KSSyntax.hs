@@ -22,7 +22,7 @@ data Line =
     deriving (Eq, Read)
 
 data Course =
-      Round LineNums
+      Round LineNums Side
     | Row LineNums Side
     deriving (Eq, Read)
 
@@ -50,8 +50,8 @@ instance Show Line where
 instance Show Course where
     show (Row    [n] side) = join ["Row ", show n, show side, ":"]
     show (Row    ln  side) = join ["Rows ", snillFunksjon (toRanges ln), show side, ":"]
-    show (Round       [n]) = join ["Round ", show n, ":"]
-    show (Round       ln ) = join ["Rounds ", snillFunksjon (toRanges ln) , ":"]
+    show (Round  [n] side) = join ["Round ", show n, show side, ":"]
+    show (Round  ln  side) = join ["Rounds ", snillFunksjon (toRanges ln), show side , ":"]
 
 
 -- NOTE: forkort dette til noe hyggelig, akkurat nå vil 1-10 printe 1,2,3,4,5,6,7,8,9,10
