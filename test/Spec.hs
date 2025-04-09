@@ -22,21 +22,21 @@ test = do
 
 knitspeaks :: IO [String]
 knitspeaks = do
-  f <- listDirectory "test" -- getDirectoryContents "test"
-  -- ks <- [y | y <- f,  takeExtension y == ".ks"] --findFilesWith (\x -> ".ks" `isSuffixOf` x)
+  f <- listDirectory "test"
   fs <- filterM (\x -> return $ takeExtension x == ".ks") f
   mapM parseFromFile fs
 
--- filterM (\x -> return (x /= "")) ks
-
 -- getDirectoryContents "../KnitSpeakGenerator/knitspeaks" >>= print
+
+
+-- NOTE: er det bedre å sjekke extention her eller i `knitspeaks`? Har egt ikke noe å si hvis vi ikke eksporterer metoden. 
 parseFromFile :: String -> IO String
 parseFromFile f =
   -- \| takeExtension f == ".ks" =
   do
     s <- readFile $ "test/" ++ f
     case parseString s of
-      Left e -> return (join ["Error in file:", show f, ", error :", show e])
+      Left e -> return (join ["Error:", show f, ", message :", show e])
       Right p -> return (join ["Parsed: ", show f])
 
 -- \| otherwise = return "" -- ("Error:" ++ show f ++ " has illegal file extention")

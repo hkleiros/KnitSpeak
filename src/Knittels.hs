@@ -41,8 +41,8 @@ data KName
   | P
   | Kfb
   | Pfb
-  | -- Generated from `generate_parser.py
-    CO
+  -- Generated from `generate_parser.py
+  | CO
   | CtrDblInc
   | IncL
   | IncLp
@@ -73,6 +73,7 @@ data KName
   | MB
   | MK
   | WAndt
+
   | N_to_NInc InstructionNum InstructionNum
   | M1L
   | M1Lp
@@ -125,97 +126,100 @@ data KName
   | N'N'NRCC InstructionNum InstructionNum InstructionNum
   | K1Below
   | P1Below
-  deriving (Eq, Read)
+    deriving (Eq, Read)
+
 
 instance Show KName where
-  show (Slip n yp) = join ["sl", show n, show yp]
-  show Knit = "Knit"
-  show Purl = "Purl"
-  show K = "k"
-  show P = "p"
-  show Kfb = "kfb"
-  show Pfb = "pfb"
-  -- Generated from `generate_parser.py
-  show CO = "CO"
-  show CtrDblInc = "ctr dbl inc"
-  show IncL = "incL"
-  show IncLp = "incLp"
-  show IncR = "incR"
-  show IncRp = "incRp"
-  show Yo = "yo"
-  show BO = "BO"
-  show BunnyEarsBackDec = "bunny ears back dec"
-  show BunnyEarsBackYo = "bunny ears back yo"
-  show BunnyEarsDec = "bunny ears dec"
-  show BunnyEarsYo = "bunny ears yo"
-  show CddTwisted = "cdd twisted"
-  show Cddp = "cddp"
-  show CddpTwisted = "cddp twisted"
-  show Ssk = "ssk"
-  show Ssp = "ssp"
-  show Sssp = "sssp"
-  show KBL = "KBL"
-  show KBR = "KBR"
-  show PB = "PB"
-  show PBk = "PBk"
-  show PBp = "PBp"
-  show PBsl = "PBsl"
-  show SB = "SB"
-  show BrSl = "brSl"
-  show DipSt = "dip st"
-  show DropSt = "drop st"
-  show MB = "MB"
-  show MK = "MK"
-  show WAndt = "w&t"
-  show (N_to_NInc n1 n2) = join [show n1, "-", "to", "-", show n2, " ", "inc"]
-  show M1L = "M1L"
-  show M1Lp = "M1Lp"
-  show M1R = "M1R"
-  show M1Rp = "M1Rp"
-  show (KNtog n1) = join ["k", show n1, "tog"]
-  show (KNtogTwisted n1) = join ["k", show n1, "tog", " ", "twisted"]
-  show (PNtog n1) = join ["p", show n1, "tog"]
-  show (PNtogTwisted n1) = join ["p", show n1, "tog", " ", "twisted"]
-  show Sl1_k2tog_psso = "sl1-k2tog-psso"
-  show Sl2_k1_p2sso = "sl2-k1-p2sso"
-  show Sl1Wb = "sl1 wb"
-  show P2so_yo_k1 = "p2so-yo-k1"
-  show P3so_k1_yo_k1 = "p3so-k1-yo-k1"
-  show P3so_k1_yo_ssk = "p3so-k1-yo-ssk"
-  show Sl1_k1_yo_k1_psso = "sl1-k1-yo-k1-psso"
-  show (SlN_kN_yo_psso n1 n2) = join ["sl", show n1, "-", "k", show n2, "-", "yo", "-", "psso"]
-  show (SlN_kN_psso n1 n2) = join ["sl", show n1, "-", "k", show n2, "-", "psso"]
-  show (SlN_pN_psso n1 n2) = join ["sl", show n1, "-", "p", show n2, "-", "psso"]
-  show Sl1_p3so_k2tog_yo_k1 = "sl1-p3so-k2tog-yo-k1"
-  show (Yo_kN_pyo n1) = join ["yo", "-", "k", show n1, "-", "pyo"]
-  show (Yo_pN_pyo n1) = join ["yo", "-", "p", show n1, "-", "pyo"]
-  show (N_to_NGather n1 n2) = join [show n1, "-", "to", "-", show n2, " ", "gather"]
-  show (WrapNSts n1) = join ["wrap", " ", show n1, " ", "sts"]
-  show (N'NLeftThreadThru n1 n2) = join [show n1, "/", show n2, " ", "left", " ", "thread", " ", "thru"]
-  show (N'NPurledLeftThreadThru n1 n2) = join [show n1, "/", show n2, " ", "purled", " ", "left", " ", "thread", " ", "thru"]
-  show (N'NRightThreadThru n1 n2) = join [show n1, "/", show n2, " ", "right", " ", "thread", " ", "thru"]
-  show (N'NPurledRightThreadThru n1 n2) = join [show n1, "/", show n2, " ", "purled", " ", "right", " ", "thread", " ", "thru"]
-  show (N'NLC n1 n2) = join [show n1, "/", show n2, " ", "LC"]
-  show (N'NLPC n1 n2) = join [show n1, "/", show n2, " ", "LPC"]
-  show (N'NLT n1 n2) = join [show n1, "/", show n2, " ", "LT"]
-  show (N'NLPT n1 n2) = join [show n1, "/", show n2, " ", "LPT"]
-  show (N'NLSC n1 n2) = join [show n1, "/", show n2, " ", "LSC"]
-  show One'1LSAC = "1/1 LSAC"
-  show (N'N'NLC n1 n2 n3) = join [show n1, "/", show n2, "/", show n3, " ", "LC"]
-  show (N'N'NLPC n1 n2 n3) = join [show n1, "/", show n2, "/", show n3, " ", "LPC"]
-  show One'1'1LT = "1/1/1 LT"
-  show One'1'1LPT = "1/1/1 LPT"
-  show (N'N'NLCC n1 n2 n3) = join [show n1, "/", show n2, "/", show n3, " ", "LCC"]
-  show (N'NRC n1 n2) = join [show n1, "/", show n2, " ", "RC"]
-  show (N'NRPC n1 n2) = join [show n1, "/", show n2, " ", "RPC"]
-  show (N'NRT n1 n2) = join [show n1, "/", show n2, " ", "RT"]
-  show (N'NRPT n1 n2) = join [show n1, "/", show n2, " ", "RPT"]
-  show (N'NRSC n1 n2) = join [show n1, "/", show n2, " ", "RSC"]
-  show One'1RSAC = "1/1 RSAC"
-  show (N'N'NRC n1 n2 n3) = join [show n1, "/", show n2, "/", show n3, " ", "RC"]
-  show (N'N'NRPC n1 n2 n3) = join [show n1, "/", show n2, "/", show n3, " ", "RPC"]
-  show One'1'1RT = "1/1/1 RT"
-  show One'1'1RPT = "1/1/1 RPT"
-  show (N'N'NRCC n1 n2 n3) = join [show n1, "/", show n2, "/", show n3, " ", "RCC"]
-  show K1Below = "k1 below"
-  show P1Below = "p1 below"
+    show (Slip n yp)                      = join ["sl", show n, show yp]
+    show Knit                             = "Knit"
+    show Purl                             = "Purl"
+    show K                                = "k"
+    show P                                = "p"
+    show Kfb                              = "kfb"
+    show Pfb                              = "pfb"
+
+    -- Generated from `generate_parser.py
+    show CO                               = "CO"
+    show CtrDblInc                        = "ctr dbl inc"
+    show IncL                             = "incL"
+    show IncLp                            = "incLp"
+    show IncR                             = "incR"
+    show IncRp                            = "incRp"
+    show Yo                               = "yo"
+    show BO                               = "BO"
+    show BunnyEarsBackDec                 = "bunny ears back dec"
+    show BunnyEarsBackYo                  = "bunny ears back yo"
+    show BunnyEarsDec                     = "bunny ears dec"
+    show BunnyEarsYo                      = "bunny ears yo"
+    show CddTwisted                       = "cdd twisted"
+    show Cddp                             = "cddp"
+    show CddpTwisted                      = "cddp twisted"
+    show Ssk                              = "ssk"
+    show Ssp                              = "ssp"
+    show Sssp                             = "sssp"
+    show KBL                              = "KBL"
+    show KBR                              = "KBR"
+    show PB                               = "PB"
+    show PBk                              = "PBk"
+    show PBp                              = "PBp"
+    show PBsl                             = "PBsl"
+    show SB                               = "SB"
+    show BrSl                             = "brSl"
+    show DipSt                            = "dip st"
+    show DropSt                           = "drop st"
+    show MB                               = "MB"
+    show MK                               = "MK"
+    show WAndt                            = "w&t"
+
+    show (N_to_NInc n1 n2)                = join [show n1, "-", "to", "-", show n2, " ", "inc"]
+    show M1L                              = "M1L"
+    show M1Lp                             = "M1Lp"
+    show M1R                              = "M1R"
+    show M1Rp                             = "M1Rp"
+    show (KNtog n1)                       = join ["k", show n1, "tog"]
+    show (KNtogTwisted n1)                = join ["k", show n1, "tog", " ", "twisted"]
+    show (PNtog n1)                       = join ["p", show n1, "tog"]
+    show (PNtogTwisted n1)                = join ["p", show n1, "tog", " ", "twisted"]
+    show Sl1_k2tog_psso                   = "sl1-k2tog-psso"
+    show Sl2_k1_p2sso                     = "sl2-k1-p2sso"
+    show Sl1Wb                            = "sl1 wb"
+    show P2so_yo_k1                       = "p2so-yo-k1"
+    show P3so_k1_yo_k1                    = "p3so-k1-yo-k1"
+    show P3so_k1_yo_ssk                   = "p3so-k1-yo-ssk"
+    show Sl1_k1_yo_k1_psso                = "sl1-k1-yo-k1-psso"
+    show (SlN_kN_yo_psso n1 n2)           = join ["sl", show n1, "-", "k", show n2, "-", "yo", "-", "psso"]
+    show (SlN_kN_psso n1 n2)              = join ["sl", show n1, "-", "k", show n2, "-", "psso"]
+    show (SlN_pN_psso n1 n2)              = join ["sl", show n1, "-", "p", show n2, "-", "psso"]
+    show Sl1_p3so_k2tog_yo_k1             = "sl1-p3so-k2tog-yo-k1"
+    show (Yo_kN_pyo n1)                   = join ["yo", "-", "k", show n1, "-", "pyo"]
+    show (Yo_pN_pyo n1)                   = join ["yo", "-", "p", show n1, "-", "pyo"]
+    show (N_to_NGather n1 n2)             = join [show n1, "-", "to", "-", show n2, " ", "gather"]
+    show (WrapNSts n1)                    = join ["wrap", " ", show n1, " ", "sts"]
+    show (N'NLeftThreadThru n1 n2)        = join [show n1, "/", show n2, " ", "left", " ", "thread", " ", "thru"]
+    show (N'NPurledLeftThreadThru n1 n2)  = join [show n1, "/", show n2, " ", "purled", " ", "left", " ", "thread", " ", "thru"]
+    show (N'NRightThreadThru n1 n2)       = join [show n1, "/", show n2, " ", "right", " ", "thread", " ", "thru"]
+    show (N'NPurledRightThreadThru n1 n2) = join [show n1, "/", show n2, " ", "purled", " ", "right", " ", "thread", " ", "thru"]
+    show (N'NLC n1 n2)                    = join [show n1, "/", show n2, " ", "LC"]
+    show (N'NLPC n1 n2)                   = join [show n1, "/", show n2, " ", "LPC"]
+    show (N'NLT n1 n2)                    = join [show n1, "/", show n2, " ", "LT"]
+    show (N'NLPT n1 n2)                   = join [show n1, "/", show n2, " ", "LPT"]
+    show (N'NLSC n1 n2)                   = join [show n1, "/", show n2, " ", "LSC"]
+    show One'1LSAC                        = "1/1 LSAC"
+    show (N'N'NLC n1 n2 n3)               = join [show n1, "/", show n2, "/", show n3, " ", "LC"]
+    show (N'N'NLPC n1 n2 n3)              = join [show n1, "/", show n2, "/", show n3, " ", "LPC"]
+    show One'1'1LT                        = "1/1/1 LT"
+    show One'1'1LPT                       = "1/1/1 LPT"
+    show (N'N'NLCC n1 n2 n3)              = join [show n1, "/", show n2, "/", show n3, " ", "LCC"]
+    show (N'NRC n1 n2)                    = join [show n1, "/", show n2, " ", "RC"]
+    show (N'NRPC n1 n2)                   = join [show n1, "/", show n2, " ", "RPC"]
+    show (N'NRT n1 n2)                    = join [show n1, "/", show n2, " ", "RT"]
+    show (N'NRPT n1 n2)                   = join [show n1, "/", show n2, " ", "RPT"]
+    show (N'NRSC n1 n2)                   = join [show n1, "/", show n2, " ", "RSC"]
+    show One'1RSAC                        = "1/1 RSAC"
+    show (N'N'NRC n1 n2 n3)               = join [show n1, "/", show n2, "/", show n3, " ", "RC"]
+    show (N'N'NRPC n1 n2 n3)              = join [show n1, "/", show n2, "/", show n3, " ", "RPC"]
+    show One'1'1RT                        = "1/1/1 RT"
+    show One'1'1RPT                       = "1/1/1 RPT"
+    show (N'N'NRCC n1 n2 n3)              = join [show n1, "/", show n2, "/", show n3, " ", "RCC"]
+    show K1Below                          = "k1 below"
+    show P1Below                          = "p1 below"

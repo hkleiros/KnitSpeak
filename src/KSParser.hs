@@ -1,5 +1,5 @@
 module KSParser (ParseError, parseString) where
-import General ( lexeme,  skipSymbol, symbol, num, parens, brackets, squigly)
+import General ( lexeme,  skipSymbol, symbol, num, parens, brackets, squigly, comment, lexemeC)
 import KSSyntax
     ( Line(..),
       Course(..),
@@ -12,7 +12,7 @@ import KSSyntax
       Side (..) )
 import Prelude hiding (lines)
 import Text.Parsec
-    ( chainl1,
+    ( chainr1,
       eof,
       notFollowedBy,
       sepBy,
@@ -25,7 +25,7 @@ import Text.Parsec
       try,
       optional )
 import Text.Parsec.String (Parser)
-import Data.Functor (($>))
+import Data.Functor (($>), void)
 import Data.List (singleton)
 import KnittelParser (knittel, tbl)
 import Knittels (Knittel(..), KName (Knit, Purl), KArity (..))
@@ -37,7 +37,7 @@ parseString s =
         Right p -> return p
     where
         patternParser =
-            do lexeme (return ())
+            do lexemeC (return ())
                e <- pattern
                eof
                return e
@@ -63,20 +63,30 @@ parseString s =
 -}
 
 pattern :: Parser Pattern
-pattern = many line
-
-
-line :: Parser Line
-line =
-    do  c  <- course
-        skipSymbol ":"
-        is <-  instructions
-        optional (skipSymbol ".")
-        return (Course c is)
+pattern = many course
 
 
 course :: Parser Course
 course =
+    try (
+    do  c  <- line
+        skipSymbol ":"
+        is <-  instructions
+        optional (void (symbol "."))
+        return (Course c is))
+    <|>
+    do  skipSymbol "Repeat"
+        r <- try (symbol "rows") <|> try (symbol "rounds") <|> try (symbol "row") <|> try (symbol "round")
+        ln <- nums
+        t <- try times <|> return 0 
+        optional (void (symbol "."))
+        return (MultilineRepeat r ln t)
+    <|> 
+    do  Comment <$> comment
+
+
+line :: Parser Line
+line =
     try (
     do  skipSymbol "Rows"
         r <- numbs
@@ -169,7 +179,7 @@ end =
 
 
 numbs :: Parser LineNums
-numbs = nums `chainl1` separator
+numbs = nums `chainr1` separator
     where separator = (try (symbol "," >> symbol "and") <|> symbol "," <|> symbol "and")   $> (++)
 
 nums :: Parser LineNums -- lager lister

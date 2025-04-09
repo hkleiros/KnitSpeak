@@ -1,4 +1,4 @@
-module General 
+module General
     ( squigly,
      between,
      brackets,
@@ -8,7 +8,8 @@ module General
      skipSymbol,
      num,
      maybeINum,
-     comment)
+     comment,
+     lexemeC)
 where
 import Text.Parsec
     ( anyChar,
@@ -36,6 +37,8 @@ symbol      :: String -> Parser String
 symbol c    =  string c <* many space
 lexeme      :: Parser a -> Parser a
 lexeme p    =  p <* many (void space <|> void comment)
+lexemeC     :: Parser a -> Parser a
+lexemeC p   = p <* many (void space)
 
 skipSymbol   :: String -> Parser ()
 skipSymbol [] = return ()
@@ -44,7 +47,7 @@ skipSymbol (s: ss) =  lexeme $
         return ()
 
 num :: Parser Int
-num = do ds <- many1 $ satisfy isDigit <* many space
+num = do ds <- many1 (satisfy isDigit) <* many space
          return (read ds)
 
 maybeINum :: Parser Int

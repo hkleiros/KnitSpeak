@@ -2,8 +2,8 @@
 
 module KSSyntax (
         Pattern,
-        Line(..),
         Course(..),
+        Line(..),
         LineNums,
         Instructions,
         Instruction(..),
@@ -15,13 +15,15 @@ import Control.Monad ( join )
 import Knittels (Knittel (KInst), KName (..))
 import Data.List (intercalate)
 
-type Pattern = [Line]
-
-data Line =
-    Course Course Instructions
-    deriving (Eq, Read)
+type Pattern = [Course]
 
 data Course =
+      Course Line Instructions
+    | MultilineRepeat String LineNums Times  
+    | Comment String
+    deriving (Eq, Read)
+
+data Line =
       Round LineNums Side
     | Row LineNums Side
     deriving (Eq, Read)
@@ -43,16 +45,22 @@ type EndSts = Int
 type Times = Int
 
 -- Definitions of show 
-instance Show Line where
-    show (Course c i) = join [unwords [ show c, intercalate ", " (map show i)], "."]
-
-
 instance Show Course where
-    show (Row    [n] side) = join ["Row ", show n, show side, ":"]
-    show (Row    ln  side) = join ["Rows ", snillFunksjon (toRanges ln), show side, ":"]
-    show (Round  [n] side) = join ["Round ", show n, show side, ":"]
-    show (Round  ln  side) = join ["Rounds ", snillFunksjon (toRanges ln), show side , ":"]
+    show (Course l i) = join [unwords [ show l, intercalate ", " (map show i)], "."]
+    show (MultilineRepeat r l t) = unwords ["Repeat", r, showLineNums l, showTimes t]
+    show (Comment s) = join ["(", s, ")"]
 
+
+instance Show Line where
+    --show (Row    [n] side) = join ["Row ", show n, show side, ":"]
+    show (Row    ln  side) = join ["Rows ", showLineNums ln, show side, ":"]
+    --show (Round  [n] side) = join ["Round ", show n, show side, ":"]
+    show (Round  ln  side) = join ["Rounds ", showLineNums ln, show side , ":"]
+
+
+showLineNums :: [Int] -> String
+showLineNums [n] = show n 
+showLineNums ln = snillFunksjon $ toRanges ln
 
 -- NOTE: forkort dette til noe hyggelig, akkurat nå vil 1-10 printe 1,2,3,4,5,6,7,8,9,10
 -- lag en snill funksjon som forenkler ranges og putter and mellom nest siste og siste tall hvis det ikke er en range 
@@ -84,10 +92,14 @@ instance Show Instruction where
     show (Loop [Knittel (KInst Knit _ _ _)] es) = "Knit" ++ endStitches es
     show (Loop [Knittel (KInst Purl _ _ _)] es) = "Purl" ++ endStitches es
     show (Loop is es)  = join ["*" ,intercalate ", " (map show is), ", repeat from *", endStitches es]
-    show (Rep is 2)    = join ["[", intercalate ", " (map show is), "] twice"]
-    show (Rep is es)   = join ["[", intercalate ", " (map show is), "] ", show es, " times"]
+    show (Rep is es)   = join ["[", intercalate ", " (map show is), "] ", showTimes es]
     show (Knittel  k ) = show k
-    
+  --  show (Rep is 2)    = join ["[", intercalate ", " (map show is), "] twice"]
+
+showTimes :: Int -> String
+showTimes 0 = ""
+showTimes 2 = "twice"
+showTimes n = show n ++ " times"
 endStitches :: EndSts -> String
 endStitches n | n == 0 = ""
               | n == 1 = " to last st"
