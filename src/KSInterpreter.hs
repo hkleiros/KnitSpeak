@@ -3,7 +3,7 @@ module KSInterpreter where
 import KSSyntax ( Pattern )
 import Knittels ()
 import Control.Monad ()
-import Control.Arrow (second)
+--import Control.Arrow (second)
 import Data.List ()
 
 type Output = [String]

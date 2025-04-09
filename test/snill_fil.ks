@@ -7,7 +7,7 @@ Round 6: k5, 1/1 RPT, 1/1 LPT, 1/1 RPT, 1/1 LPT, k5.
 Round 7: k5, k1 tbl, p2, k1 tbl, k1 tbl, p2, k1 tbl, k5.
 Round 8: k5, 1/1 LT, 1/1 RPT, 1/1 LPT, 1/1 RT, k5.
 Round 9: k4, 1/1 RPT, 1/1 LPT, p2, 1/1 RPT, 1/1 LPT, k4.
-Round 10: k4, [k1 tbl, p2]3 times, k1 tbl, k4.
+Round 10: k4, [k1 tbl, p2] 3 times, k1 tbl, k4.
 Round 11: k4, 1/1 LT, 1/1 RPT, p2, 1/1 LPT, 1/1 RT, k4.
 Round 12: k3, 1/1 RPT, 1/1 LPT, p4, 1/1 RPT, 1/1 LPT, k3.
 Round 13: k3, k1 tbl, p2, k1 tbl, p4, k1 tbl, p2, k1 tbl, k3.

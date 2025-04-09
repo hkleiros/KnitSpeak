@@ -26,11 +26,14 @@ library
       KSSyntax
       KSParser
   other-modules:
+      Flip
       General
       KnittelParser
       Knittels
       KSInterpreter
       Lib
+      Minimize
+      Mirror
       Paths_KnitSpeakParser
   autogen-modules:
       Paths_KnitSpeakParser
@@ -40,12 +43,15 @@ library
   build-depends:
       base >=4.7 && <5
     , containers
+    , extra
+    , filepath
     , parsec
   default-language: Haskell2010
 
 executable KnitSpeakParser-exe
   main-is: Main.hs
   other-modules:
+      Flip
       General
       KnittelParser
       Knittels
@@ -53,6 +59,8 @@ executable KnitSpeakParser-exe
       KSParser
       KSSyntax
       Lib
+      Minimize
+      Mirror
       Paths_KnitSpeakParser
   autogen-modules:
       Paths_KnitSpeakParser
@@ -64,6 +72,8 @@ executable KnitSpeakParser-exe
       KnitSpeakParser
     , base >=4.7 && <5
     , containers
+    , extra
+    , filepath
     , parsec
   default-language: Haskell2010
 
@@ -81,5 +91,7 @@ test-suite KnitSpeakParser-test
       KnitSpeakParser
     , base >=4.7 && <5
     , containers
+    , extra
+    , filepath
     , parsec
   default-language: Haskell2010

@@ -1,0 +1,1 @@
+Row 2 : *k 10, repeat from * to last 10 sts, *k2tog, repeat from * .     

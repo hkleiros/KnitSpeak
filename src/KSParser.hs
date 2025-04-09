@@ -1,5 +1,5 @@
 module KSParser (ParseError, parseString) where
-import General ( lexeme,  skipSymbol, symbol, num)
+import General ( lexeme,  skipSymbol, symbol, num, parens, brackets, squigly, comment, lexemeC)
 import KSSyntax
     ( Line(..),
       Course(..),
@@ -8,47 +8,85 @@ import KSSyntax
       LineNums,
       Pattern,
       EndSts,
-      Times )
-import Prelude hiding (lines) -- NOTE: Kan være lurt å ikke hide dem og heller bytte navn ? 
-import Text.ParserCombinators.Parsec hiding (Line)
-import Data.Functor (($>))
+      Times,
+      Side (..) )
+import Prelude hiding (lines)
+import Text.Parsec
+    ( chainr1,
+      eof,
+      notFollowedBy,
+      sepBy,
+      (<|>),
+      many,
+      parse,
+      unexpected,
+      ParseError,
+      --Parser,
+      try,
+      optional )
+import Text.Parsec.String (Parser)
+import Data.Functor (($>), void)
 import Data.List (singleton)
-import KnittelParser ( side, knittel ) 
-import Knittels ( Knittel(Knit, Purl) ) 
+import KnittelParser (knittel, tbl)
+import Knittels (Knittel(..), KName (Knit, Purl), KArity (..))
 
-
-parseString :: String -> Either ParseError Pattern 
+parseString :: String -> Either ParseError Pattern
 parseString s =
     case parse patternParser "" s of
-        Left  error -> Left error
-        Right e    -> return e
+        Left e -> Left e
+        Right p -> return p
     where
         patternParser =
-            do lexeme (return ())
+            do lexemeC (return ())
                e <- pattern
                eof
                return e
 
+--import Text.Parsec.Error (newErrorMessage)
+--import Text.Parsec.Pos (newPos)
+{-
+    case parse patternParser "" s of
+        Left  e -> Left e
+-- TODO: get pos of second loop 
+        Right r -> 
+            let n = maximum (map count r) in 
+            if n > 1 then Left (newErrorMessage  (Message "two loops not allowed in line ") (newPos "main" 0 0))
+            else Right r
+-}
+{-
+        count :: Line -> Int
+        count (Course _ is) = countLoops is
+        countLoops :: Instructions -> Int
+        countLoops [] = 0 
+        countLoops (Loop _ _ : xs) = 1 + countLoops xs
+        countLoops (_ : xs) = countLoops xs
+-}
 
 pattern :: Parser Pattern
-pattern = do lines
-
-
-lines :: Parser [Line]
-lines = many line
-
-
-line :: Parser Line
-line =
-    do  c  <- course
-        skipSymbol ":"
-        is <-  instructions
-        skipSymbol "."
-        return (Course c is)
+pattern = many course
 
 
 course :: Parser Course
 course =
+    try (
+    do  c  <- line
+        skipSymbol ":"
+        is <-  instructions
+        optional (void (symbol "."))
+        return (Course c is))
+    <|>
+    do  skipSymbol "Repeat"
+        r <- try (symbol "rows") <|> try (symbol "rounds") <|> try (symbol "row") <|> try (symbol "round")
+        ln <- nums
+        t <- try times <|> return 0 
+        optional (void (symbol "."))
+        return (MultilineRepeat r ln t)
+    <|> 
+    do  Comment <$> comment
+
+
+line :: Parser Line
+line =
     try (
     do  skipSymbol "Rows"
         r <- numbs
@@ -61,11 +99,12 @@ course =
     <|>
     try (
     do  skipSymbol "Rounds"
-        Round <$> numbs)
+        r <- numbs
+        Round r <$> side)
     <|>
-
     do  skipSymbol "Round"
-        Round <$> numbs
+        r <- numbs
+        Round r <$> side
 
 
 instructions :: Parser Instructions
@@ -96,21 +135,21 @@ loop =
         skipSymbol "*"
         Loop subs <$> end
     <|>
-    try(
+    try (
     do  skipSymbol "Knit"
-        Loop [Knittel Knit] <$> end )
-    <|> 
+        t <- tbl
+        Loop [Knittel (KInst Knit 0 (KArity (-1)) t)] <$> end )
+    <|>
     try (
     do  skipSymbol "Purl"
-        Loop [Knittel Purl] <$> end ) 
+        t <- tbl
+        Loop [Knittel (KInst Purl 0 (KArity (-1)) t)] <$> end )
 
 
 
 rep :: Parser Instruction
 rep =
-    do  skipSymbol "["
-        si <- subinstructions
-        skipSymbol "]"
+    do  si <- brackets subinstructions
         Rep si <$> times
 
 
@@ -140,7 +179,7 @@ end =
 
 
 numbs :: Parser LineNums
-numbs = nums `chainl1` separator
+numbs = nums `chainr1` separator
     where separator = (try (symbol "," >> symbol "and") <|> symbol "," <|> symbol "and")   $> (++)
 
 nums :: Parser LineNums -- lager lister
@@ -152,9 +191,22 @@ nums = try (do  ds <- num
             y <- num
             return [x..y]
 
-nzNum :: Parser Integer
+nzNum :: Parser Int
 nzNum =
     do  skipSymbol "0"
         unexpected "0 is not a valid number of times"
     <|>
     num
+
+
+side :: Parser Side
+side =
+    do  m <- parens s <|> brackets s <|> squigly s
+        case m of
+            "RS" -> return R
+            "WS" -> return W
+            _    -> return None -- Will not ever be used but patternmatching
+    <|>
+    do  return None
+
+    where   s = lexeme  (symbol "RS") <|> lexeme (symbol "WS")

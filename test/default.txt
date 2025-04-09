@@ -1,0 +1,13 @@
+Chart "Pentapus"
+Round 0: [co] 5 times . 
+Round 1: [kfb] 5 times . 
+Round 2: Knit .
+Round 3: Knit .
+Round 4 : Knit .  
+Round 5 : Knit . 
+Round 6 : Knit . 
+Round 7 : Knit . 
+Round 8: Knit . 
+Round 9 : [k1, k2tog] 5 times .
+Round 10 : [k2tog] 5 times . 
+Round 10: [bindoff] 5 times . 
