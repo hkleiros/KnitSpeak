@@ -2,9 +2,11 @@
 This is a parser of the KnitSpeak knittingpattern language. Based on the [specification](https://stitch-maps.com/about/knitspeak/) from [Stitch Maps](https://stitch-maps.com).
 
 ## TODO
+- [ ] Add multiline repeats
+- [ ] Add comments which don't get removed
 ### Symmetry/Datatype 
-- [ ] Move `TBL`out of `KArity`
-- [ ] Implement symmetry algorithm
+- [X] Move `TBL`out of `KArity`
+- [X] Implement symmetry algorithm
 
 ### Minimization
-- [ ] Figure out algorithm
+- [X] Figure out algorithm
