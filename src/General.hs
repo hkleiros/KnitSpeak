@@ -38,7 +38,7 @@ symbol c    =  string c <* many space
 lexeme      :: Parser a -> Parser a
 lexeme p    =  p <* many (void space <|> void comment)
 lexemeC     :: Parser a -> Parser a
-lexemeC p   = p <* many (void space)
+lexemeC p   = p <* many space
 
 skipSymbol   :: String -> Parser ()
 skipSymbol [] = return ()

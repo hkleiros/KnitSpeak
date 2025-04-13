@@ -52,9 +52,7 @@ instance Show Course where
 
 
 instance Show Line where
-    --show (Row    [n] side) = join ["Row ", show n, show side, ":"]
     show (Row    ln  side) = join ["Rows ", showLineNums ln, show side, ":"]
-    --show (Round  [n] side) = join ["Round ", show n, show side, ":"]
     show (Round  ln  side) = join ["Rounds ", showLineNums ln, show side , ":"]
 
 
@@ -94,7 +92,6 @@ instance Show Instruction where
     show (Loop is es)  = join ["*" ,intercalate ", " (map show is), ", repeat from *", endStitches es]
     show (Rep is es)   = join ["[", intercalate ", " (map show is), "] ", showTimes es]
     show (Knittel  k ) = show k
-  --  show (Rep is 2)    = join ["[", intercalate ", " (map show is), "] twice"]
 
 showTimes :: Int -> String
 showTimes 0 = ""

@@ -1,18 +1,23 @@
 module Minimize (minimize, unroll) where
-import KSSyntax (Instructions, Instruction (..), Pattern, Course (Course))
+import KSSyntax (Instructions, Instruction (..), Pattern, Course (Course), Line (..), LineNums)
 
 import Data.Function (on)
 import Data.Foldable (maximumBy)
 import Control.Applicative ( ZipList(ZipList, getZipList) )
-import Data.List (tails)
+import Data.List (tails, sortBy)
 import Control.Monad (join)
 import Knittels (Knittel (..))
 
 
 minimize :: Pattern -> Pattern
-minimize = map min 
+minimize = map min
     where min (Course r is) = Course r  (m is)
           min c = c
+
+{-combineCourses :: Pattern -> Pattern 
+combineCourses = c sortBy (\(Course _ is) (Course r2 is2) -> compare is  is2)
+    where c (i: is) = undefined
+  -}
 -- TODO: also combine courses with the same instructions 
 
 m :: Instructions -> Instructions
@@ -23,8 +28,8 @@ m is =
         r  -> let (s, t, i, l) = maximumBy (compare `on` snd4) r --- Choose the one with largest number of repeats 
               in case s of
                 -- Call m again on the list and repeat
-                [Knittel (KInst k _ a tbl)] -> m $ take i is ++ [Knittel (KInst k t a tbl) ] ++ drop (i + (l*t)) is 
-                p                           -> m $ take i is ++ [Rep (m p) t] ++ drop (i + (l * t)) is 
+                [Knittel (KInst k _ a tbl)] -> m $ take i is ++ [Knittel (KInst k t a tbl) ] ++ drop (i + (l*t)) is
+                p                           -> m $ take i is ++ [Rep (m p) t] ++ drop (i + (l * t)) is
 
 slidingWindow :: Eq a => [a] -> [([a], Int, Int, Int)]
 slidingWindow [] = [([], 1, 0, 0)]
@@ -48,11 +53,20 @@ numberOfTimes rep w p | rep == take w p =  go 1
 
 ------------ Unroll ------------
 unroll :: Pattern -> Pattern
--- TODO:  also replicate r
-unroll = map u
-          where u (Course r is) = Course r $ unrollInstructions is 
+unroll =  map u --join . map u
+          where u (Course r is) = Course r $ unrollInstructions is
                 u c = c
-                replicateCourse = undefined
+
+          -- NOTE: implemented unrolling of rows, but we dont want to do this when minimizing. 
+          --where u (Course r is) | len r == 1 = [Course r $ unrollInstructions is]
+           --                     | otherwise = map (`Course` unrollInstructions is) (allLines r)
+            --    u c = [c]
+                len (Round is s) = length is
+                len (Row is s) = length is
+
+allLines :: Line -> [Line]
+allLines (Round ls s) = map (\l -> Round [l] s) ls
+allLines (Row ls s) = map (\l -> Row [l] s) ls 
 
 unrollInstructions :: Instructions -> Instructions
 unrollInstructions ((Rep r t) : is)   =  join (replicate t (unrollInstructions r)) ++ is

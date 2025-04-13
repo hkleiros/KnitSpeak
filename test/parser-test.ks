@@ -1,0 +1,1 @@
+Row 1 : k 10 , kfb, p2tog, pfb, p 10 . 
