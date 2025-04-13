@@ -16,8 +16,10 @@ invert = map inv
   where inv (Course c is) = Course c $ invertInstructions (is, 0)
         inv c = c
 
+
+-- Invert functions
 invertInstructions :: (Instructions, Int) -> Instructions
-invertInstructions (i: is, len) = invertInstruction (i, len) : invertInstructions (is, len + stitchLength i)  
+invertInstructions (i: is, len) = invertInstruction (i, len) : invertInstructions (is, len + stitchLength i)
 invertInstructions ([], _)      = []
 
 invertInstruction :: (Instruction, Int) -> Instruction
@@ -25,6 +27,7 @@ invertInstruction (Rep is times,  _) = Rep     (invertInstructions (is, 0)) time
 invertInstruction (Loop  is _1, len) = Loop    (invertInstructions (is, 0)) len
 invertInstruction (Knittel    k,  _) = Knittel (mirrorKnittel k)
 
+-- Reverse functions
 reverseInstructions :: (Instructions, Int) -> Instructions
 reverseInstructions (i: is, len) = reverseInstructions (is, len + stitchLength i) ++ [reverseInstruction (i, len)]
 reverseInstructions ([], _)      = []
@@ -51,43 +54,59 @@ mirrorKnittel (KInst (PNtog n) r a (Just TBL)) = KInst (PNtogTwisted n) r a Noth
 mirrorKnittel (KInst (PNtog 2) r a Nothing)    = KInst Ssp r a Nothing
 mirrorKnittel (KInst (PNtog 3) r a Nothing)    = KInst Sssp r a Nothing
 mirrorKnittel (KInst (PNtog n) r a Nothing)    = KInst (PNtog n) r a (Just TBL) -- NOTE: ikke ekte symmetrisk, men brukes ofte for samme visuelle effekt
-mirrorKnittel (KInst Ssp r a t)                = KInst (PNtog 2) r a t
-mirrorKnittel (KInst Sssp r a t)               = KInst (PNtog 3) r a t
 
+mirrorKnittel (KInst k r a t) = KInst (mirrorKName k) r a t
 
 -- Increases
-mirrorKnittel (KInst IncL r a t)               = KInst IncR r a t
-mirrorKnittel (KInst IncR r a t)               = KInst IncL r a t
-mirrorKnittel (KInst IncLp r a t)              = KInst IncRp r a t
-mirrorKnittel (KInst IncRp r a t)              = KInst IncLp r a t
+mirrorKName :: KName -> KName
+mirrorKName Ssp                 = PNtog 2
+mirrorKName Sssp                = PNtog 3
+mirrorKName IncL               =IncR
+mirrorKName IncR               =IncL
+mirrorKName IncLp              = IncRp
+mirrorKName IncRp              = IncLp
 
-mirrorKnittel (KInst M1L r a t)                = KInst M1R r a t
-mirrorKnittel (KInst M1R r a t)                = KInst M1L r a t
-mirrorKnittel (KInst M1Lp r a t)               = KInst M1Rp r a t
-mirrorKnittel (KInst M1Rp r a t)               = KInst M1Lp r a t
+mirrorKName M1L                 = M1R
+mirrorKName M1R                 = M1L
+mirrorKName M1Lp               =  M1Rp
+mirrorKName M1Rp               =  M1Lp
 
 -- Cables 
-mirrorKnittel (KInst One'1'1LT r a t)          = KInst One'1'1RT r a t
-mirrorKnittel (KInst One'1'1RT r a t)          = KInst One'1'1LT r a t
-mirrorKnittel (KInst (KNtogTwisted n) r a t)   = KInst (KNtog n) r a t
-mirrorKnittel (KInst (PNtogTwisted n) r a t)   = KInst (PNtog n) r a t
-mirrorKnittel (KInst (N'NLC n m) r a t)        = KInst (N'NRC m n) r a t
-mirrorKnittel (KInst (N'NRC n m) r a t)        = KInst (N'NLC m n) r a t
-mirrorKnittel (KInst (N'NLT  n m) r a t)       = KInst (N'NRT m n) r a t
-mirrorKnittel (KInst (N'NRT  n m) r a t)       = KInst (N'NLT m n) r a t
-mirrorKnittel (KInst (N'NRPT  n m) r a t)      = KInst (N'NLPT m n) r a t
-mirrorKnittel (KInst (N'NLPT  n m) r a t)      = KInst (N'NRPT m n) r a t
-mirrorKnittel (KInst (N'NLSC  n m) r a t)      = KInst (N'NRSC m n) r a t
-mirrorKnittel (KInst (N'NRSC  n m) r a t)      = KInst (N'NLSC m n) r a t
-mirrorKnittel (KInst One'1LSAC r a t)          = KInst One'1RSAC r a t
-mirrorKnittel (KInst One'1RSAC r a t)          = KInst One'1LSAC r a t
-mirrorKnittel (KInst One'1'1RPT  r a t)        = KInst One'1'1LPT r a t
-mirrorKnittel (KInst One'1'1LPT r a t)         = KInst One'1'1RPT r a t
+mirrorKName  One'1'1LT           =  One'1'1RT
+mirrorKName  One'1'1RT           =  One'1'1LT
+mirrorKName  (KNtogTwisted n)    =  KNtog n
+mirrorKName  (PNtogTwisted n)    =  PNtog n
+mirrorKName  (N'NLC n m)         =  N'NRC m n
+mirrorKName  (N'NRC n m)         =  N'NLC m n
+mirrorKName  (N'NLT  n m)        =  N'NRT m n
+mirrorKName  (N'NRT  n m)        =  N'NLT m n
+mirrorKName  (N'NRPT  n m)       =  N'NLPT m n
+mirrorKName  (N'NLPT  n m)       =  N'NRPT m n
+mirrorKName  (N'NLSC  n m)       =  N'NRSC m n
+mirrorKName  (N'NRSC  n m)       =  N'NLSC m n
+mirrorKName  One'1LSAC           =  One'1RSAC
+mirrorKName  One'1RSAC           =  One'1LSAC
+mirrorKName  One'1'1RPT          =  One'1'1LPT
+mirrorKName  One'1'1LPT          =  One'1'1RPT
+mirrorKName  (N'N'NLC n m l)     =  N'N'NRC l m n 
+mirrorKName  (N'N'NRC n m l)     =  N'N'NLC l m n
+mirrorKName  (N'N'NLCC n m l)    =  N'N'NRCC l m n 
+mirrorKName  (N'N'NRCC n m l)    =  N'N'NRCC l m n
+mirrorKName  (N'N'NLPC n m l)    =  N'N'NRPC l m n
+mirrorKName  (N'N'NRPC n m l)    =  N'N'NLPC l m n
 
 -- Beads ? KBL : KBR 
+mirrorKName  KBL = KBR
+mirrorKName  KBR = KBL
 
+-- Clusters 
+mirrorKName  (SlN_kN_yo_psso 1 1)  =  P2so_yo_k1
+mirrorKName  P2so_yo_k1  =  SlN_kN_yo_psso 1 1
+-- mirrorKnittel (KInst (SlN_kN_psso 1 2) r a t) = KInst  r a t 
+mirrorKName  Sl1_k1_yo_k1_psso  =  P3so_k1_yo_k1
+-- mirrorKnittel (KInst _ r a t)
 
 
 {- TODO: ... strikk alle knittels og se hva som er symmetrisk? -}
 
-mirrorKnittel k = k
+mirrorKName k = k
