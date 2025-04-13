@@ -3,7 +3,8 @@ module Mirror (mirror, invert, stitchLength) where
 import Knittels
     ( Knittel(..),
       KName(..),
-      KArity(..), TBL (..) )
+      KArity(..),
+      TBL (..) )
 import KSSyntax (Pattern, Instruction(..), Instructions, Course(..) )
 
 mirror :: Pattern -> Pattern
@@ -45,31 +46,33 @@ stitchLength (Knittel (KInst _ _ (KArity n ) _)) = n
 
 
 mirrorKnittel :: Knittel -> Knittel
--- Decreases
+-- The operations which mirror images are 
 mirrorKnittel (KInst (KNtog n) r a (Just TBL)) = KInst (KNtogTwisted n) r a Nothing
+mirrorKnittel (KInst (KNtogTwisted n) r a Nothing) = KInst (KNtog n) r a (Just TBL)
 mirrorKnittel (KInst (KNtog 2) r a t)          = KInst Ssk r a t
 mirrorKnittel (KInst (KNtog n ) r a Nothing)   = KInst (KNtog n) r a (Just TBL) -- NOTE: ikke ekte symmetrisk, men brukes ofte for samme visuelle effekt
-mirrorKnittel (KInst Ssk r a t)                = KInst (KNtog 2) r a t
 mirrorKnittel (KInst (PNtog n) r a (Just TBL)) = KInst (PNtogTwisted n) r a Nothing
-mirrorKnittel (KInst (PNtog 2) r a Nothing)    = KInst Ssp r a Nothing
-mirrorKnittel (KInst (PNtog 3) r a Nothing)    = KInst Sssp r a Nothing
+mirrorKnittel (KInst (PNtogTwisted n) r a Nothing) = KInst (PNtog n) r a (Just TBL)
 mirrorKnittel (KInst (PNtog n) r a Nothing)    = KInst (PNtog n) r a (Just TBL) -- NOTE: ikke ekte symmetrisk, men brukes ofte for samme visuelle effekt
 
 mirrorKnittel (KInst k r a t) = KInst (mirrorKName k) r a t
 
--- Increases
 mirrorKName :: KName -> KName
-mirrorKName Ssp                 = PNtog 2
-mirrorKName Sssp                = PNtog 3
-mirrorKName IncL               =IncR
-mirrorKName IncR               =IncL
-mirrorKName IncLp              = IncRp
-mirrorKName IncRp              = IncLp
+mirrorKName Ssk = KNtog 2
+mirrorKName (PNtog 2) =  Ssp 
+mirrorKName (PNtog 3) =  Sssp
+mirrorKName Ssp   =  PNtog 2
+mirrorKName Sssp  =  PNtog 3
 
-mirrorKName M1L                 = M1R
-mirrorKName M1R                 = M1L
-mirrorKName M1Lp               =  M1Rp
-mirrorKName M1Rp               =  M1Lp
+-- Increases
+mirrorKName IncL  =  IncR
+mirrorKName IncR  =  IncL
+mirrorKName IncLp =  IncRp
+mirrorKName IncRp =  IncLp
+mirrorKName M1L  =  M1R
+mirrorKName M1R  =  M1L
+mirrorKName M1Lp =  M1Rp
+mirrorKName M1Rp =  M1Lp
 
 -- Cables 
 mirrorKName  One'1'1LT           =  One'1'1RT
@@ -88,22 +91,23 @@ mirrorKName  One'1LSAC           =  One'1RSAC
 mirrorKName  One'1RSAC           =  One'1LSAC
 mirrorKName  One'1'1RPT          =  One'1'1LPT
 mirrorKName  One'1'1LPT          =  One'1'1RPT
-mirrorKName  (N'N'NLC n m l)     =  N'N'NRC l m n 
+mirrorKName  (N'N'NLC n m l)     =  N'N'NRC l m n
 mirrorKName  (N'N'NRC n m l)     =  N'N'NLC l m n
-mirrorKName  (N'N'NLCC n m l)    =  N'N'NRCC l m n 
+mirrorKName  (N'N'NLCC n m l)    =  N'N'NRCC l m n
 mirrorKName  (N'N'NRCC n m l)    =  N'N'NRCC l m n
 mirrorKName  (N'N'NLPC n m l)    =  N'N'NRPC l m n
 mirrorKName  (N'N'NRPC n m l)    =  N'N'NLPC l m n
 
--- Beads ? KBL : KBR 
+-- Beads 
 mirrorKName  KBL = KBR
 mirrorKName  KBR = KBL
 
 -- Clusters 
 mirrorKName  (SlN_kN_yo_psso 1 1)  =  P2so_yo_k1
-mirrorKName  P2so_yo_k1  =  SlN_kN_yo_psso 1 1
+mirrorKName  P2so_yo_k1            =  SlN_kN_yo_psso 1 1
 -- mirrorKnittel (KInst (SlN_kN_psso 1 2) r a t) = KInst  r a t 
 mirrorKName  Sl1_k1_yo_k1_psso  =  P3so_k1_yo_k1
+mirrorKName  P3so_k1_yo_k1      = Sl1_k1_yo_k1_psso
 -- mirrorKnittel (KInst _ r a t)
 
 
