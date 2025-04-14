@@ -12,5 +12,4 @@ Round 17 : [k3, k2tog] 5 times .
 Round 19 : [k2, k2tog] 5 times .
 (Place eyes and stuff) 
 Round 21 : [k1, k2tog] 5 times .
-Round 22: BO 10 sts . 
-(by breaking the yarn pulling  through all stitches)
+Round 22: BO 10 sts (by breaking the yarn pulling  through all stitches) .

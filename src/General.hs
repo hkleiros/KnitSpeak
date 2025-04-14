@@ -8,8 +8,7 @@ module General
      skipSymbol,
      num,
      maybeINum,
-     comment,
-     lexemeC)
+     comment)
 where
 import Text.Parsec
     ( anyChar,
@@ -36,9 +35,7 @@ parens      =  between (skipSymbol "(") (skipSymbol ")")
 symbol      :: String -> Parser String
 symbol c    =  string c <* many space
 lexeme      :: Parser a -> Parser a
-lexeme p    =  p <* many (void space <|> void comment)
-lexemeC     :: Parser a -> Parser a
-lexemeC p   = p <* many space
+lexeme p    =  p <* many space --(void space <|> void comment)
 
 skipSymbol   :: String -> Parser ()
 skipSymbol [] = return ()
@@ -55,7 +52,5 @@ maybeINum = try ( num <* optional (skipSymbol "sts") )
             <|> return 1
 
 comment :: Parser String
-comment =
-    try (
-        do  skipSymbol "("
-            manyTill anyChar (skipSymbol ")"))
+comment = do  skipSymbol "("
+              manyTill anyChar (skipSymbol ")")

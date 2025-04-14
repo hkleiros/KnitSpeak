@@ -10,7 +10,7 @@ import Mirror (stitchLength)
 
 flipPattern :: Pattern -> Pattern
 flipPattern = map fl
-    where fl (Course c is) = Course c $ flipInstructions (is, 0)
+    where fl (Course l is c) = Course l (flipInstructions (is, 0)) c
           fl x = x 
 
 

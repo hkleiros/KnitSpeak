@@ -11,8 +11,26 @@ import Knittels (Knittel (..))
 
 minimize :: Pattern -> Pattern
 minimize = map min
-    where min (Course r is) = Course r  (m is)
+    where min (Course r is c) = Course r  (m is) c 
           min c = c
+
+--import Text.Parsec.Error (newErrorMessage)
+--import Text.Parsec.Pos (newPos)
+{-
+countLoops :: Pattern -> Either String Pattern
+            let n = maximum (map count r) in 
+            if n > 1 then Left (newErrorMessage  (Message "two loops not allowed in line ") (newPos "main" 0 0))
+            else Right r
+-}
+{-
+        count :: Line -> Int
+        count (Course _ is) = countLoops is
+        countLoops :: Instructions -> Int
+        countLoops [] = 0 
+        countLoops (Loop _ _ : xs) = 1 + countLoops xs
+        countLoops (_ : xs) = countLoops xs
+-}
+
 
 {-combineCourses :: Pattern -> Pattern 
 combineCourses = c sortBy (\(Course _ is) (Course r2 is2) -> compare is  is2)
@@ -54,7 +72,7 @@ numberOfTimes rep w p | rep == take w p =  go 1
 ------------ Unroll ------------
 unroll :: Pattern -> Pattern
 unroll =  map u --join . map u
-          where u (Course r is) = Course r $ unrollInstructions is
+          where u (Course r is c) = Course r (unrollInstructions is) c
                 u c = c
 
           -- NOTE: implemented unrolling of rows, but we dont want to do this when minimizing. 

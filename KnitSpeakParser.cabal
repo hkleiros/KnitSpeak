@@ -30,7 +30,6 @@ library
       General
       KnittelParser
       Knittels
-      KSInterpreter
       Lib
       Minimize
       Mirror
@@ -55,7 +54,6 @@ executable KnitSpeakParser-exe
       General
       KnittelParser
       Knittels
-      KSInterpreter
       KSParser
       KSSyntax
       Lib

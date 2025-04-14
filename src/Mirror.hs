@@ -9,12 +9,12 @@ import KSSyntax (Pattern, Instruction(..), Instructions, Course(..) )
 
 mirror :: Pattern -> Pattern
 mirror = map sym
-  where sym (Course c is) = Course c $ reverseInstructions (is, 0)
+  where sym (Course l is c) = Course l ( reverseInstructions (is, 0)) c
         sym c = c
 
 invert :: Pattern -> Pattern
 invert = map inv
-  where inv (Course c is) = Course c $ invertInstructions (is, 0)
+  where inv (Course l is c) = Course l (invertInstructions (is, 0)) c
         inv c = c
 
 

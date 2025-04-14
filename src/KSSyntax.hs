@@ -18,10 +18,12 @@ import Data.List (intercalate)
 type Pattern = [Course]
 
 data Course =
-      Course Line Instructions
-    | MultilineRepeat String LineNums Times  
-    | Comment String
+      Course Line Instructions Comment
+    | MultilineRepeat String LineNums Times
+    | Comment Comment
     deriving (Eq, Read)
+
+type Comment = String
 
 data Line =
       Round LineNums Side
@@ -46,10 +48,13 @@ type Times = Int
 
 -- Definitions of show 
 instance Show Course where
-    show (Course l i) = join [unwords [ show l, intercalate ", " (map show i)], "."]
+    show (Course l i c) = join [unwords [ show l, intercalate ", " (map show i), showComment c], "."]
     show (MultilineRepeat r l t) = unwords ["Repeat", r, showLineNums l, showTimes t]
-    show (Comment s) = join ["(", s, ")"]
+    show (Comment s) = showComment s
 
+showComment :: String -> String
+showComment "" = ""
+showComment c = join ["(", c, ")"]
 
 instance Show Line where
     show (Row    ln  side) = join ["Rows ", showLineNums ln, show side, ":"]
@@ -57,7 +62,7 @@ instance Show Line where
 
 
 showLineNums :: [Int] -> String
-showLineNums [n] = show n 
+showLineNums [n] = show n
 showLineNums ln = snillFunksjon $ toRanges ln
 
 -- NOTE: forkort dette til noe hyggelig, akkurat nå vil 1-10 printe 1,2,3,4,5,6,7,8,9,10

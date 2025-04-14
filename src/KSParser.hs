@@ -1,5 +1,15 @@
 module KSParser (ParseError, parseString) where
-import General ( lexeme,  skipSymbol, symbol, num, parens, brackets, squigly, comment, lexemeC)
+
+import Prelude hiding (lines)
+import General 
+    ( lexeme,
+      skipSymbol,
+      symbol,
+      num,
+      parens,
+      brackets,
+      squigly,
+      comment)
 import KSSyntax
     ( Line(..),
       Course(..),
@@ -10,7 +20,6 @@ import KSSyntax
       EndSts,
       Times,
       Side (..) )
-import Prelude hiding (lines)
 import Text.Parsec
     ( chainr1,
       eof,
@@ -37,30 +46,11 @@ parseString s =
         Right p -> return p
     where
         patternParser =
-            do lexemeC (return ())
+            do lexeme (return ())
                e <- pattern
                eof
                return e
 
---import Text.Parsec.Error (newErrorMessage)
---import Text.Parsec.Pos (newPos)
-{-
-    case parse patternParser "" s of
-        Left  e -> Left e
--- TODO: get pos of second loop 
-        Right r -> 
-            let n = maximum (map count r) in 
-            if n > 1 then Left (newErrorMessage  (Message "two loops not allowed in line ") (newPos "main" 0 0))
-            else Right r
--}
-{-
-        count :: Line -> Int
-        count (Course _ is) = countLoops is
-        countLoops :: Instructions -> Int
-        countLoops [] = 0 
-        countLoops (Loop _ _ : xs) = 1 + countLoops xs
-        countLoops (_ : xs) = countLoops xs
--}
 
 pattern :: Parser Pattern
 pattern = many course
@@ -69,11 +59,12 @@ pattern = many course
 course :: Parser Course
 course =
     try (
-    do  c  <- line
+    do  l  <- line
         skipSymbol ":"
         is <-  instructions
+        c  <- comment <|> return ""
         optional (void (symbol "."))
-        return (Course c is))
+        return (Course l is c))
     <|>
     try (
     do  skipSymbol "Repeat"
@@ -106,7 +97,6 @@ line =
     do  skipSymbol "Round"
         r <- numbs
         Round r <$> side
-
 
 instructions :: Parser Instructions
 instructions = instruction `sepBy` try (symbol "," >> notFollowedBy (symbol "repeat"))
