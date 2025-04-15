@@ -26,8 +26,8 @@ library
       KSSyntax
       KSParser
   other-modules:
-      Flip
       General
+      Invert
       KnittelParser
       Knittels
       Lib
@@ -50,8 +50,8 @@ library
 executable KnitSpeakParser-exe
   main-is: Main.hs
   other-modules:
-      Flip
       General
+      Invert
       KnittelParser
       Knittels
       KSParser

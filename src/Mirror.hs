@@ -1,4 +1,4 @@
-module Mirror (mirror, invert, stitchLength) where
+module Mirror (mirror, flipPattern, stitchLength) where
 
 import Knittels
     ( Knittel(..),
@@ -29,21 +29,21 @@ mirror (Pattern p) = Pattern $ map sym p
   where sym (Course l is c) = Course l ( reverseInstructions (is, 0)) c
         sym c = c
 
-invert :: Pattern -> Pattern
-invert (Pattern p) = Pattern $ map inv p 
-  where inv (Course l is c) = Course l (invertInstructions (is, 0)) c
+flipPattern :: Pattern -> Pattern
+flipPattern (Pattern p) = Pattern $ map inv p 
+  where inv (Course l is c) = Course l (flipInstructions (is, 0)) c
         inv c = c
 
 
 -- Invert functions
-invertInstructions :: (Instructions, Int) -> Instructions
-invertInstructions (i: is, len) = invertInstruction (i, len) : invertInstructions (is, len + stitchLength i)
-invertInstructions ([], _)      = []
+flipInstructions :: (Instructions, Int) -> Instructions
+flipInstructions (i: is, len) = flipInstruction (i, len) : flipInstructions (is, len + stitchLength i)
+flipInstructions ([], _)      = []
 
-invertInstruction :: (Instruction, Int) -> Instruction
-invertInstruction (Rep is times,  _) = Rep     (invertInstructions (is, 0)) times
-invertInstruction (Loop  is _1, len) = Loop    (invertInstructions (is, 0)) len
-invertInstruction (Knittel    k,  _) = Knittel (mirrorKnittel k)
+flipInstruction :: (Instruction, Int) -> Instruction
+flipInstruction (Rep is times,  _) = Rep     (flipInstructions (is, 0)) times
+flipInstruction (Loop  is _1, len) = Loop    (flipInstructions (is, 0)) len
+flipInstruction (Knittel    k,  _) = Knittel (mirrorKnittel k)
 
 -- Reverse functions
 reverseInstructions :: (Instructions, Int) -> Instructions
