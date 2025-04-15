@@ -1,36 +1,17 @@
-module Minimize (minimize, unroll) where
-import KSSyntax (Instructions, Instruction (..), Pattern(..), Course (Course), Line (..), LineNums)
-
+module Minimize (minimize, unroll, unrollRows) where
+import KSSyntax (Instructions, Instruction (..), Pattern(..), Course (Course), Line (..))
 import Data.Function (on)
 import Data.Foldable (maximumBy)
 import Control.Applicative ( ZipList(ZipList, getZipList) )
-import Data.List (tails, sortBy)
+import Data.List (tails)
 import Control.Monad (join)
 import Knittels (Knittel (..))
 
 
 minimize :: Pattern -> Pattern
-minimize (Pattern p) = Pattern $ map min p 
-    where min (Course r is c) = Course r  (m is) c 
-          min c = c
-
---import Text.Parsec.Error (newErrorMessage)
---import Text.Parsec.Pos (newPos)
-{-
-countLoops :: Pattern -> Either String Pattern
-            let n = maximum (map count r) in 
-            if n > 1 then Left (newErrorMessage  (Message "two loops not allowed in line ") (newPos "main" 0 0))
-            else Right r
--}
-{-
-        count :: Line -> Int
-        count (Course _ is) = countLoops is
-        countLoops :: Instructions -> Int
-        countLoops [] = 0 
-        countLoops (Loop _ _ : xs) = 1 + countLoops xs
-        countLoops (_ : xs) = countLoops xs
--}
-
+minimize (Pattern p) = Pattern $ map cm p
+    where cm (Course r is c) = Course r  (m is) c
+          cm c = c
 
 {-combineCourses :: Pattern -> Pattern 
 combineCourses = c sortBy (\(Course _ is) (Course r2 is2) -> compare is  is2)
@@ -76,15 +57,22 @@ unroll (Pattern p) =  Pattern $ map u p
           where u (Course r is c) = Course r (unrollInstructions is) c
                 u c = c
 
+unrollRows :: Pattern -> Pattern 
+unrollRows (Pattern p) = Pattern $ join $ map u p
+          where u (Course l is c) | len l == 1 = [Course l is c]
+                                  | otherwise = map (\r -> Course r is c) (allLines l)
+                -- TODO: also unroll multiline repeats; need lookup function to do this. 
+                u c = [c]
+                len (Row ln _)        = length ln
+                len (Round ln _)      = length ln
+                allLines (Row ln s)   = map (\l -> Row [l] s) ln 
+                allLines (Round ln s) = map (\l -> Round [l] s) ln
 
-allLines :: Line -> [Line]
-allLines (Round ls s) = map (\l -> Round [l] s) ls
-allLines (Row ls s) = map (\l -> Row [l] s) ls 
 
 
 unrollInstructions :: Instructions -> Instructions
-unrollInstructions ((Rep r t) : is)   =  join (replicate t (unrollInstructions r)) ++ is
 unrollInstructions ((Knittel k) : is) = unrollKnittel k ++ unrollInstructions is
+unrollInstructions ((Rep r t) : is)   = join (replicate t (unrollInstructions r)) ++ is
 unrollInstructions (l : is)           = l : unrollInstructions is -- NOTE: dont unroll Loops
 unrollInstructions [] = []
 

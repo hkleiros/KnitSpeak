@@ -1,39 +1,22 @@
-module Main (main) where
-
 import KSSyntax
---import KSInterpreter        (execute)
 import KSParser             (parseString)
 import Mirror               (mirror, invert)
 import Flip                 (flipPattern)
-import Minimize             (minimize, unroll)
+import Minimize             (minimize, unroll, unrollRows)
 import System.Environment   (getArgs)
 import System.Exit          (die)
 import Control.Monad        (join)
-import Data.List            (intercalate)
 
-{-
-run :: Pattern -> IO ()
-run p =
-  do let (out, res) = execute p
-     mapM_ putStrLn out
-     case res of
-       Nothing -> return ()
-       Just e  -> putStrLn ("*** Runtime error: " ++ show e)
--}
-
-{- NOTE: kan denne også ta en mappe, og kjøre alle programmer i den, 
-se hvilke som får feil og hvilke som får like datastrukturer også printe stats. -}
 main :: IO ()
 main = do args <- getArgs
           case args of
-            {-["-i", file] -> do -- TODO: fjern? 
-              s <- readFile file
-              run $ read s -}
+
             [file] -> do
                 s <- readFile file
                 case parseString s of
                     Left e  -> putStrLn $ "*** Parse error: " ++ show e
                     Right p -> print p
+
 
             [f, file]
                 | f == "-p" || f == "--parse" -> do
@@ -57,7 +40,7 @@ main = do args <- getArgs
                         Left e   -> putStrLn $ "*** Parse error: " ++ show e
                         Right p  -> putStrLn $ join ["Pattern is equal? ", show (p == invert p), "\n\n", show p, "\n\nInverted:\n", show $ invert p]
 
-                | f == "-f" || f == "-flip" -> do
+                | f == "-f" || f == "--flip" -> do
                     s <- readFile file
                     case parseString s of
                         Left e   -> putStrLn $ "*** Parse error: " ++ show e
@@ -73,7 +56,7 @@ main = do args <- getArgs
                     s <- readFile file
                     case parseString s of
                         Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                        Right p  -> putStrLn $ join [ show p, "\n\nUnrolled:\n", show $ unroll p]
+                        Right p  -> putStrLn $ join [ show p, "\n\nUnrolled:\n", show $ unrollRows p]
 
 
             [f, file, file2] | f == "-c" || f == "--compare" -> do
@@ -112,5 +95,5 @@ usage = "Usage:\n\
 
 noComments :: Pattern -> Pattern
 noComments (Pattern p)  = Pattern $ filter cn p
-        where   cn (Comment c) = False
+        where   cn (Comment _) = False
                 cn _ = True

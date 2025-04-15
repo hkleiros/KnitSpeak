@@ -7,6 +7,23 @@ import Knittels
       TBL (..) )
 import KSSyntax (Pattern(..), Instruction(..), Instructions, Course(..) )
 
+--import Text.Parsec.Error (newErrorMessage)
+--import Text.Parsec.Pos (newPos)
+{-
+countLoops :: Pattern -> Either String Pattern
+            let n = maximum (map count r) in 
+            if n > 1 then Left (newErrorMessage  (Message "two loops not allowed in line ") (newPos "main" 0 0))
+            else Right r
+-}
+{-
+        count :: Line -> Int
+        count (Course _ is) = countLoops is
+        countLoops :: Instructions -> Int
+        countLoops [] = 0 
+        countLoops (Loop _ _ : xs) = 1 + countLoops xs
+        countLoops (_ : xs) = countLoops xs
+-}
+-- TODO: assert that pattern does not contain two loops in one line 
 mirror :: Pattern -> Pattern
 mirror (Pattern p) = Pattern $ map sym p
   where sym (Course l is c) = Course l ( reverseInstructions (is, 0)) c

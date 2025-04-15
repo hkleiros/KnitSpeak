@@ -1,18 +1,14 @@
 module Spec (testFolder, testRep) where
 
-import Control.Monad (filterM, join, sequence)
-import Data.List (filter, intercalate)
+import Control.Monad (filterM, join)
 import KSParser (parseString)
-import KSSyntax
-import System.Directory.Extra
-  ( findFilesWith,
-    getDirectoryContents,
-    listDirectory,
-  )
+import System.Directory.Extra (listDirectory)
 import System.FilePath (takeExtension)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit
-import Data.Either (isLeft, isRight)
+import Data.Either (isRight)
+--import KSSyntax
+--import Data.List (filter, intercalate)
 
 
 testFolder :: IO ()
@@ -32,17 +28,12 @@ knitspeaks = do
 -- NOTE: er det bedre å sjekke extention her eller i `knitspeaks`? Har egt ikke noe å si hvis vi ikke eksporterer metoden. 
 parseFromFile :: String -> IO String
 parseFromFile f =
-  -- \| takeExtension f == ".ks" =
   do
     s <- readFile $ "test/" ++ f
     case parseString s of
       Left e -> return (join ["Error:", show f, ", message :", show e])
-      Right p -> return (join ["Parsed: ", show f])
+      Right _ -> return (join ["Parsed: ", show f])
 
--- \| otherwise = return "" -- ("Error:" ++ show f ++ " has illegal file extention")
-
-programStr :: Pattern -> String
-programStr p = intercalate "\n" $ map show p
 
 testRep :: TestTree
 testRep = testGroup "Test times parser"
