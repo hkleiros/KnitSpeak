@@ -75,10 +75,11 @@ executable KnitSpeakParser-exe
     , parsec
   default-language: Haskell2010
 
-test-suite KnitSpeakParser-test
+test-suite KnitSpeak-test
   type: exitcode-stdio-1.0
-  main-is: Spec.hs
+  main-is: Test.hs
   other-modules:
+      Spec
       Paths_KnitSpeakParser
   autogen-modules:
       Paths_KnitSpeakParser
@@ -92,4 +93,7 @@ test-suite KnitSpeakParser-test
     , extra
     , filepath
     , parsec
+    , tasty
+    , tasty-hunit
+    , tasty-quickcheck
   default-language: Haskell2010

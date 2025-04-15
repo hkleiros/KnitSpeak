@@ -1,0 +1,1 @@
+Row 4 : [k 6, * k2tog, repeat from * to last st] twice .

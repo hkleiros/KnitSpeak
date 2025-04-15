@@ -58,8 +58,8 @@ executables:
     - KnitSpeakParser
 
 tests:
-  KnitSpeakParser-test:
-    main:                Spec.hs
+  KnitSpeak-test:
+    main:                Test.hs
     source-dirs:         test
     ghc-options:
     - -threaded
@@ -67,3 +67,6 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - KnitSpeakParser
+    - tasty
+    - tasty-hunit
+    - tasty-quickcheck

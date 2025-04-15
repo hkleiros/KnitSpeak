@@ -1,3 +1,5 @@
+module Spec (testFolder, testRep) where
+
 import Control.Monad (filterM, join, sequence)
 import Data.List (filter, intercalate)
 import KSParser (parseString)
@@ -8,15 +10,13 @@ import System.Directory.Extra
     listDirectory,
   )
 import System.FilePath (takeExtension)
-import Prelude
+import Test.Tasty (TestTree, testGroup)
+import Test.Tasty.HUnit
+import Data.Either (isLeft, isRight)
 
-main :: IO ()
-main = test
 
--- putStrLn "Test suite not yet implemented"
-
-test :: IO ()
-test = do
+testFolder :: IO ()
+testFolder = do
   x <- knitspeaks
   mapM_ putStrLn x
 
@@ -43,3 +43,20 @@ parseFromFile f =
 
 programStr :: Pattern -> String
 programStr p = intercalate "\n" $ map show p
+
+testRep :: TestTree
+testRep = testGroup "Test times parser"
+    [ testCase "Zero times" $
+        testExample "zero-times-test" False
+    , testCase "Ten times" $
+        testExample "times" True
+    , testCase "Twice" $
+        testExample "twice" True
+    , testCase "Nested reps" $
+        testExample "nested" True
+    , testCase "Loops not allowed" $
+        testExample "loops" False
+    ]
+    where testExample n res  =
+            do  p <- readFile (join ["test/rep/", n, ".ks"])
+                isRight (parseString p) @?= res

@@ -21,7 +21,7 @@ import KSSyntax
       Times,
       Side (..) )
 import Text.Parsec
-    ( chainr1,
+    ( chainl1,
       eof,
       notFollowedBy,
       sepBy,
@@ -170,7 +170,7 @@ end =
 
 
 numbs :: Parser LineNums
-numbs = nums `chainr1` separator
+numbs = nums `chainl1` separator
     where separator = (try (symbol "," >> symbol "and") <|> symbol "," <|> symbol "and")   $> (++)
 
 nums :: Parser LineNums -- lager lister
