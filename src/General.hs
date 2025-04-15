@@ -23,7 +23,6 @@ import Text.Parsec
       try,
       optional)
 import Text.Parsec.String (Parser)
-import Data.Functor (void)
 import Data.Char (isDigit, toUpper, toLower)
 
 squigly     :: Parser a -> Parser a

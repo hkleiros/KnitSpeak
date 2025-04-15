@@ -33,47 +33,47 @@ main = do args <- getArgs
                 s <- readFile file
                 case parseString s of
                     Left e  -> putStrLn $ "*** Parse error: " ++ show e
-                    Right p -> putStrLn $ programStr p
+                    Right p -> print p
 
-            [f, file] 
+            [f, file]
                 | f == "-p" || f == "--parse" -> do
                     s <- readFile file
                     case parseString s of
                         Left e -> putStrLn $ "*** Parse error: " ++ show e
                         Right ast ->
-                                case parseString $ programStr ast of
+                                case parseString $ show ast of
                                     Left e     -> putStrLn $ "*** Parse error on generated KS: " ++ show e ++ "\n" ++ show ast
-                                    Right ast2 -> putStrLn $ join ["File: ", file, "\n", "ASTs are equal: ", show  (ast == ast2) , "\n", programStr ast2]
-            
+                                    Right ast2 -> putStrLn $ join ["File: ", file, "\n", "ASTs are equal: ", show  (ast == ast2) , "\n", show ast2]
+
                 | f == "-s" || f == "--mirror" -> do
                     s <- readFile file
                     case parseString s of
                         Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                        Right p  -> putStrLn $ join ["Pattern is symmetrical? ", show (p == mirror p), "\n\n", programStr p, "\n\nInverted and reversed:\n", programStr $ mirror p]
-                
+                        Right p  -> putStrLn $ join ["Pattern is symmetrical? ", show (p == mirror p), "\n\n", show p, "\n\nInverted and reversed:\n", show $ mirror p]
+
                 | f == "-i" || f == "--invert" -> do
                     s <- readFile file
                     case parseString s of
                         Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                        Right p  -> putStrLn $ join ["Pattern is equal? ", show (p == invert p), "\n\n", programStr p, "\n\nInverted:\n", programStr $ invert p]
+                        Right p  -> putStrLn $ join ["Pattern is equal? ", show (p == invert p), "\n\n", show p, "\n\nInverted:\n", show $ invert p]
 
                 | f == "-f" || f == "-flip" -> do
                     s <- readFile file
                     case parseString s of
                         Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                        Right p  -> putStrLn $ join ["\n", programStr p, "\n\nFlipped:\n", programStr $ flipPattern p]
-            
+                        Right p  -> putStrLn $ join ["\n", show p, "\n\nFlipped:\n", show $ flipPattern p]
+
                 | f == "-m" || f == "--minimize" -> do
                     s <- readFile file
                     case parseString s of
                         Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                        Right p  -> putStrLn $ join ["Pattern is minimal? ", show (p == minimize (unroll p)), "\n\n", programStr p, "\n\nMinimized:\n", programStr $ minimize $ unroll p]
+                        Right p  -> putStrLn $ join ["Pattern is minimal? ", show (p == minimize (unroll p)), "\n\n", show p, "\n\nMinimized:\n", show $ minimize $ unroll p]
 
                 | f == "-u" || f == "--unroll" -> do
                     s <- readFile file
                     case parseString s of
                         Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                        Right p  -> putStrLn $ join [ programStr p, "\n\nUnrolled:\n", programStr $ unroll p]
+                        Right p  -> putStrLn $ join [ show p, "\n\nUnrolled:\n", show $ unroll p]
 
 
             [f, file, file2] | f == "-c" || f == "--compare" -> do
@@ -81,20 +81,20 @@ main = do args <- getArgs
                 sm <- readFile file2
                 case parseString s of
                     Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                    Right p  -> 
+                    Right p  ->
                         case parseString sm of
                             Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                            Right p2 -> putStrLn $ join ["Mirrored pattern is equal to second pattern? ", show (mirror p == p2), "\n\n", programStr p, "\n\nMirrored:\n", programStr $ mirror p, "\n\nMirrored example:\n", programStr p2]
-               
-                        
-            [file, output] 
+                            Right p2 -> putStrLn $ join ["Mirrored pattern is equal to second pattern? ", show (noComments (mirror p) == noComments p2), "\n\n", show p, "\n\nMirrored:\n", show $ mirror p, "\n\nMirrored example:\n", show p2]
+
+
+            [file, output]
                 | head file == '-' -> die usage
-                | otherwise        -> do 
+                | otherwise        -> do
                     s <- readFile file
                     case parseString s of
                         Left e -> putStrLn $ "*** Parse error: " ++ show e
-                        Right p -> 
-                            do  writeFile output $ programStr p
+                        Right p ->
+                            do  writeFile output $ show p
                                 putStrLn $ "Pattern written to: " ++ show output
             _ ->
                 die usage
@@ -109,9 +109,8 @@ usage = "Usage:\n\
     \ knitSpeak -m   PATTERN.ks            (minimize pattern)\n\
     \ knitSpeak -p   PATTERN.ks            (parse & assert output is equal)\n\
     \ knitSpeak      PATTERN.ks OUTPUT     (write to file)"
-    {-\n\ 
-    \ knitSpeak -i   PATTERN.ast           (interpret only)\n\
-    -}
 
-programStr :: Pattern -> String
-programStr p = intercalate "\n" $ map show p
+noComments :: Pattern -> Pattern
+noComments (Pattern p)  = Pattern $ filter cn p
+        where   cn (Comment c) = False
+                cn _ = True

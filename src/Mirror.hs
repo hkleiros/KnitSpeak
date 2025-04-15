@@ -5,15 +5,15 @@ import Knittels
       KName(..),
       KArity(..),
       TBL (..) )
-import KSSyntax (Pattern, Instruction(..), Instructions, Course(..) )
+import KSSyntax (Pattern(..), Instruction(..), Instructions, Course(..) )
 
 mirror :: Pattern -> Pattern
-mirror = map sym
+mirror (Pattern p) = Pattern $ map sym p
   where sym (Course l is c) = Course l ( reverseInstructions (is, 0)) c
         sym c = c
 
 invert :: Pattern -> Pattern
-invert = map inv
+invert (Pattern p) = Pattern $ map inv p 
   where inv (Course l is c) = Course l (invertInstructions (is, 0)) c
         inv c = c
 

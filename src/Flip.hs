@@ -4,12 +4,12 @@ import Knittels
     ( Knittel(..),
       KName(..),
       TBL (..), YarnPlacement (..) )
-import KSSyntax (Pattern, Instruction(..), Instructions, Course(..) )
+import KSSyntax (Pattern(..), Instruction(..), Instructions, Course(..) )
 import Mirror (stitchLength)
 
 
 flipPattern :: Pattern -> Pattern
-flipPattern = map fl
+flipPattern (Pattern p) = Pattern $ map fl p 
     where fl (Course l is c) = Course l (flipInstructions (is, 0)) c
           fl x = x 
 

@@ -11,7 +11,8 @@ import General
       squigly,
       comment)
 import KSSyntax
-    ( Line(..),
+    ( Pattern(..),
+      Line(..),
       Course(..),
       Instructions,
       Instruction(..),
@@ -53,7 +54,7 @@ parseString s =
 
 
 pattern :: Parser Pattern
-pattern = many course
+pattern = do Pattern <$> many course
 
 
 course :: Parser Course

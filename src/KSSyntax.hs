@@ -1,7 +1,7 @@
 -- Abstract syntax definitions for KnitSpeak : https://stitch-maps.com/about/knitspeak/ 
 
 module KSSyntax (
-        Pattern,
+        Pattern(..),
         Course(..),
         Line(..),
         LineNums,
@@ -10,13 +10,17 @@ module KSSyntax (
         EndSts,
         Times,
         Side(..)
-        )where
+        ) where
 import Control.Monad ( join )
 import Knittels (Knittel (KInst), KName (..))
 import Data.List (intercalate)
 
-type Pattern = [Course]
+newtype Pattern = Pattern [Course] 
+    deriving (Eq, Read)
 
+instance Show Pattern where
+    show (Pattern p) = intercalate "\n" $ map show p
+        
 data Course =
       Course Line Instructions Comment
     | MultilineRepeat String LineNums Times
@@ -48,21 +52,22 @@ type Times = Int
 
 -- Definitions of show 
 instance Show Course where
-    show (Course l i c) = join [unwords [ show l, intercalate ", " (map show i), showComment c], "."]
+    show (Course l i c) 
+        | c ==  "" = join [unwords [ show l, intercalate ", " (map show i)], "."]
+        | otherwise  = join [unwords [ show l, intercalate ", " (map show i), showComment c], "."]
     show (MultilineRepeat r l t) = unwords ["Repeat", r, showLineNums l, showTimes t]
     show (Comment s) = showComment s
 
 showComment :: String -> String
-showComment "" = ""
 showComment c = join ["(", c, ")"]
 
 instance Show Line where
+    show (Row    [n] side) = join ["Row ", show n, show side, ":"] 
     show (Row    ln  side) = join ["Rows ", showLineNums ln, show side, ":"]
+    show (Round  [n] side) = join ["Round ", show n, show side, ":"]
     show (Round  ln  side) = join ["Rounds ", showLineNums ln, show side , ":"]
 
-
 showLineNums :: [Int] -> String
-showLineNums [n] = show n
 showLineNums ln = snillFunksjon $ toRanges ln
 
 -- NOTE: forkort dette til noe hyggelig, akkurat nå vil 1-10 printe 1,2,3,4,5,6,7,8,9,10

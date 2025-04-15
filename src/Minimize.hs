@@ -1,5 +1,5 @@
 module Minimize (minimize, unroll) where
-import KSSyntax (Instructions, Instruction (..), Pattern, Course (Course), Line (..), LineNums)
+import KSSyntax (Instructions, Instruction (..), Pattern(..), Course (Course), Line (..), LineNums)
 
 import Data.Function (on)
 import Data.Foldable (maximumBy)
@@ -10,7 +10,7 @@ import Knittels (Knittel (..))
 
 
 minimize :: Pattern -> Pattern
-minimize = map min
+minimize (Pattern p) = Pattern $ map min p 
     where min (Course r is c) = Course r  (m is) c 
           min c = c
 
@@ -71,20 +71,16 @@ numberOfTimes rep w p | rep == take w p =  go 1
 
 ------------ Unroll ------------
 unroll :: Pattern -> Pattern
-unroll =  map u --join . map u
+unroll (Pattern p) =  Pattern $ map u p 
+        --join . map u
           where u (Course r is c) = Course r (unrollInstructions is) c
                 u c = c
 
-          -- NOTE: implemented unrolling of rows, but we dont want to do this when minimizing. 
-          --where u (Course r is) | len r == 1 = [Course r $ unrollInstructions is]
-           --                     | otherwise = map (`Course` unrollInstructions is) (allLines r)
-            --    u c = [c]
-                len (Round is s) = length is
-                len (Row is s) = length is
 
 allLines :: Line -> [Line]
 allLines (Round ls s) = map (\l -> Round [l] s) ls
 allLines (Row ls s) = map (\l -> Row [l] s) ls 
+
 
 unrollInstructions :: Instructions -> Instructions
 unrollInstructions ((Rep r t) : is)   =  join (replicate t (unrollInstructions r)) ++ is
