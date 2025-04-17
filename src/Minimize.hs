@@ -26,7 +26,7 @@ m is =
     case slidingWindow is of -- Get all repeating substructures 
         [] -> is
         r  -> 
-          let (s, t, i, l) = maximumBy (compare `on` snd4) r --- Choose the one with largest number of repeats 
+          let (s, t, i, l) = maximumBy (compare `on` snd4) r --- Choose the substructure with largest number of repeats 
             in case s of
               -- Call m again on the list and repeating structure
               [Knittel (KInst k _ a tbl)] -> 

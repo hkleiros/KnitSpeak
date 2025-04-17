@@ -63,9 +63,11 @@ stitchLength (Knittel (KInst _ _ (KArity n ) _)) = n
 
 
 mirrorKnittel :: Knittel -> Knittel
--- The operations which mirror images are 
+-- The operations which mirror images are: 
 mirrorKnittel (KInst (KNtog n) r a (Just TBL)) = KInst (KNtogTwisted n) r a Nothing
-mirrorKnittel (KInst (KNtogTwisted n) r a Nothing) = KInst (KNtog n) r a (Just TBL)
+mirrorKnittel (KInst (KNtogTwisted n) r a Nothing) 
+    | n == 2 || n == 3 = KInst (KNtog n) r a (Just TBL)
+    | otherwise = KInst (KNtog n ) r a Nothing 
 mirrorKnittel (KInst (KNtog 2) r a t)          = KInst Ssk r a t
 mirrorKnittel (KInst (KNtog n ) r a Nothing)   = KInst (KNtog n) r a (Just TBL) -- NOTE: ikke ekte symmetrisk, men brukes ofte for samme visuelle effekt
 mirrorKnittel (KInst (PNtog n) r a (Just TBL)) = KInst (PNtogTwisted n) r a Nothing
@@ -76,20 +78,20 @@ mirrorKnittel (KInst k r a t) = KInst (mirrorKName k) r a t
 
 mirrorKName :: KName -> KName
 mirrorKName Ssk = KNtog 2
-mirrorKName (PNtog 2) =  Ssp 
-mirrorKName (PNtog 3) =  Sssp
 mirrorKName Ssp   =  PNtog 2
 mirrorKName Sssp  =  PNtog 3
+mirrorKName (PNtog 2) =  Ssp 
+mirrorKName (PNtog 3) =  Sssp
 
 -- Increases
 mirrorKName IncL  =  IncR
 mirrorKName IncR  =  IncL
 mirrorKName IncLp =  IncRp
 mirrorKName IncRp =  IncLp
-mirrorKName M1L  =  M1R
-mirrorKName M1R  =  M1L
-mirrorKName M1Lp =  M1Rp
-mirrorKName M1Rp =  M1Lp
+mirrorKName M1L   =  M1R
+mirrorKName M1R   =  M1L
+mirrorKName M1Lp  =  M1Rp
+mirrorKName M1Rp  =  M1Lp
 
 -- Cables 
 mirrorKName  One'1'1LT           =  One'1'1RT
