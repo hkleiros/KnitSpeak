@@ -23,7 +23,7 @@ dependencies:
 - containers
 - parsec
 - extra
-- filepath
+
 
 ghc-options:
 - -W
@@ -43,6 +43,13 @@ library:
   exposed-modules:
     - KSSyntax
     - KSParser
+    - Mirror
+    - Minimize
+    - Invert
+    - KnittelParser
+    - Knittels 
+    - General
+
 
 executables:
   KnitSpeakParser-exe:
@@ -65,8 +72,10 @@ tests:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    - -O
     dependencies:
     - KnitSpeakParser
     - tasty
     - tasty-hunit
     - tasty-quickcheck
+    - filepath

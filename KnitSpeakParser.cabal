@@ -25,14 +25,13 @@ library
   exposed-modules:
       KSSyntax
       KSParser
-  other-modules:
-      General
+      Mirror
+      Minimize
       Invert
       KnittelParser
       Knittels
-      Lib
-      Minimize
-      Mirror
+      General
+  other-modules:
       Paths_KnitSpeakParser
   autogen-modules:
       Paths_KnitSpeakParser
@@ -43,7 +42,6 @@ library
       base >=4.7 && <5
     , containers
     , extra
-    , filepath
     , parsec
   default-language: Haskell2010
 
@@ -56,7 +54,6 @@ executable KnitSpeakParser-exe
       Knittels
       KSParser
       KSSyntax
-      Lib
       Minimize
       Mirror
       Paths_KnitSpeakParser
@@ -71,7 +68,6 @@ executable KnitSpeakParser-exe
     , base >=4.7 && <5
     , containers
     , extra
-    , filepath
     , parsec
   default-language: Haskell2010
 
@@ -85,7 +81,7 @@ test-suite KnitSpeak-test
       Paths_KnitSpeakParser
   hs-source-dirs:
       test
-  ghc-options: -W -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -W -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -O
   build-depends:
       KnitSpeakParser
     , base >=4.7 && <5

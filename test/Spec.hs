@@ -1,34 +1,80 @@
 module Spec (testFolder, testRep) where
 
 import Control.Monad (filterM, join)
-import Data.Either (isRight)
-import KSParser (parseString)
-import System.Directory.Extra (listDirectory)
-import System.FilePath (takeExtension)
+import Data.Data (typeOf)
+import Data.Either (isLeft, isRight, lefts, rights)
+import Data.Either.Extra (fromLeft')
+import KSParser (ParseError, parseString)
+import KSSyntax (Pattern)
+import System.Directory.Extra (createDirectoryIfMissing, listDirectory)
+import System.FilePath (replaceDirectory, takeExtension, (</>))
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit
+import Text.Printf (printf)
 
--- import KSSyntax
 -- import Data.List (filter, intercalate)
 
 testFolder :: IO ()
 testFolder = do
-  x <- knitspeaks
+  x <- testDirKnitspeaks
   mapM_ putStrLn x
 
-knitspeaks :: IO [String]
-knitspeaks = do
+testKnitSpeaks :: IO ()
+testKnitSpeaks = do
+  results <- mapM (\n -> testDirStitchMapsKnitSpeaks (join ["../knitspeaks", show n, "/"])) ([1 .. 6] :: [Int])
+  let errors = sum $ map fst results
+      parsed = sum $ map snd results
+      total = errors + parsed -- 10524
+      -- percentageParsed = parsed / total
+      -- percentageErrors = errors / total
+  putStrLn $ "Total patterns checked: " ++ show total
+  putStrLn (show errors ++ " patterns did not parse")
+  -- printf "%.2f" percentageErrors
+  putStrLn (show parsed ++ " patterns parsed")
+
+-- printf "%.2f" percentageParsed
+
+testDirKnitspeaks :: IO [String]
+testDirKnitspeaks = do
   f <- listDirectory "test"
   fs <- filterM (\x -> return $ takeExtension x == ".ks") f
-  mapM parseFromFile fs
+  files <- mapM (return . ("test/" </>)) fs
+  mapM parseFromFile files
 
--- getDirectoryContents "../KnitSpeakGenerator/knitspeaks" >>= print
+testDirStitchMapsKnitSpeaks :: String -> IO (Int, Int) -- [ParseError]
+testDirStitchMapsKnitSpeaks dir = do
+  f <- listDirectory dir
+  fs <- filterM (\x -> return $ takeExtension x == ".ks") (reverse f)
+  files <- mapM (return . (dir </>)) fs
+  -- TODO - analyze the errors
+  res <- mapM parseFile files
+  let errors = filter (isLeft . snd) res
+      -- TODO write to file
+      l = length errors
+      r = length $ filter (isRight . snd) res -- length $ rights res
+  writeErrors (map (\(x, y) -> (x, fromLeft' y)) errors)
+  print (l, r)
+  return (l, r)
+  where
+    writeErrors = mapM (writeError dir)
 
--- NOTE: er det bedre å sjekke extention her eller i `knitspeaks`? Har egt ikke noe å si hvis vi ikke eksporterer metoden.
+writeError :: String -> (String, ParseError) -> IO ()
+writeError dir (f, pe) =
+  do
+    let errordir = dir </> "errors/"
+    createDirectoryIfMissing False errordir
+    writeFile (replaceDirectory f errordir) (show pe)
+
+parseFile :: String -> IO (String, Either ParseError Pattern)
+parseFile f =
+  do
+    s <- readFile f
+    return (f, parseString s)
+
 parseFromFile :: String -> IO String
 parseFromFile f =
   do
-    s <- readFile $ "test/" ++ f
+    s <- readFile f
     case parseString s of
       Left e -> return (join ["Error:", show f, ", message :", show e])
       Right _ -> return (join ["Parsed: ", show f])
