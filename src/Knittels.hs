@@ -1,11 +1,7 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-
 {-# HLINT ignore "Use camelCase" #-}
-
 module Knittels (Knittel (..), KName (..), KArity (..), TBL (..), InstructionNum, YarnPlacement (..)) where
-
 import Control.Monad (join)
-
 data Knittel = KInst KName InstructionNum KArity (Maybe TBL) deriving (Eq, Read)
 
 instance Show Knittel where
@@ -43,6 +39,7 @@ data KName
   | K
   | P
   | Yo
+  | Turn 
     -- Generated from `generate_parser.py
   | WAndt
   | Sssp
@@ -139,6 +136,7 @@ instance Show KName where
   show K                                = "k"
   show P                                = "p"
   show Yo                               = "yo"
+  show Turn                             = "turn"
 
   -- Generated from `generate_parser.py
   show WAndt                            = "w&t"

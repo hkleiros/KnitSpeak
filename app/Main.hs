@@ -31,7 +31,10 @@ main = do
             s <- readFile file
             case parseString s of
                 Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                Right p  -> putStrLn $ join ["Pattern is symmetrical? ", show (p == mirror p), "\n\n", show p, "\n\nInverted and reversed:\n", show $ mirror p]
+                Right p  -> 
+                    case mirror p of 
+                        Left e -> putStrLn $ "*** Mirroring error: " ++ show e
+                        Right m -> putStrLn $ join ["Pattern is symmetrical? ", show (p == m), "\n\n", show p, "\n\nInverted and reversed:\n", show m]
 
         | f == "-f" || f == "--flip" -> do
             s <- readFile file
@@ -65,7 +68,19 @@ main = do
             Right p  ->
                 case parseString sm of
                     Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                    Right p2 -> putStrLn $ join ["Mirrored pattern is equal to second pattern? ", show (noComments (mirror p) == noComments p2), "\n\n", show p, "\n\nMirrored:\n", show $ mirror p, "\n\nMirrored example:\n", show p2]
+                    Right p2 -> 
+                        case mirror p2 of 
+                            Left e -> putStrLn $ "*** Mirroring error: " ++ show e
+                            Right m -> putStrLn $ join [
+                                "Mirrored pattern is equal to second pattern? ", 
+                                show (noComments m == noComments p2), 
+                                "\n\n", 
+                                show p, 
+                                "\n\nMirrored:\n", 
+                                show m, 
+                                "\n\nMirrored example:\n", 
+                                show p2
+                                ]
 
     [file, output]
         | head file == '-' -> die usage

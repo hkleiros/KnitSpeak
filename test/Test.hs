@@ -1,11 +1,12 @@
 -- import InterpreterTests
 -- import ParserTests
-import Spec (testFolder, testRep)
+import Spec (testFolder, testRep, testKnitSpeaks)
 import Test.Tasty
 
 main :: IO ()
 main =
   do
+    --testKnitSpeaks
     testFolder
     defaultMain $
       localOption (mkTimeout 1000000) $

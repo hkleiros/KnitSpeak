@@ -72,7 +72,7 @@ course =
         r <- try (symbol "rows") <|> try (symbol "rounds") <|> try (symbol "row") <|> try (symbol "round")
         ln <- nums
         t <- try times <|> return 0 
-        optional (void (symbol "."))
+        void (symbol ".")
         return (MultilineRepeat r ln t))
     <|> 
     do  Comment <$> comment

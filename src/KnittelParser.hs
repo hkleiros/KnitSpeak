@@ -27,37 +27,32 @@ tbl =
 knittel :: Parser Knittel
 knittel =
     try(
-    do
-          skipSymbol "k"
-          notFollowedBy (string "f" <|> string "B")
-          n <- maybeINum
-          notFollowedBy (string "tog" <|> string "s" <|> string "below")
-          KInst K n (KArity 1) <$> tbl)
+    do  skipSymbol "k"
+        notFollowedBy (string "f" <|> string "B")
+        n <- maybeINum
+        notFollowedBy (string "tog" <|> string "s" <|> string "below")
+        KInst K n (KArity 1) <$> tbl)
     <|> 
     try(
-    do
-          skipSymbol "p"
-          notFollowedBy (string "f" <|> string "B")
-          n <- maybeINum
-          notFollowedBy (string "tog" <|> string "s" <|> string "below")
-          KInst P n (KArity 1) <$> tbl)
+    do  skipSymbol "p"
+        notFollowedBy (string "f" <|> string "B")
+        n <- maybeINum
+        notFollowedBy (string "tog" <|> string "s" <|> string "below")
+        KInst P n (KArity 1) <$> tbl)
     <|> 
     try(
-    do
-          skipSymbol "Knit"
-          KInst Knit 0 (KArity (-1)) <$> tbl)
+    do  skipSymbol "Knit" 
+        KInst Knit 0 (KArity (-1)) <$> tbl)
     <|> 
     try(
-    do
-          skipSymbol "Purl"
-          KInst Purl 0 (KArity (-1)) <$> tbl)
+    do  skipSymbol "Purl"
+        KInst Purl 0 (KArity (-1)) <$> tbl)
     <|> 
     try(
-    do
-          try (skipSymbol "Slip") <|> skipSymbol "sl"
-          n <- num
-          yp <- yarnPlacement
-          KInst (Slip n yp) n (KArity 1) <$> tbl)
+    do  try (skipSymbol "Slip") <|> skipSymbol "sl"
+        n <- num
+        yp <- yarnPlacement
+        KInst (Slip n yp) n (KArity 1) <$> tbl)
     <|>
     try (
     do  skipSymbol "yo"
@@ -243,7 +238,10 @@ knittel =
         r <- maybeINum
         KInst BO r (KArity 1) <$> tbl)
     <|>
-
+    try (
+    do  skipSymbol "turn"
+        return (KInst Turn 1 (KArity 0) Nothing))
+    <|>
     -- Combined operations: yo-p2-pyo, yo-p3-pyo
     try (
     do  skipSymbol "yo"

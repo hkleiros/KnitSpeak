@@ -1,4 +1,4 @@
-module Spec (testFolder, testRep) where
+module Spec (testFolder, testRep, testKnitSpeaks) where
 
 import Control.Monad (filterM, join)
 import Data.Data (typeOf)
@@ -10,7 +10,6 @@ import System.Directory.Extra (createDirectoryIfMissing, listDirectory)
 import System.FilePath (replaceDirectory, takeExtension, (</>))
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit
-import Text.Printf (printf)
 
 -- import Data.List (filter, intercalate)
 
@@ -25,14 +24,9 @@ testKnitSpeaks = do
   let errors = sum $ map fst results
       parsed = sum $ map snd results
       total = errors + parsed -- 10524
-      -- percentageParsed = parsed / total
-      -- percentageErrors = errors / total
   putStrLn $ "Total patterns checked: " ++ show total
   putStrLn (show errors ++ " patterns did not parse")
-  -- printf "%.2f" percentageErrors
   putStrLn (show parsed ++ " patterns parsed")
-
--- printf "%.2f" percentageParsed
 
 testDirKnitspeaks :: IO [String]
 testDirKnitspeaks = do
@@ -46,18 +40,16 @@ testDirStitchMapsKnitSpeaks dir = do
   f <- listDirectory dir
   fs <- filterM (\x -> return $ takeExtension x == ".ks") (reverse f)
   files <- mapM (return . (dir </>)) fs
-  -- TODO - analyze the errors
   res <- mapM parseFile files
   let errors = filter (isLeft . snd) res
-      -- TODO write to file
       l = length errors
       r = length $ filter (isRight . snd) res -- length $ rights res
-  writeErrors (map (\(x, y) -> (x, fromLeft' y)) errors)
+  --writeErrors (map (\(x, y) -> (x, fromLeft' y)) errors)
   print (l, r)
   return (l, r)
-  where
+  {- where
     writeErrors = mapM (writeError dir)
-
+ -}
 writeError :: String -> (String, ParseError) -> IO ()
 writeError dir (f, pe) =
   do
