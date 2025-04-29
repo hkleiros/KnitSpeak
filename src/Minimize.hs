@@ -108,5 +108,4 @@ transpose' = getZipList . traverse ZipList
 
 -- O(n*m)
 windows :: Int -> [a] -> [[a]]
-windows :: Int -> [a] -> [[a]]
 windows s = transpose' . take s . tails
