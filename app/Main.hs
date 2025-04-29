@@ -4,7 +4,7 @@ import Mirror               (mirror)
 import Flip                 (flipPattern)
 import Invert               (invert)
 import Minimize             (minimize)
-import Unroll               (unrollRows)
+import Unroll               (unroll, unrollRows)
 import System.Environment   (getArgs)
 import System.Exit          (die)
 import Control.Monad        (join)
@@ -67,6 +67,12 @@ main = do
             case parseString s of
                 Left e   -> putStrLn $ "*** Parse error: " ++ show e
                 Right p  -> putStrLn $ join [ show p, "\n\nUnrolled:\n", show $ unrollRows p]
+        
+        | f == "-ua" || f == "--unrollAll" -> do
+            s <- readFile file
+            case parseString s of
+                Left e   -> putStrLn $ "*** Parse error: " ++ show e
+                Right p  -> putStrLn $ join [ show p, "\n\nUnrolled:\n", show $ unroll p]
 
     [f, file, file2] | f == "-c" || f == "--compare" -> do
         s <- readFile file
