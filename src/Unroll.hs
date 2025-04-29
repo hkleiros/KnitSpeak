@@ -22,7 +22,8 @@ unrollRows (Pattern p) = Pattern $ join $ map u p
 unrollInstructions :: Instructions -> Instructions
 unrollInstructions ((Knittel k) : is) = unrollKnittel k ++ unrollInstructions is
 unrollInstructions ((Rep r t) : is)   = join (replicate t (unrollInstructions r)) ++  unrollInstructions is
-unrollInstructions (l : is)           = l : unrollInstructions is -- don't unroll Loops
+unrollInstructions ((Loop is e) : is) = Loop (unrollInstructions is) e : unrollInstructions is 
+-- only unroll instructions within a loop
 unrollInstructions [] = []
 
 unrollKnittel :: Knittel -> Instructions

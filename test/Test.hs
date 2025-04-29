@@ -1,5 +1,3 @@
--- import InterpreterTests
--- import ParserTests
 import Spec (testFolder, testRep)
 import StitchMapsTest (testStitchMapsKnitSpeaks)
 import Test.Tasty

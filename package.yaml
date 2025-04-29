@@ -43,15 +43,15 @@ library:
   exposed-modules:
     - KSSyntax
     - KSParser
-    - Mirror
     - Minimize
+    - Unroll
+    - Mirror
     - Invert
+    - Flip
     - KnittelParser
     - Knittels 
     - General
     - Utils
-    - Flip
-    - Unroll
 
 
 executables:

@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Use camelCase" #-}
 module Knittels (Knittel (..), KName (..), KArity (..), TBL (..), InstructionNum, YarnPlacement (..)) where
 import Control.Monad (join)
 
