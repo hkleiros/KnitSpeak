@@ -1,12 +1,10 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-
 {-# HLINT ignore "Use camelCase" #-}
-
 module Knittels (Knittel (..), KName (..), KArity (..), TBL (..), InstructionNum, YarnPlacement (..)) where
-
 import Control.Monad (join)
 
-data Knittel = KInst KName InstructionNum KArity (Maybe TBL) deriving (Eq, Read)
+data Knittel = KInst KName InstructionNum KArity (Maybe TBL) 
+    deriving (Eq, Read, Ord)
 
 instance Show Knittel where
   show (KInst k n (KArity _) t) 
@@ -22,15 +20,15 @@ showTBL (Just TBL) = " tbl"
 showTBL Nothing = ""
 
 newtype KArity = KArity Int
-  deriving (Show, Eq, Read)
+  deriving (Show, Eq, Read, Ord)
 
 data TBL = TBL
-  deriving (Show, Eq, Read)
+  deriving (Show, Eq, Read, Ord)
 
 type InstructionNum = Int
 
 data YarnPlacement = Wyif | Wyib
-  deriving (Eq, Read)
+  deriving (Eq, Read, Ord)
 
 instance Show YarnPlacement where
   show Wyif = " wyif"
@@ -43,23 +41,24 @@ data KName
   | K
   | P
   | Yo
+  | Turn 
     -- Generated from `generate_parser.py
   | WAndt
-  | Sssp
-  | Ssp
-  | Ssk
-  | Pfb
+  | Sssp --
+  | Ssp --
+  | Ssk --
+  | Pfb 
   | Kfb
-  | IncRp
-  | IncR
-  | IncLp
-  | IncL
-  | DropSt
+  | IncRp --
+  | IncR --
+  | IncLp --
+  | IncL  --
+  | DropSt 
   | DipSt
   | CtrDblInc
-  | CddpTwisted
-  | Cddp
-  | CddTwisted
+  | CddpTwisted --
+  | Cddp --
+  | CddTwisted --
   | BunnyEarsYo
   | BunnyEarsDec
   | BunnyEarsBackYo
@@ -72,13 +71,13 @@ data KName
   | PB
   | MK
   | MB
-  | KBR
-  | KBL
+  | KBR --
+  | KBL --
   | CO
   | BO
 
-  | Yo_pN_pyo InstructionNum
-  | Yo_kN_pyo InstructionNum
+  | Yo_pN_pyo InstructionNum --
+  | Yo_kN_pyo InstructionNum --
   | WrapNSts InstructionNum
   | Sl1_p3so_k2tog_yo_k1
   | SlN_pN_psso InstructionNum InstructionNum
@@ -129,7 +128,7 @@ data KName
   | KNtogTwisted InstructionNum
   | KNtog InstructionNum
   | K1Below
-    deriving (Eq, Read)
+    deriving (Eq, Read, Ord)
 
 
 instance Show KName where
@@ -139,6 +138,7 @@ instance Show KName where
   show K                                = "k"
   show P                                = "p"
   show Yo                               = "yo"
+  show Turn                             = "turn"
 
   -- Generated from `generate_parser.py
   show WAndt                            = "w&t"

@@ -47,7 +47,7 @@ num = do ds <- many1 (satisfy isDigit) <* many space
          return (read ds)
 
 maybeINum :: Parser Int
-maybeINum = try ( num <* optional (skipSymbol "sts") )
+maybeINum = try ( num <* optional (try (skipSymbol "sts") <|> skipSymbol "st") )
             <|> return 1
 
 comment :: Parser String

@@ -31,7 +31,6 @@ import Text.Parsec
       parse,
       unexpected,
       ParseError,
-      --Parser,
       try,
       optional )
 import Text.Parsec.String (Parser)
@@ -72,7 +71,7 @@ course =
         r <- try (symbol "rows") <|> try (symbol "rounds") <|> try (symbol "row") <|> try (symbol "round")
         ln <- nums
         t <- try times <|> return 0 
-        optional (void (symbol "."))
+        void (symbol ".")
         return (MultilineRepeat r ln t))
     <|> 
     do  Comment <$> comment
@@ -136,7 +135,6 @@ loop =
     do  skipSymbol "Purl"
         t <- tbl
         Loop [Knittel (KInst Purl 0 (KArity (-1)) t)] <$> end )
-
 
 
 rep :: Parser Instruction

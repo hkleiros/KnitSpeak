@@ -1,134 +1,119 @@
-module Mirror (mirror, flipPattern, stitchLength) where
+module Mirror (mirror, stitchLength, mirrorKnittel) where
 
+import KSSyntax (Course (..), Instruction (..), Instructions, Pattern (..), Line(..))
 import Knittels
-    ( Knittel(..),
-      KName(..),
-      KArity(..),
-      TBL (..) )
-import KSSyntax (Pattern(..), Instruction(..), Instructions, Course(..) )
+  ( KName (..),
+    Knittel (..),
+    TBL (..),
+  )
+import Utils (stitchLength)
+import Data.Either 
 
---import Text.Parsec.Error (newErrorMessage)
---import Text.Parsec.Pos (newPos)
-{-
-countLoops :: Pattern -> Either String Pattern
-            let n = maximum (map count r) in 
-            if n > 1 then Left (newErrorMessage  (Message "two loops not allowed in line ") (newPos "main" 0 0))
-            else Right r
--}
-{-
-        count :: Line -> Int
-        count (Course _ is) = countLoops is
-        countLoops :: Instructions -> Int
-        countLoops [] = 0 
-        countLoops (Loop _ _ : xs) = 1 + countLoops xs
-        countLoops (_ : xs) = countLoops xs
--}
--- TODO: assert that pattern does not contain two loops in one line 
-mirror :: Pattern -> Pattern
-mirror (Pattern p) = Pattern $ map sym p
-  where sym (Course l is c) = Course l ( reverseInstructions (is, 0)) c
-        sym c = c
-
-flipPattern :: Pattern -> Pattern
-flipPattern (Pattern p) = Pattern $ map inv p 
-  where inv (Course l is c) = Course l (flipInstructions (is, 0)) c
-        inv c = c
+newtype LoopError = LoopError String deriving (Eq, Read)
+instance Show LoopError where
+  show (LoopError m) = m 
 
 
--- Invert functions
-flipInstructions :: (Instructions, Int) -> Instructions
-flipInstructions (i: is, len) = flipInstruction (i, len) : flipInstructions (is, len + stitchLength i)
-flipInstructions ([], _)      = []
+countLoops :: Pattern -> Maybe LoopError
+countLoops (Pattern p) =
+  let n = lefts (map count p)
+   in if null n -- > 1
+        then Nothing
+        else Just $ LoopError $ "more than one loop in one line cannot be mirrored! \n" ++  show (fst (head n)) ++ " loops in:  " ++ show (snd (head n))
+  where
+    count :: Course -> Either (Int, Line) Int
+    count (Course l is _) =
+      let n = countL is
+       in if n > 1
+            then
+              Left (n, l)
+            else Right n
+    count _ = Right 0
+    countL [] = 0
+    countL (Loop _ _ : xs) = 1 + countL xs
+    countL (_ : xs) = countL xs
 
-flipInstruction :: (Instruction, Int) -> Instruction
-flipInstruction (Rep is times,  _) = Rep     (flipInstructions (is, 0)) times
-flipInstruction (Loop  is _1, len) = Loop    (flipInstructions (is, 0)) len
-flipInstruction (Knittel    k,  _) = Knittel (mirrorKnittel k)
+mirror :: Pattern -> Either LoopError Pattern
+mirror (Pattern p) = case countLoops (Pattern p) of
+  Just e -> Left e
+  Nothing -> Right $ Pattern $ map sym p
+  where
+    sym (Course l is c) = Course l (reverseInstructions (is, 0)) c 
+    sym c = c
 
 -- Reverse functions
 reverseInstructions :: (Instructions, Int) -> Instructions
-reverseInstructions (i: is, len) = reverseInstructions (is, len + stitchLength i) ++ [reverseInstruction (i, len)]
-reverseInstructions ([], _)      = []
+reverseInstructions (i : is, len) = reverseInstructions (is, len + stitchLength i) ++ [reverseInstruction (i, len)]
+reverseInstructions ([], _) = []
 
 reverseInstruction :: (Instruction, Int) -> Instruction
-reverseInstruction (Rep is times,  _) = Rep     (reverseInstructions (is, 0)) times
-reverseInstruction (Loop  is _1, len) = Loop    (reverseInstructions (is, 0)) len
-reverseInstruction (Knittel    k,  _) = Knittel (mirrorKnittel k)
+reverseInstruction (Rep is times, _) = Rep (reverseInstructions (is, 0)) times
+reverseInstruction (Loop is _1, len) = Loop (reverseInstructions (is, 0)) len
+reverseInstruction (Knittel k, _) = Knittel (mirrorKnittel k)
 
-
-stitchLength :: Instruction -> Int
-stitchLength (Rep  is _) = sum (fmap stitchLength is)
-stitchLength (Loop is _) = sum (fmap stitchLength is)
-stitchLength (Knittel (KInst _ _ (KArity n ) _)) = n
-
-
+-- TODO:  Consider moving to separate file for Flip
 mirrorKnittel :: Knittel -> Knittel
--- The operations which mirror images are: 
+-- The operations which mirror images are:
 mirrorKnittel (KInst (KNtog n) r a (Just TBL)) = KInst (KNtogTwisted n) r a Nothing
-mirrorKnittel (KInst (KNtogTwisted n) r a Nothing) 
-    | n == 2 || n == 3 = KInst (KNtog n) r a (Just TBL)
-    | otherwise = KInst (KNtog n ) r a Nothing 
-mirrorKnittel (KInst (KNtog 2) r a t)          = KInst Ssk r a t
-mirrorKnittel (KInst (KNtog n ) r a Nothing)   = KInst (KNtog n) r a (Just TBL) -- NOTE: ikke ekte symmetrisk, men brukes ofte for samme visuelle effekt
+mirrorKnittel (KInst (KNtogTwisted n) r a Nothing)
+  | n == 2 || n == 3 = KInst (KNtog n) r a (Just TBL)
+  | otherwise = KInst (KNtog n) r a Nothing
+mirrorKnittel (KInst (KNtog 2) r a t) = KInst Ssk r a t
+mirrorKnittel (KInst (KNtog n) r a Nothing) = KInst (KNtog n) r a (Just TBL) -- NOTE: ikke ekte symmetrisk, men brukes ofte for samme visuelle effekt
 mirrorKnittel (KInst (PNtog n) r a (Just TBL)) = KInst (PNtogTwisted n) r a Nothing
 mirrorKnittel (KInst (PNtogTwisted n) r a Nothing) = KInst (PNtog n) r a (Just TBL)
-mirrorKnittel (KInst (PNtog n) r a Nothing)    = KInst (PNtog n) r a (Just TBL) -- NOTE: ikke ekte symmetrisk, men brukes ofte for samme visuelle effekt
-
+mirrorKnittel (KInst (PNtog n) r a Nothing) = KInst (PNtog n) r a (Just TBL) -- NOTE: ikke ekte symmetrisk, men brukes ofte for samme visuelle effekt
 mirrorKnittel (KInst k r a t) = KInst (mirrorKName k) r a t
+-- 7
 
 mirrorKName :: KName -> KName
 mirrorKName Ssk = KNtog 2
-mirrorKName Ssp   =  PNtog 2
-mirrorKName Sssp  =  PNtog 3
-mirrorKName (PNtog 2) =  Ssp 
-mirrorKName (PNtog 3) =  Sssp
-
+mirrorKName Ssp = PNtog 2
+mirrorKName Sssp = PNtog 3
+mirrorKName (PNtog 2) = Ssp
+mirrorKName (PNtog 3) = Sssp
 -- Increases
-mirrorKName IncL  =  IncR
-mirrorKName IncR  =  IncL
-mirrorKName IncLp =  IncRp
-mirrorKName IncRp =  IncLp
-mirrorKName M1L   =  M1R
-mirrorKName M1R   =  M1L
-mirrorKName M1Lp  =  M1Rp
-mirrorKName M1Rp  =  M1Lp
-
--- Cables 
-mirrorKName  One'1'1LT           =  One'1'1RT
-mirrorKName  One'1'1RT           =  One'1'1LT
-mirrorKName  (KNtogTwisted n)    =  KNtog n
-mirrorKName  (PNtogTwisted n)    =  PNtog n
-mirrorKName  (N'NLC n m)         =  N'NRC m n
-mirrorKName  (N'NRC n m)         =  N'NLC m n
-mirrorKName  (N'NLT  n m)        =  N'NRT m n
-mirrorKName  (N'NRT  n m)        =  N'NLT m n
-mirrorKName  (N'NRPT  n m)       =  N'NLPT m n
-mirrorKName  (N'NLPT  n m)       =  N'NRPT m n
-mirrorKName  (N'NLSC  n m)       =  N'NRSC m n
-mirrorKName  (N'NRSC  n m)       =  N'NLSC m n
-mirrorKName  One'1LSAC           =  One'1RSAC
-mirrorKName  One'1RSAC           =  One'1LSAC
-mirrorKName  One'1'1RPT          =  One'1'1LPT
-mirrorKName  One'1'1LPT          =  One'1'1RPT
-mirrorKName  (N'N'NLC n m l)     =  N'N'NRC l m n
-mirrorKName  (N'N'NRC n m l)     =  N'N'NLC l m n
-mirrorKName  (N'N'NLCC n m l)    =  N'N'NRCC l m n
-mirrorKName  (N'N'NRCC n m l)    =  N'N'NRCC l m n
-mirrorKName  (N'N'NLPC n m l)    =  N'N'NRPC l m n
-mirrorKName  (N'N'NRPC n m l)    =  N'N'NLPC l m n
-
--- Beads 
-mirrorKName  KBL = KBR
-mirrorKName  KBR = KBL
-
--- Clusters 
-mirrorKName  (SlN_kN_yo_psso 1 1)  =  P2so_yo_k1
-mirrorKName  P2so_yo_k1            =  SlN_kN_yo_psso 1 1
--- mirrorKnittel (KInst (SlN_kN_psso 1 2) r a t) = KInst  r a t 
-mirrorKName  Sl1_k1_yo_k1_psso  =  P3so_k1_yo_k1
-mirrorKName  P3so_k1_yo_k1      = Sl1_k1_yo_k1_psso
+mirrorKName IncL = IncR
+mirrorKName IncR = IncL
+mirrorKName IncLp = IncRp
+mirrorKName IncRp = IncLp
+mirrorKName M1L = M1R
+mirrorKName M1R = M1L
+mirrorKName M1Lp = M1Rp
+mirrorKName M1Rp = M1Lp
+-- Cables
+mirrorKName One'1'1LT = One'1'1RT
+mirrorKName One'1'1RT = One'1'1LT
+mirrorKName (KNtogTwisted n) = KNtog n
+mirrorKName (PNtogTwisted n) = PNtog n
+mirrorKName (N'NLC n m) = N'NRC m n
+mirrorKName (N'NRC n m) = N'NLC m n
+mirrorKName (N'NLT n m) = N'NRT m n
+mirrorKName (N'NRT n m) = N'NLT m n
+mirrorKName (N'NRPT n m) = N'NLPT m n
+mirrorKName (N'NLPT n m) = N'NRPT m n
+mirrorKName (N'NLSC n m) = N'NRSC m n
+mirrorKName (N'NRSC n m) = N'NLSC m n
+mirrorKName One'1LSAC = One'1RSAC
+mirrorKName One'1RSAC = One'1LSAC
+mirrorKName One'1'1RPT = One'1'1LPT
+mirrorKName One'1'1LPT = One'1'1RPT
+mirrorKName (N'N'NLC n m l) = N'N'NRC l m n
+mirrorKName (N'N'NRC n m l) = N'N'NLC l m n
+mirrorKName (N'N'NLCC n m l) = N'N'NRCC l m n
+mirrorKName (N'N'NRCC n m l) = N'N'NRCC l m n
+mirrorKName (N'N'NLPC n m l) = N'N'NRPC l m n
+mirrorKName (N'N'NRPC n m l) = N'N'NLPC l m n
+-- Beads
+mirrorKName KBL = KBR
+mirrorKName KBR = KBL
+-- Clusters
+mirrorKName (SlN_kN_yo_psso 1 1) = P2so_yo_k1
+mirrorKName P2so_yo_k1 = SlN_kN_yo_psso 1 1
+-- mirrorKnittel (KInst (SlN_kN_psso 1 2) r a t) = KInst  r a t
+mirrorKName Sl1_k1_yo_k1_psso = P3so_k1_yo_k1
+mirrorKName P3so_k1_yo_k1 = Sl1_k1_yo_k1_psso
 -- mirrorKnittel (KInst _ r a t)
-
 
 {- TODO: ... strikk alle knittels og se hva som er symmetrisk? -}
 

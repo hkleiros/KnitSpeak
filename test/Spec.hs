@@ -1,34 +1,40 @@
-module Spec (testFolder, testRep) where
+module Spec (testFolder, testRep, testDirKnitspeaks) where
 
 import Control.Monad (filterM, join)
-import Data.Either (isRight)
-import KSParser (parseString)
-import System.Directory.Extra (listDirectory)
-import System.FilePath (takeExtension)
+import Data.Either (isLeft, isRight)
+import Data.Either.Extra (fromLeft')
+import KSParser (ParseError, parseString)
+import KSSyntax (Pattern)
+import System.Directory.Extra (createDirectoryIfMissing, listDirectory)
+import System.FilePath (replaceDirectory, takeExtension, (</>))
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit
 
--- import KSSyntax
 -- import Data.List (filter, intercalate)
 
 testFolder :: IO ()
 testFolder = do
-  x <- knitspeaks
+  x <- testDirKnitspeaks
   mapM_ putStrLn x
 
-knitspeaks :: IO [String]
-knitspeaks = do
+testDirKnitspeaks :: IO [String]
+testDirKnitspeaks = do
   f <- listDirectory "test"
   fs <- filterM (\x -> return $ takeExtension x == ".ks") f
-  mapM parseFromFile fs
+  files <- mapM (return . ("test/" </>)) fs
+  mapM parseFromFile files
 
--- getDirectoryContents "../KnitSpeakGenerator/knitspeaks" >>= print
 
--- NOTE: er det bedre å sjekke extention her eller i `knitspeaks`? Har egt ikke noe å si hvis vi ikke eksporterer metoden.
+parseFile :: String -> IO (String, Either ParseError Pattern)
+parseFile f =
+  do
+    s <- readFile f
+    return (f, parseString s)
+
 parseFromFile :: String -> IO String
 parseFromFile f =
   do
-    s <- readFile $ "test/" ++ f
+    s <- readFile f
     case parseString s of
       Left e -> return (join ["Error:", show f, ", message :", show e])
       Right _ -> return (join ["Parsed: ", show f])
