@@ -1,18 +1,35 @@
-module Minimize (minimize, unroll, unrollRows) where
+module Minimize (minimize, minimize2, unroll, unrollRows) where
 
 import Control.Applicative (ZipList (ZipList, getZipList))
 import Control.Monad (join)
-import Data.Foldable (maximumBy)
+import Data.Foldable (minimumBy, maximumBy)
 import Data.Function (on)
 import Data.List (tails)
 import KSSyntax (Course (Course), Instruction (..), Instructions, Line (..), Pattern (..))
 import Knittels (Knittel (..))
+import Utils (patternLength)
+import qualified Data.Memocombinators as Memo
 
 minimize :: Pattern -> Pattern
-minimize (Pattern p) = Pattern $ map cm p
+minimize = mini . unroll 
+{- minimize p = 
+  let min = mini (unroll p) in 
+      if patternLength min > patternLength p
+        then p 
+      else min -}
+
   where
+    mini (Pattern p) = Pattern (map cm p) 
+    cm (Course r is c) = Course r (ma is) c
+    cm e = e
+
+minimize2 :: Pattern -> Pattern
+minimize2 = mini . unroll
+
+  where
+    mini (Pattern p) = Pattern (map cm p) 
     cm (Course r is c) = Course r (m is) c
-    cm c = c
+    cm e = e
 
 {-combineCourses :: Pattern -> Pattern
 combineCourses = c sortBy (\(Course _ is) (Course r2 is2) -> compare is  is2)
@@ -20,20 +37,45 @@ combineCourses = c sortBy (\(Course _ is) (Course r2 is2) -> compare is  is2)
   -}
 -- TODO: also combine courses with the same instructions
 
-m :: Instructions -> Instructions
-m [] = []
-m is =
+ma :: Instructions -> Instructions
+ma [] = []
+ma is =
     case slidingWindow is of -- Get all repeating substructures 
         [] -> is
         r  -> 
-          let (s, t, i, l) = maximumBy (compare `on` snd4) r --- Choose the substructure with largest number of repeats 
+          let (s, t, i, l) = maximumBy (compare `on` snd4)(r) --- Choose the substructure with largest number of repeats 
             in case s of
-              -- Call m again on the list and repeating structure
+              -- Call ma again on the list and repeating structure
               [Knittel (KInst k _ a tbl)] -> 
-                  m $ join [take i is, [Knittel (KInst k t a tbl)], drop (i + (l * t)) is]
+                  ma $ join [take i is, [Knittel (KInst k t a tbl)], drop (i + (l * t)) is]
               p -> 
-                  m $ join [take i is, [Rep (m p) t], drop (i + (l * t)) is]
+                  ma $ join [take i is, [Rep (ma p) t], drop (i + (l * t)) is] 
 
+
+m :: Instructions -> Instructions
+m [] = []
+m is = minimumBy (compare `on` len) (m' is)
+  where len :: Instructions -> Integer
+        len [] = 0
+        len (Knittel _ : xs) = 1 + len xs
+        len (Rep  i _ : xs) = len i + len xs
+        len (Loop i _ : xs) = len i + len xs
+
+m' :: Instructions -> [Instructions]
+m' [] = []
+m' is =
+    case slidingWindow is of -- Get all repeating substructures 
+        [] -> [is]
+        r  -> r >>= allOptions 
+
+    where allOptions (structure, times, index, len) = --- Choose the substructure with largest number of repeats 
+             case structure of
+              -- Call m' again on the list and repeating structure
+              [Knittel (KInst k _ a tbl)] ->
+                    m' (join [take index is, [Knittel (KInst k times a tbl)], drop (index + (len * times)) is])
+              p ->  m' $ join [take index is, [Rep (m p) times], drop (index + (len * times)) is]
+                   
+          
 slidingWindow :: (Eq a) => [a] -> [([a], Int, Int, Int)]
 slidingWindow [] = [([], 1, 0, 0)]
 slidingWindow l =
@@ -44,7 +86,7 @@ slidingWindow l =
                 (\w i -> (w, numberOfTimes w wSize (drop i l), i, wSize))
                 (windows wSize l)
                 [0, 1 ..]
-          )
+          ) 
 
 numberOfTimes :: (Eq a) => [a] -> Int -> [a] -> Int
 numberOfTimes [] _ [] = 0
@@ -60,7 +102,6 @@ numberOfTimes rep w p
 unroll :: Pattern -> Pattern
 unroll (Pattern p) = Pattern $ map u p
   where
-    -- join . map u
     u (Course r is c) = Course r (unrollInstructions is) c
     u c = c
 
@@ -79,7 +120,7 @@ unrollRows (Pattern p) = Pattern $ join $ map u p
 
 unrollInstructions :: Instructions -> Instructions
 unrollInstructions ((Knittel k) : is) = unrollKnittel k ++ unrollInstructions is
-unrollInstructions ((Rep r t) : is)   = join (replicate t (unrollInstructions r)) ++ is
+unrollInstructions ((Rep r t) : is)   = join (replicate t (unrollInstructions r)) ++  unrollInstructions is
 unrollInstructions (l : is)           = l : unrollInstructions is -- NOTE: dont unroll Loops
 unrollInstructions [] = []
 

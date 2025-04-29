@@ -1,20 +1,21 @@
 -- import InterpreterTests
 -- import ParserTests
-import Spec (testFolder, testRep, testKnitSpeaks)
+import Spec (testFolder, testRep)
+import StitchMapsTest (testStitchMapsKnitSpeaks)
 import Test.Tasty
 
 main :: IO ()
 main =
   do
-    --testKnitSpeaks
-    testFolder
+    testStitchMapsKnitSpeaks
+    {- testFolder
     defaultMain $
       localOption (mkTimeout 1000000) $
         testGroup
           "KnitSpeak - Main test Suite"
           [ testRep
           ]
-
+ -}
 {-
 testGroup "Test Suite :"
 [   example_parser_test

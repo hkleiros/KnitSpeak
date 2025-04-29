@@ -6,9 +6,10 @@ import Minimize             (minimize, unroll, unrollRows)
 import System.Environment   (getArgs)
 import System.Exit          (die)
 import Control.Monad        (join)
+import Utils                
 
 main :: IO ()
-main = do 
+main = do
   args <- getArgs
   case args of
     [file] -> do
@@ -31,8 +32,8 @@ main = do
             s <- readFile file
             case parseString s of
                 Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                Right p  -> 
-                    case mirror p of 
+                Right p  ->
+                    case mirror p of
                         Left e -> putStrLn $ "*** Mirroring error: " ++ show e
                         Right m -> putStrLn $ join ["Pattern is symmetrical? ", show (p == m), "\n\n", show p, "\n\nInverted and reversed:\n", show m]
 
@@ -40,7 +41,9 @@ main = do
             s <- readFile file
             case parseString s of
                 Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                Right p  -> putStrLn $ join ["Pattern is equal? ", show (p == flipPattern p), "\n\n", show p, "\n\nFlipped:\n", show $ flipPattern p]
+                Right p  -> 
+                    let fp = flipPattern p in 
+                        putStrLn $ join ["Pattern is equal? ", show (p == fp), "\n\n", show p, "\n\nFlipped:\n", show fp]
 
         | f == "-i" || f == "--invert" -> do
             s <- readFile file
@@ -52,7 +55,10 @@ main = do
             s <- readFile file
             case parseString s of
                 Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                Right p  -> putStrLn $ join ["Pattern is minimal? ", show (p == minimize (unroll p)), "\n\n", show p, "\n\nMinimized:\n", show $ minimize $ unroll p]
+                Right p  -> 
+                    let m = minimize p in 
+                        putStrLn $ join ["Pattern is minimal? ", show (patternLength p == patternLength m), "\n\n", show p, "\n\nMinimized:\n", show m]
+                        --"\n", show (map show (courseLengths p)), "\n", show (map show (courseLengths m))]
 
         | f == "-u" || f == "--unroll" -> do
             s <- readFile file
@@ -68,17 +74,17 @@ main = do
             Right p  ->
                 case parseString sm of
                     Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                    Right p2 -> 
-                        case mirror p2 of 
+                    Right p2 ->
+                        case mirror p2 of
                             Left e -> putStrLn $ "*** Mirroring error: " ++ show e
                             Right m -> putStrLn $ join [
-                                "Mirrored pattern is equal to second pattern? ", 
-                                show (noComments m == noComments p2), 
-                                "\n\n", 
-                                show p, 
-                                "\n\nMirrored:\n", 
-                                show m, 
-                                "\n\nMirrored example:\n", 
+                                "Mirrored pattern is equal to second pattern? ",
+                                show (noComments m == noComments p2),
+                                "\n\n",
+                                show p,
+                                "\n\nMirrored:\n",
+                                show m,
+                                "\n\nMirrored example:\n",
                                 show p2
                                 ]
 
@@ -91,12 +97,12 @@ main = do
                 Right p ->
                     do  writeFile output $ show p
                         putStrLn $ "Pattern written to: " ++ show output
-                        
+
     _ ->
         die usage
 
 usage :: String
-usage = 
+usage =
   "Usage:\n\
   \ knitSpeak      PATTERN.ks            (parse only)\n\
   \ knitSpeak -s   PATTERN.ks            (mirror pattern)\n\
@@ -106,8 +112,3 @@ usage =
   \ knitSpeak -m   PATTERN.ks            (minimize pattern)\n\
   \ knitSpeak -p   PATTERN.ks            (parse & assert output is equal)\n\
   \ knitSpeak      PATTERN.ks OUTPUT     (write to file)"
-
-noComments :: Pattern -> Pattern
-noComments (Pattern p)  = Pattern $ filter cn p
-        where   cn (Comment _) = False
-                cn _ = True

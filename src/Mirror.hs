@@ -2,11 +2,11 @@ module Mirror (mirror, flipPattern, stitchLength) where
 
 import KSSyntax (Course (..), Instruction (..), Instructions, Pattern (..), Line(..))
 import Knittels
-  ( KArity (..),
-    KName (..),
+  ( KName (..),
     Knittel (..),
     TBL (..),
   )
+import Utils (stitchLength)
 import Data.Either 
 -- import Text.Parsec.Error (newErrorMessage)
 -- import Text.Parsec.Pos (newPos)
@@ -68,10 +68,6 @@ reverseInstruction (Rep is times, _) = Rep (reverseInstructions (is, 0)) times
 reverseInstruction (Loop is _1, len) = Loop (reverseInstructions (is, 0)) len
 reverseInstruction (Knittel k, _) = Knittel (mirrorKnittel k)
 
-stitchLength :: Instruction -> Int
-stitchLength (Rep is _) = max (sum (map stitchLength is)) 0
-stitchLength (Loop is _) = max (sum (map stitchLength is)) 0
-stitchLength (Knittel (KInst _ _ (KArity n) _)) = max n 0
 
 mirrorKnittel :: Knittel -> Knittel
 -- The operations which mirror images are:
@@ -85,6 +81,7 @@ mirrorKnittel (KInst (PNtog n) r a (Just TBL)) = KInst (PNtogTwisted n) r a Noth
 mirrorKnittel (KInst (PNtogTwisted n) r a Nothing) = KInst (PNtog n) r a (Just TBL)
 mirrorKnittel (KInst (PNtog n) r a Nothing) = KInst (PNtog n) r a (Just TBL) -- NOTE: ikke ekte symmetrisk, men brukes ofte for samme visuelle effekt
 mirrorKnittel (KInst k r a t) = KInst (mirrorKName k) r a t
+-- 7
 
 mirrorKName :: KName -> KName
 mirrorKName Ssk = KNtog 2

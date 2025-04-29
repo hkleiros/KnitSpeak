@@ -31,6 +31,7 @@ library
       KnittelParser
       Knittels
       General
+      Utils
   other-modules:
       Paths_KnitSpeakParser
   autogen-modules:
@@ -56,6 +57,7 @@ executable KnitSpeakParser-exe
       KSSyntax
       Minimize
       Mirror
+      Utils
       Paths_KnitSpeakParser
   autogen-modules:
       Paths_KnitSpeakParser
@@ -76,6 +78,7 @@ test-suite KnitSpeak-test
   main-is: Test.hs
   other-modules:
       Spec
+      StitchMapsTest
       Paths_KnitSpeakParser
   autogen-modules:
       Paths_KnitSpeakParser
@@ -84,6 +87,7 @@ test-suite KnitSpeak-test
   ghc-options: -W -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -O
   build-depends:
       KnitSpeakParser
+    , Unique
     , base >=4.7 && <5
     , containers
     , extra

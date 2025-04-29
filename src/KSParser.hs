@@ -31,7 +31,6 @@ import Text.Parsec
       parse,
       unexpected,
       ParseError,
-      --Parser,
       try,
       optional )
 import Text.Parsec.String (Parser)
@@ -136,7 +135,6 @@ loop =
     do  skipSymbol "Purl"
         t <- tbl
         Loop [Knittel (KInst Purl 0 (KArity (-1)) t)] <$> end )
-
 
 
 rep :: Parser Instruction

@@ -18,7 +18,7 @@ import Data.List (intercalate)
 import Knittels (KName (..), Knittel (KInst))
 
 newtype Pattern = Pattern [Course]
-  deriving (Eq, Read)
+  deriving (Eq, Read, Ord)
 
 instance Show Pattern where
   show (Pattern p) = intercalate "\n" $ map show p
@@ -27,19 +27,19 @@ data Course
   = Course Line Instructions Comment
   | MultilineRepeat String LineNums Times
   | Comment Comment
-  deriving (Eq, Read)
+  deriving (Eq, Read, Ord)
 
 type Comment = String
 
 data Line
   = Round LineNums Side
   | Row LineNums Side
-  deriving (Eq, Read)
+  deriving (Eq, Read, Ord)
 
 type LineNums = [Int]
 
 data Side = R | W | None
-  deriving (Eq, Read)
+  deriving (Eq, Read, Ord)
 
 type Instructions = [Instruction]
 
@@ -47,7 +47,7 @@ data Instruction
   = Loop Instructions EndSts
   | Rep Instructions Times
   | Knittel Knittel
-  deriving (Eq, Read)
+  deriving (Eq, Read, Ord)
 
 type EndSts = Int
 

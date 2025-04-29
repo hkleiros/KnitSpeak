@@ -49,6 +49,7 @@ library:
     - KnittelParser
     - Knittels 
     - General
+    - Utils
 
 
 executables:
@@ -79,3 +80,4 @@ tests:
     - tasty-hunit
     - tasty-quickcheck
     - filepath
+    - Unique
