@@ -50,6 +50,8 @@ library:
     - Knittels 
     - General
     - Utils
+    - Flip
+    - Unroll
 
 
 executables:

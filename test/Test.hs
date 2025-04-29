@@ -7,15 +7,15 @@ import Test.Tasty
 main :: IO ()
 main =
   do
-    testStitchMapsKnitSpeaks
-    {- testFolder
+    --testStitchMapsKnitSpeaks
+    testFolder
     defaultMain $
       localOption (mkTimeout 1000000) $
         testGroup
           "KnitSpeak - Main test Suite"
           [ testRep
           ]
- -}
+
 {-
 testGroup "Test Suite :"
 [   example_parser_test

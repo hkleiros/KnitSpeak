@@ -32,9 +32,9 @@ library
       Knittels
       General
       Utils
-  other-modules:
       Flip
       Unroll
+  other-modules:
       Paths_KnitSpeakParser
   autogen-modules:
       Paths_KnitSpeakParser

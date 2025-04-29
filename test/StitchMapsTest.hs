@@ -14,11 +14,12 @@ import Utils
 import Minimize
 import Invert
 import Mirror
+import Unroll
+import Flip
 import Data.List.Unique (isUnique)
 import Data.Maybe (fromMaybe)
 import Data.List (intercalate)
 import Data.List.Extra (replace)
-
 
 -- import Data.List (filter, intercalate)
 
