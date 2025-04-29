@@ -13,22 +13,20 @@ import Utils (patternLength)
 
 minimize :: Pattern -> Pattern
 --minimize = mini . unroll 
-minimize p = 
-  let minimized = mini (unroll p) in 
+minimize p =
+  let minimized = mini (unroll p) in
       if patternLength minimized > patternLength p
-        then p 
+        then p
       else minimized
-
   where
-    mini (Pattern pa) = Pattern (map cm pa) 
+    mini (Pattern pa) = Pattern (map cm pa)
     cm (Course r is c) = Course r (ma is) c
     cm e = e
 
 minimize2 :: Pattern -> Pattern
 minimize2 = mini . unroll
-
   where
-    mini (Pattern p) = Pattern (map cm p) 
+    mini (Pattern p) = Pattern (map cm p)
     cm (Course r is c) = Course r (m is) c
     cm e = e
 
@@ -43,14 +41,15 @@ ma [] = []
 ma is =
     case slidingWindow is of -- Get all repeating substructures 
         [] -> is
-        r  -> 
-          let (s, t, i, l) = maximumBy (compare `on` snd4)(r) --- Choose the substructure with largest number of repeats 
+        r  ->
+          --- Choose the substructure with largest number of repeats 
+          let (s, t, i, l) = maximumBy (compare `on` snd4) r 
             in case s of
               -- Call ma again on the list and repeating structure
-              [Knittel (KInst k _ a tbl)] -> 
+              [Knittel (KInst k _ a tbl)] ->
                   ma $ join [take i is, [Knittel (KInst k t a tbl)], drop (i + (l * t)) is]
-              p -> 
-                  ma $ join [take i is, [Rep (ma p) t], drop (i + (l * t)) is] 
+              p ->
+                  ma $ join [take i is, [Rep (ma p) t], drop (i + (l * t)) is]
 
 
 m :: Instructions -> Instructions
@@ -67,7 +66,7 @@ m' [] = []
 m' is =
     case slidingWindow is of -- Get all repeating substructures 
         [] -> [is]
-        r  -> r >>= allOptions 
+        r  -> r >>= allOptions
 
     where allOptions (structure, times, index, len) = --- Choose the substructure with largest number of repeats 
              case structure of
@@ -75,8 +74,8 @@ m' is =
               [Knittel (KInst k _ a tbl)] ->
                     m' (join [take index is, [Knittel (KInst k times a tbl)], drop (index + (len * times)) is])
               p ->  m' $ join [take index is, [Rep (m p) times], drop (index + (len * times)) is]
-                   
-          
+
+
 slidingWindow :: (Eq a) => [a] -> [([a], Int, Int, Int)]
 slidingWindow [] = [([], 1, 0, 0)]
 slidingWindow l =
@@ -87,7 +86,7 @@ slidingWindow l =
                 (\w i -> (w, numberOfTimes w wSize (drop i l), i, wSize))
                 (windows wSize l)
                 [0, 1 ..]
-          ) 
+          )
 
 numberOfTimes :: (Eq a) => [a] -> Int -> [a] -> Int
 numberOfTimes [] _ [] = 0
@@ -108,5 +107,6 @@ transpose' :: [[a]] -> [[a]]
 transpose' = getZipList . traverse ZipList
 
 -- O(n*m)
+windows :: Int -> [a] -> [[a]]
 windows :: Int -> [a] -> [[a]]
 windows s = transpose' . take s . tails
