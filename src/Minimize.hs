@@ -1,25 +1,26 @@
-module Minimize (minimize, minimize2, unroll, unrollRows) where
+module Minimize (minimize, minimize2) where
 
 import Control.Applicative (ZipList (ZipList, getZipList))
 import Control.Monad (join)
 import Data.Foldable (minimumBy, maximumBy)
 import Data.Function (on)
 import Data.List (tails)
-import KSSyntax (Course (Course), Instruction (..), Instructions, Line (..), Pattern (..))
+import KSSyntax (Course (..), Instruction (..), Instructions, Pattern (..))
 import Knittels (Knittel (..))
+import Unroll (unroll)
 import Utils (patternLength)
-import qualified Data.Memocombinators as Memo
+--import qualified Data.Memocombinators as Memo
 
 minimize :: Pattern -> Pattern
-minimize = mini . unroll 
-{- minimize p = 
-  let min = mini (unroll p) in 
-      if patternLength min > patternLength p
+--minimize = mini . unroll 
+minimize p = 
+  let minimized = mini (unroll p) in 
+      if patternLength minimized > patternLength p
         then p 
-      else min -}
+      else minimized
 
   where
-    mini (Pattern p) = Pattern (map cm p) 
+    mini (Pattern pa) = Pattern (map cm pa) 
     cm (Course r is c) = Course r (ma is) c
     cm e = e
 
@@ -98,34 +99,6 @@ numberOfTimes rep w p
       | rep == take w (drop (w * n) p) = go (n + 1)
       | otherwise = n
 
------------- Unroll ------------
-unroll :: Pattern -> Pattern
-unroll (Pattern p) = Pattern $ map u p
-  where
-    u (Course r is c) = Course r (unrollInstructions is) c
-    u c = c
-
-unrollRows :: Pattern -> Pattern
-unrollRows (Pattern p) = Pattern $ join $ map u p
-  where
-    u (Course l is c)
-      | len l == 1 = [Course l is c]
-      | otherwise = map (\r -> Course r is c) (allLines l)
-    -- TODO: also unroll multiline repeats; need lookup function to do this.
-    u c = [c]
-    len (Row ln _) = length ln
-    len (Round ln _) = length ln
-    allLines (Row ln s) = map (\l -> Row [l] s) ln
-    allLines (Round ln s) = map (\l -> Round [l] s) ln
-
-unrollInstructions :: Instructions -> Instructions
-unrollInstructions ((Knittel k) : is) = unrollKnittel k ++ unrollInstructions is
-unrollInstructions ((Rep r t) : is)   = join (replicate t (unrollInstructions r)) ++  unrollInstructions is
-unrollInstructions (l : is)           = l : unrollInstructions is -- NOTE: dont unroll Loops
-unrollInstructions [] = []
-
-unrollKnittel :: Knittel -> Instructions
-unrollKnittel (KInst kn r a t) = replicate r (Knittel (KInst kn 1 a t))
 
 snd4 :: (a, b, c, d) -> b
 snd4 (_, x, _, _) = x

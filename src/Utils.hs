@@ -1,13 +1,12 @@
-module Utils where 
+module Utils  where 
 import KSSyntax
 import Knittels
 
 
-noComments :: Pattern -> Pattern
-noComments (Pattern p)  = Pattern $ filter cn p
+removeComments :: Pattern -> Pattern
+removeComments (Pattern p)  = Pattern $ filter cn p
         where   cn (Comment _) = False
                 cn _ = True
-
 
 patternLength :: Pattern -> Integer
 patternLength (Pattern p) = sum $ map courseLength p
@@ -25,7 +24,6 @@ instructionsLen [] = 0
 instructionsLen (Knittel _ : xs) = 1 + instructionsLen xs
 instructionsLen (Rep  i _ : xs) = instructionsLen i + instructionsLen xs
 instructionsLen (Loop i _ : xs) = instructionsLen i + instructionsLen xs
-
 
 stitchLength :: Instruction -> Int
 stitchLength (Rep is _) = max (sum (map stitchLength is)) 0

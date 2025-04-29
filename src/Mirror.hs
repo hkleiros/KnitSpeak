@@ -1,4 +1,4 @@
-module Mirror (mirror, flipPattern, stitchLength) where
+module Mirror (mirror, stitchLength, mirrorKnittel) where
 
 import KSSyntax (Course (..), Instruction (..), Instructions, Pattern (..), Line(..))
 import Knittels
@@ -8,8 +8,7 @@ import Knittels
   )
 import Utils (stitchLength)
 import Data.Either 
--- import Text.Parsec.Error (newErrorMessage)
--- import Text.Parsec.Pos (newPos)
+
 newtype LoopError = LoopError String deriving (Eq, Read)
 instance Show LoopError where
   show (LoopError m) = m 
@@ -42,22 +41,6 @@ mirror (Pattern p) = case countLoops (Pattern p) of
     sym (Course l is c) = Course l (reverseInstructions (is, 0)) c 
     sym c = c
 
-flipPattern :: Pattern -> Pattern
-flipPattern (Pattern p) = Pattern $ map inv p
-  where
-    inv (Course l is c) = Course l (flipInstructions (is, 0)) c
-    inv c = c
-
--- Invert functions
-flipInstructions :: (Instructions, Int) -> Instructions
-flipInstructions (i : is, len) = flipInstruction (i, len) : flipInstructions (is, len + stitchLength i)
-flipInstructions ([], _) = []
-
-flipInstruction :: (Instruction, Int) -> Instruction
-flipInstruction (Rep is times, _) = Rep (flipInstructions (is, 0)) times
-flipInstruction (Loop is _1, len) = Loop (flipInstructions (is, 0)) len
-flipInstruction (Knittel k, _) = Knittel (mirrorKnittel k)
-
 -- Reverse functions
 reverseInstructions :: (Instructions, Int) -> Instructions
 reverseInstructions (i : is, len) = reverseInstructions (is, len + stitchLength i) ++ [reverseInstruction (i, len)]
@@ -68,7 +51,7 @@ reverseInstruction (Rep is times, _) = Rep (reverseInstructions (is, 0)) times
 reverseInstruction (Loop is _1, len) = Loop (reverseInstructions (is, 0)) len
 reverseInstruction (Knittel k, _) = Knittel (mirrorKnittel k)
 
-
+-- TODO:  Consider moving to separate file for Flip
 mirrorKnittel :: Knittel -> Knittel
 -- The operations which mirror images are:
 mirrorKnittel (KInst (KNtog n) r a (Just TBL)) = KInst (KNtogTwisted n) r a Nothing

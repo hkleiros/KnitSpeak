@@ -1,8 +1,10 @@
-import KSSyntax
+--import KSSyntax
 import KSParser             (parseString)
-import Mirror               (mirror, flipPattern)
+import Mirror               (mirror)
+import Flip                 (flipPattern)
 import Invert               (invert)
-import Minimize             (minimize, unroll, unrollRows)
+import Minimize             (minimize)
+import Unroll               (unrollRows)
 import System.Environment   (getArgs)
 import System.Exit          (die)
 import Control.Monad        (join)
@@ -79,7 +81,7 @@ main = do
                             Left e -> putStrLn $ "*** Mirroring error: " ++ show e
                             Right m -> putStrLn $ join [
                                 "Mirrored pattern is equal to second pattern? ",
-                                show (noComments m == noComments p2),
+                                show (removeComments m == removeComments p2),
                                 "\n\n",
                                 show p,
                                 "\n\nMirrored:\n",
