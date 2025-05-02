@@ -19,7 +19,7 @@ countLoops (Pattern p) =
   let n = lefts (map count p)
    in if null n -- > 1
         then Nothing
-        else Just $ LoopError $ "more than one loop in one line cannot be mirrored! \n" ++  show (fst (head n)) ++ " loops in:  " ++ show (snd (head n))
+        else Just $ LoopError $ "more than one loop in one line cannot be mirrored. \n" ++  show (fst (head n)) ++ " loops in:  " ++ show (snd (head n))
   where
     count :: Course -> Either (Int, Line) Int
     count (Course l is _) =
@@ -38,20 +38,19 @@ mirror (Pattern p) = case countLoops (Pattern p) of
   Just e -> Left e
   Nothing -> Right $ Pattern $ map sym p
   where
-    sym (Course l is c) = Course l (reverseInstructions (is, 0)) c 
+    sym (Course l is c) = Course l (mirrorInstructions (is, 0)) c 
     sym c = c
 
--- Reverse functions
-reverseInstructions :: (Instructions, Int) -> Instructions
-reverseInstructions (i : is, len) = reverseInstructions (is, len + stitchLength i) ++ [reverseInstruction (i, len)]
-reverseInstructions ([], _) = []
+-- Mirror functions
+mirrorInstructions :: (Instructions, Int) -> Instructions
+mirrorInstructions (i : is, len) = mirrorInstructions (is, len + stitchLength i) ++ [mirrorInstruction (i, len)]
+mirrorInstructions ([], _) = []
 
-reverseInstruction :: (Instruction, Int) -> Instruction
-reverseInstruction (Rep is times, _) = Rep (reverseInstructions (is, 0)) times
-reverseInstruction (Loop is _1, len) = Loop (reverseInstructions (is, 0)) len
-reverseInstruction (Knittel k, _) = Knittel (mirrorKnittel k)
+mirrorInstruction :: (Instruction, Int) -> Instruction
+mirrorInstruction (Rep is times, _) = Rep (mirrorInstructions (is, 0)) times
+mirrorInstruction (Loop is _, len) = Loop (mirrorInstructions (is, 0)) len
+mirrorInstruction (Knittel k, _) = Knittel (mirrorKnittel k)
 
--- TODO:  Consider moving to separate file for Flip
 mirrorKnittel :: Knittel -> Knittel
 -- The operations which mirror images are:
 mirrorKnittel (KInst (KNtog n) r a (Just TBL)) = KInst (KNtogTwisted n) r a Nothing
