@@ -9,6 +9,8 @@ import System.Environment   (getArgs)
 import System.Exit          (die)
 import Control.Monad        (join)
 import Utils                
+import Knittels 
+import KSSyntax
 
 main :: IO ()
 main = do

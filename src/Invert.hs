@@ -3,20 +3,20 @@ module Invert (invert) where
 import Knittels
     ( Knittel(..),
       KName(..),
-      TBL(..), 
+      TBL(..),
       YarnPlacement(..) )
-import KSSyntax 
-    ( Pattern(..), 
-      Instruction(..), 
-      Instructions, 
+import KSSyntax
+    ( Pattern(..),
+      Instruction(..),
+      Instructions,
       Course(..) )
 import Mirror (stitchLength)
 
 
 invert :: Pattern -> Pattern
-invert (Pattern p) = Pattern $ map fl p 
+invert (Pattern p) = Pattern $ map fl p
     where fl (Course l is c) = Course l (invertInstructions (is, 0)) c
-          fl x = x 
+          fl x = x
 
 
 invertInstructions :: (Instructions, Int) -> Instructions
@@ -30,46 +30,63 @@ invertInstruction (Knittel    k,  _) = Knittel (invertKnittel   k)
 
 
 invertKnittel :: Knittel -> Knittel
-invertKnittel (KInst K r a t)            = KInst P r a t
-invertKnittel (KInst P r a t)            = KInst K r a t
-invertKnittel (KInst (Slip n Wyib) r a t)    = KInst (Slip n Wyif) r a t
-invertKnittel (KInst (Slip n Wyif) r a t)    = KInst (Slip n Wyib) r a t
-invertKnittel (KInst Knit r a t)             = KInst Purl r a t
-invertKnittel (KInst Purl r a t)             = KInst Knit r a t
-invertKnittel (KInst K1Below r a t)          = KInst P1Below r a t
-invertKnittel (KInst P1Below r a t)          = KInst K1Below r a t
+invertKnittel (KInst Sssp r a _)             = KInst (KNtog 3) r a (Just TBL)
+invertKnittel (KInst (KNtog 3) r a (Just TBL)) = KInst Sssp r a Nothing
+invertKnittel (KInst k r a t)                = KInst (invertKName k) r a t
+
+invertKName :: KName -> KName
+invertKName K  =  P
+invertKName P  =  K
+invertKName (Slip n Wyib) = Slip n Wyif
+invertKName (Slip n Wyif) =  Slip n Wyib
+invertKName Knit          = Purl
+invertKName Purl          = Knit
+invertKName K1Below       = P1Below
+invertKName P1Below       = K1Below
 
 -- Decreases
-invertKnittel (KInst (KNtog n) r a t)        = KInst (PNtog n) r a t
-invertKnittel (KInst (PNtog n) r a t)        = KInst (KNtog n) r a t
-invertKnittel (KInst Ssk r a t)              = KInst Ssp r a t
-invertKnittel (KInst Ssp r a t)              = KInst Ssk r a t
+invertKName (KNtog n) = PNtog n
+invertKName (PNtog n) = KNtog n
+invertKName Ssk       = Ssp
+invertKName Ssp       = Ssk
 
-invertKnittel (KInst Sssp r a _)             = KInst (KNtog 3) r a (Just TBL)
-invertKnittel (KInst (KNtogTwisted n) r a t) = KInst (PNtogTwisted n) r a t
+invertKName (KNtogTwisted n) = PNtogTwisted n
+invertKName (PNtogTwisted n) = KNtogTwisted n
+invertKName Cddp             = Sl2_k1_p2sso
+invertKName Sl2_k1_p2sso     = Cddp
+invertKName CddTwisted       = CddpTwisted
+invertKName CddpTwisted      = CddTwisted
+
 
 -- Increases
-invertKnittel (KInst Kfb r a t)              = KInst Pfb r a t
-invertKnittel (KInst Pfb r a t)              = KInst Kfb r a t
+invertKName Kfb = Pfb
+invertKName Pfb = Kfb
 
-invertKnittel (KInst IncL r a t)             = KInst IncLp r a t
-invertKnittel (KInst IncLp r a t)            = KInst IncL r a t
-invertKnittel (KInst IncR r a t)             = KInst IncRp r a t
-invertKnittel (KInst IncRp r a t)            = KInst IncR r a t
+invertKName  IncL  = IncLp
+invertKName  IncLp = IncL
+invertKName  IncR  = IncRp
+invertKName  IncRp = IncR
 
-invertKnittel (KInst M1L r a t)              = KInst M1Lp r a t
-invertKnittel (KInst M1Lp r a t)             = KInst M1L r a t
-invertKnittel (KInst M1R r a t)              = KInst M1Rp r a t
-invertKnittel (KInst M1Rp r a t)             = KInst M1R r a t
+invertKName M1L  = M1Lp
+invertKName M1Lp = M1L
+invertKName M1R  = M1Rp
+invertKName M1Rp = M1R
 
 -- Cables 
 {-No fully purled cables are defined :(-}
 
 
--- Beads ? KBL : KBR 
+-- Beads ? 
+invertKName KBL = KBR
+invertKName KBR = KBL
+
+-- Clusters
+invertKName (Yo_kN_pyo n) = Yo_pN_pyo n
+invertKName (Yo_pN_pyo n) = Yo_kN_pyo n
+invertKName (SlN_kN_psso n m) = SlN_pN_psso n m
+invertKName (SlN_pN_psso n m) = SlN_kN_psso n m
 
 
+-- Others 
 
-{- TODO: ... strikk alle knittels og se hva som er symmetrisk? -}
-
-invertKnittel k = k
+invertKName k = k

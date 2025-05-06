@@ -1,0 +1,1 @@
+Row 16: k4, p1, k6, p1, k2tog, yo, p1, 2/2 RC, p1, k2tog, yo, p1, k2.

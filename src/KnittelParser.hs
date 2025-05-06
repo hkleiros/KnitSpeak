@@ -238,10 +238,7 @@ knittel =
         r <- maybeINum
         KInst BO r (KArity 1) <$> tbl)
     <|>
-    try (
-    do  skipSymbol "turn"
-        return (KInst Turn 1 (KArity 0) Nothing))
-    <|>
+    
     -- Combined operations: yo-p2-pyo, yo-p3-pyo
     try (
     do  skipSymbol "yo"

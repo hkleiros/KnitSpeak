@@ -83,7 +83,7 @@ mirrorKName M1Rp = M1Lp
 -- Cables
 mirrorKName One'1'1LT = One'1'1RT
 mirrorKName One'1'1RT = One'1'1LT
-mirrorKName (KNtogTwisted n) = KNtog n
+--mirrorKName (KNtogTwisted n) = KNtog n
 mirrorKName (PNtogTwisted n) = PNtog n
 mirrorKName (N'NLC n m) = N'NRC m n
 mirrorKName (N'NRC n m) = N'NLC m n
@@ -109,11 +109,11 @@ mirrorKName KBR = KBL
 -- Clusters
 mirrorKName (SlN_kN_yo_psso 1 1) = P2so_yo_k1
 mirrorKName P2so_yo_k1 = SlN_kN_yo_psso 1 1
--- mirrorKnittel (KInst (SlN_kN_psso 1 2) r a t) = KInst  r a t
 mirrorKName Sl1_k1_yo_k1_psso = P3so_k1_yo_k1
 mirrorKName P3so_k1_yo_k1 = Sl1_k1_yo_k1_psso
+mirrorKName P3so_k1_yo_ssk = Sl1_p3so_k2tog_yo_k1
+mirrorKName Sl1_p3so_k2tog_yo_k1 = P3so_k1_yo_ssk
 -- mirrorKnittel (KInst _ r a t)
 
-{- TODO: ... strikk alle knittels og se hva som er symmetrisk? -}
 
 mirrorKName k = k

@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use camelCase" #-}
 module Knittels (Knittel (..), KName (..), KArity (..), TBL (..), InstructionNum, YarnPlacement (..)) where
 import Control.Monad (join)
 
@@ -39,8 +41,8 @@ data KName
   | K
   | P
   | Yo
-  | Turn 
-    -- Generated from `generate_parser.py
+  | Turn
+    -- Generated from `generate_parser.py`
   | WAndt
   | Sssp --
   | Ssp --
@@ -54,13 +56,13 @@ data KName
   | DropSt 
   | DipSt
   | CtrDblInc
-  | CddpTwisted --
-  | Cddp --
-  | CddTwisted --
+  | CddpTwisted 
+  | Cddp 
+  | CddTwisted 
   | BunnyEarsYo
   | BunnyEarsDec
   | BunnyEarsBackYo
-  | BunnyEarsBackDec
+  | BunnyEarsBackDec 
   | BrSl
   | SB
   | PBsl
@@ -72,12 +74,12 @@ data KName
   | KBR --
   | KBL --
   | CO
-  | BO
+  | BO --30
 
   | Yo_pN_pyo InstructionNum --
   | Yo_kN_pyo InstructionNum --
   | WrapNSts InstructionNum
-  | Sl1_p3so_k2tog_yo_k1
+  | Sl1_p3so_k2tog_yo_k1 -- Mirror of: P3so_k1_yo_ssk
   | SlN_pN_psso InstructionNum InstructionNum
   | Sl1_k2tog_psso
   | SlN_kN_yo_psso InstructionNum InstructionNum
@@ -85,10 +87,10 @@ data KName
   | SlN_kN_psso InstructionNum InstructionNum
   | Sl2_k1_p2sso
   | Sl1Wb
-  | PNtogTwisted InstructionNum
-  | PNtog InstructionNum
+  | PNtogTwisted InstructionNum --
+  | PNtog InstructionNum --
   | P2so_yo_k1
-  | P3so_k1_yo_ssk
+  | P3so_k1_yo_ssk -- mirror of: Sl1_p3so_k2tog_yo_k1
   | P3so_k1_yo_k1
   | P1Below
   | N_to_NInc InstructionNum InstructionNum
