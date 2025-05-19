@@ -13,15 +13,14 @@ where
 import Text.Parsec
     ( anyChar,
       satisfy,
-      space,
       string,
       between,
       manyTill,
       (<|>),
-      many,
       many1,
       try,
-      optional)
+      optional,
+      spaces)
 import Text.Parsec.String (Parser)
 import Data.Char (isDigit, toUpper, toLower)
 
@@ -32,9 +31,9 @@ brackets    =  between (skipSymbol "[")  (skipSymbol "]")
 parens      :: Parser a -> Parser a
 parens      =  between (skipSymbol "(") (skipSymbol ")")
 symbol      :: String -> Parser String
-symbol c    =  string c <* many space
+symbol c    =  string c <* spaces
 lexeme      :: Parser a -> Parser a
-lexeme p    =  p <* many space --(void space <|> void comment)
+lexeme p    =  p <* spaces --(void space <|> void comment)
 
 skipSymbol   :: String -> Parser ()
 skipSymbol [] = return ()
@@ -43,7 +42,7 @@ skipSymbol (s: ss) =  lexeme $
         return ()
 
 num :: Parser Int
-num = do ds <- many1 (satisfy isDigit) <* many space
+num = do ds <- many1 (satisfy isDigit) <* spaces
          return (read ds)
 
 maybeINum :: Parser Int

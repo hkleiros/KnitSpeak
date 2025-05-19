@@ -1,7 +1,7 @@
 module KSParser (ParseError, parseString) where
 
 import Prelude hiding (lines)
-import General 
+import General
     ( lexeme,
       skipSymbol,
       symbol,
@@ -32,24 +32,15 @@ import Text.Parsec
       unexpected,
       ParseError,
       try,
-      optional )
+      optional,
+      spaces  )
 import Text.Parsec.String (Parser)
 import Data.Functor (($>), void)
-import Data.List (singleton)
 import KnittelParser (knittel, tbl)
 import Knittels (Knittel(..), KName (Knit, Purl), KArity (..))
 
 parseString :: String -> Either ParseError Pattern
-parseString s =
-    case parse patternParser "" s of
-        Left e -> Left e
-        Right p -> return p
-    where
-        patternParser =
-            do lexeme (return ())
-               e <- pattern
-               eof
-               return e
+parseString = parse (spaces *> pattern <* eof) ""
 
 
 pattern :: Parser Pattern
@@ -70,10 +61,10 @@ course =
     do  skipSymbol "Repeat"
         r <- try (symbol "rows") <|> try (symbol "rounds") <|> try (symbol "row") <|> try (symbol "round")
         ln <- nums
-        t <- try times <|> return 0 
+        t <- try times <|> return 0
         void (symbol ".")
         return (MultilineRepeat r ln t))
-    <|> 
+    <|>
     do  Comment <$> comment
 
 
@@ -129,12 +120,12 @@ loop =
     try (
     do  skipSymbol "Knit"
         t <- tbl
-        Loop [Knittel (KInst Knit 0 (KArity (-1)) t)] <$> end )
+        Loop [Knittel (KInst Knit 1 (KArity (-1)) t)] <$> end )
     <|>
     try (
     do  skipSymbol "Purl"
         t <- tbl
-        Loop [Knittel (KInst Purl 0 (KArity (-1)) t)] <$> end )
+        Loop [Knittel (KInst Purl 1 (KArity (-1)) t)] <$> end )
 
 
 rep :: Parser Instruction
@@ -172,10 +163,10 @@ numbs :: Parser LineNums
 numbs = nums `chainl1` separator
     where separator = (try (symbol "," >> symbol "and") <|> symbol "," <|> symbol "and")   $> (++)
 
-nums :: Parser LineNums -- lager lister
+nums :: Parser LineNums 
 nums = try (do  ds <- num
                 notFollowedBy (symbol "-")
-                return $ singleton ds)
+                return [ds])
     <|> do  x <- num
             skipSymbol "-"
             y <- num

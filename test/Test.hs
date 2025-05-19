@@ -1,11 +1,11 @@
 import Spec (testFolder, testRep)
-import StitchMapsTest (testStitchMapsKnitSpeaks)
+-- import StitchMapsTest (testStitchMapsKnitSpeaks)
 import Test.Tasty
 
 main :: IO ()
 main =
   do
-    --testStitchMapsKnitSpeaks
+    -- testStitchMapsKnitSpeaks
     testFolder
     defaultMain $
       localOption (mkTimeout 1000000) $

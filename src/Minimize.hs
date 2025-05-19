@@ -4,16 +4,13 @@ import Control.Applicative (ZipList (ZipList, getZipList))
 import Control.Monad (join)
 import Data.Foldable (minimumBy, maximumBy)
 import Data.Function (on)
-import Data.List (tails, nub)
-import KSSyntax (Course (..), Instruction (..), Instructions, Pattern (..))
+import Data.List (tails, nub, sortBy, head)
+import KSSyntax (Course (..), Instruction (..), Instructions, Pattern (..), Line(..))
 import Knittels (Knittel (..))
 import Unroll (unroll)
 import Utils (patternLength)
 
---import qualified Data.Memocombinators as Memo
-
 minimize :: Pattern -> Pattern
---minimize = mini . unroll 
 minimize p =
   let minimized = mini (unroll p) in
       if patternLength minimized > patternLength p
@@ -31,20 +28,33 @@ minimize2 = mini . unroll
     cm (Course r is c) = Course r (m is) c
     cm e = e
 
-{-combineCourses :: Pattern -> Pattern
-combineCourses = c sortBy (\(Course _ is) (Course r2 is2) -> compare is  is2)
-    where c (i: is) = undefined
-  -}
--- TODO: also combine courses with the same instructions
+{- NOTE: can minimize patterns that don't contain multiline repeats or comments. 
+verticallyMinimize :: Pattern -> Pattern
+verticallyMinimize (Pattern p) = Pattern $ sortBy (\(Course r is cm) (Course r2 is2 cm2) -> rowN r r2) (c (sortBy (\(Course _ is cm) (Course r2 is2 cm2) -> compare is is2) p))
+          
+    where c :: [Course] -> [Course]
+          c ((Course r is cm) : ((Course r2 is2 cm2): iss)) 
+              | (is == is2) && rt r r2 = c ((Course (cr r r2) is "") : iss)
+          c (i : is) = i : (c is)
+          c [] = []
+          rt (Row _ s) (Row _ s2) | s == s2 = True
+          rt (Round _ s) (Round _ s2) | s == s2 = True
+          rt _ _ = False
+          cr (Row rn s) (Row rn2 s2) = Row (rn ++ rn2) s
+          rowN (Row rn s) (Round rn2 s2) = compare (head rn)  (head rn2)
+          rowN (Round rn s) (Row rn2 s2) =   compare (head rn) (head rn2)
+          rowN (Row rn s) (Row rn2 s2) =     compare (head rn) (head rn2)
+          rowN (Round rn s) (Round rn2 s2) = compare (head rn) (head rn2) 
+-}
 
 ma :: Instructions -> Instructions
 ma [] = []
 ma is =
-    case slidingWindow is of -- Get all repeating substructures 
+    case allRepetitions is of -- Get all repeating substructures 
         [] -> is
         r  ->
           --- Choose the substructure with largest number of repeats 
-          let (s, t, i, l) = maximumBy (compare `on` snd4) r 
+          let (s, t, i, l) = maximumBy (compare `on` snd4) r
             in case s of
               -- Call ma again on the list and repeating structure
               [Knittel (KInst k _ a tbl)] ->
@@ -65,7 +75,7 @@ m is = minimumBy (compare `on` len) (m'' is)
 m' :: Instructions -> [Instructions]
 m' [] = []
 m' is =
-    case slidingWindow is of -- Get all repeating substructures 
+    case allRepetitions is of -- Get all repeating substructures 
         [] -> [is]
         r  -> r >>= allOptions
 
@@ -79,7 +89,7 @@ m' is =
 m'' :: Instructions -> [Instructions]
 m'' [] = []
 m'' is =
-    case slidingWindow is of -- Get all repeating substructures 
+    case allRepetitions is of -- Get all repeating substructures 
         [] -> [is]
         r  ->  nub $ join $ map allOptions (nub r) -- >>= allOptions
 
@@ -90,9 +100,9 @@ m'' is =
                     m'' (join [take index is, [Knittel (KInst k times a tbl)], drop (index + (len * times)) is])
               p ->  m'' $ join [take index is, [Rep (m p) times], drop (index + (len * times)) is]
 
-slidingWindow :: (Eq a) => [a] -> [([a], Int, Int, Int)]
-slidingWindow [] = [([], 1, 0, 0)]
-slidingWindow l =
+allRepetitions :: (Eq a) => [a] -> [([a], Int, Int, Int)] -- Repeating sublist, times it repeats, index of sublist, size of sublist
+allRepetitions [] = [([], 1, 0, 0)]
+allRepetitions l =
   filter (\x -> snd4 x > 1) $
     [1 .. length l `div` 2]
       >>= ( \wSize ->

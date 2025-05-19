@@ -1,0 +1,1 @@
+Row 1 : ssk, Knit to last st, M1R, k1.

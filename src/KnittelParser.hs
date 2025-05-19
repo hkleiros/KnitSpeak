@@ -39,7 +39,7 @@ knittel =
         n <- maybeINum
         notFollowedBy (string "tog" <|> string "s" <|> string "below")
         KInst P n (KArity 1) <$> tbl)
-    <|> 
+    <|>
     try(
     do  skipSymbol "Knit" 
         KInst Knit 0 (KArity (-1)) <$> tbl)
@@ -59,7 +59,11 @@ knittel =
         notFollowedBy (string "-")
         r <- maybeINum
         KInst Yo r (KArity 0) <$> tbl)
-
+    <|>
+    try (
+    do  skipSymbol "turn"
+        KInst Purl 0 (KArity 0) <$> tbl)
+    
     -- Generated from `generate_parser.py
     <|>
     try (

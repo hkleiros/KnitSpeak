@@ -13,15 +13,18 @@ import Data.Set (fromList)
 import Utils
 import Minimize
 import Invert
-import Mirror
 import Unroll
+import Mirror
 import Flip
-import Data.List.Unique (isUnique, countElem)
+import Data.List.Unique (isUnique, isRepeated, countElem)
 import Data.Maybe (fromMaybe)
-import Data.List (intercalate, nub, sortBy, sort)
+import Data.List (intercalate, nub, sortBy, sort, nubBy)
 import Data.List.Extra (replace)
 
+
 -- import Data.List (filter, intercalate)
+resultsFile :: String
+resultsFile = "../results5.tsv"
 
 testStitchMapsKnitSpeaks :: IO ()
 testStitchMapsKnitSpeaks = do
@@ -34,9 +37,23 @@ testStitchMapsKnitSpeaks = do
       unique = fromList patterns
       nrUnique = length unique
   putStrLn $ "Total patterns checked: " ++ show total
-  saveUnique patterns filesAndPatterns
-  --appendFile "results.tsv" "Name\tUnique?\t Length\tMinimized1 Length\tUnrolled length\tLossless?\tMirrored in Patterns?\tInverted in Patterns?\tFlipped in Patterns?\n"
-  --mapM_ (testPattern patterns) filesAndPatterns
+  --saveUnique patterns filesAndPatterns
+  let header = intercalate "\t" [
+        "Name",
+        "Unique?",
+        "Length",
+        "Unrolled length",
+        "Minimized1 Length",
+        "Lossless?",
+        "Mirror is inverse?",
+        "Invert is inverse?",
+        "Flip is inverse?",
+        "Mirrored in Patterns?",
+        "Inverted in Patterns?",
+        "Flipped in Patterns?"
+        ]++ "\n"
+  appendFile resultsFile header
+  mapM_ (testPattern patterns) filesAndPatterns
   putStrLn (show rnErrors ++ " patterns did not parse")
   putStrLn (show nrParsed ++ " patterns parsed")
   putStrLn (show nrUnique ++ " unique patterns")
@@ -51,7 +68,7 @@ testStitchMapsKnitSpeaks = do
                           u = unique
                           in
                            case s of
-                            Left e ->    appendFile "results.tsv" $ intercalate "\t" [
+                            Left e ->    appendFile resultsFile $ intercalate "\t" [
                               takeBaseName f,
                               show u,
                               show (patternLength p),
@@ -59,26 +76,53 @@ testStitchMapsKnitSpeaks = do
                               show (patternLength m2),
                               show (unroll p == unroll m2),
                               "None",
+                              show (p == invert (invert p)),
+                              show (p == flipPattern (flipPattern p)),
+                              "None",
                               show (invert p `elem` corpus),
                               show (flipPattern p `elem` corpus) ] ++ "\n"
-                            Right mir -> appendFile "results.tsv" $ intercalate "\t" [
-                              takeBaseName f,
-                              show u,
-                              show (patternLength p),
-                              show (patternLength (unroll p)),
-                              show ( patternLength m2),
-                              show (unroll p == unroll m2),
-                              show (mir `elem` corpus),
-                              show (invert p `elem` corpus),
-                              show (flipPattern p `elem` corpus) ] ++ "\n" 
+                            Right mir ->
+                              case mirror mir of
+                                Left e ->
+                                    appendFile resultsFile $ intercalate "\t" [
+                                    takeBaseName f,
+                                    show u,
+                                    show (patternLength p),
+                                    show (patternLength (unroll p)),
+                                    show ( patternLength m2),
+                                    show (unroll p == unroll m2),
+                                    "None",
+                                    show (p == invert (invert p)),
+                                    show (p == flipPattern (flipPattern p)),
+                                    show (mir `elem` corpus),
+                                    show (invert p `elem` corpus),
+                                    show (flipPattern p `elem` corpus) ] ++ "\n"
+                                Right mir2 ->
+                                  appendFile resultsFile $ intercalate "\t" [
+                                    takeBaseName f,
+                                    show u,
+                                    show (patternLength p),
+                                    show (patternLength (unroll p)),
+                                    show ( patternLength m2),
+                                    show (unroll p == unroll m2),
+                                    show (p == mir2),
+                                    show (p == invert (invert p)),
+                                    show (p == flipPattern (flipPattern p)),
+                                    show (mir `elem` corpus),
+                                    show (invert p `elem` corpus),
+                                    show (flipPattern p `elem` corpus) ] ++ "\n"
             where unique  =
                     fromMaybe False (p `isUnique` corpus )
 
         saveUnique :: [Pattern] -> [(String, Pattern)] -> IO ()
-        saveUnique corpus filesAndPatterns=
-            let u = filter (not . unique . snd) filesAndPatterns in
-                mapM_ (\(n, p) -> appendFile "number_copies.txt" (join [show n, "\n"])) (sort (nub (map (\(f,p) -> (p `countElem` corpus, p)) u)))
-              where unique p = fromMaybe False (p `isUnique` corpus)
+        saveUnique corpus filesAndPatterns =
+            let u = filter (repeated . snd) filesAndPatterns
+                res = map (\(f,p) -> (p `countElem` corpus, p, f)) u
+                in
+                do  print $ length res
+                    mapM_ (\(n, p, f) -> appendFile "number_copies.txt" (join [show n,"\t", f, "\n"])) (sort {- (nubBy (\(c,p,f) (c2,p2,f2)-> p == p2) -} res)
+              where repeated p = fromMaybe False (p `isRepeated` corpus)
+
 
 testDirStitchMapsKnitSpeaks :: String -> IO (Int, [(String, Pattern)]) -- [ParseError]
 testDirStitchMapsKnitSpeaks dir = do
@@ -90,16 +134,16 @@ testDirStitchMapsKnitSpeaks dir = do
       parsed = map (\(x,y) -> (takeBaseName x, fromRight' y)) (filter (isRight .snd) res)
       l = length errors
       r = length parsed
-    -- _ <- writeErrors (map (\(x, y) -> (x, fromLeft' y)) errors)
+  _ <- writeErrors (map (\(x, y) -> (x, fromLeft' y)) errors)
   print (l, r)
   return (l, parsed)
-  {- where
+  where
     writeErrors = mapM (writeError dir)
- -}
+
 writeError :: String -> (String, ParseError) -> IO ()
 writeError dir (f, pe) =
   do
-    let errordir = dir </> "errors/"
+    let errordir = dir </> "errors2/"
     createDirectoryIfMissing False errordir
     writeFile (replaceDirectory f errordir) (show pe)
 
