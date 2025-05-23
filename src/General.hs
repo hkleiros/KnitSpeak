@@ -33,7 +33,7 @@ parens      =  between (skipSymbol "(") (skipSymbol ")")
 symbol      :: String -> Parser String
 symbol c    =  string c <* spaces
 lexeme      :: Parser a -> Parser a
-lexeme p    =  p <* spaces --(void space <|> void comment)
+lexeme p    =  p <* spaces
 
 skipSymbol   :: String -> Parser ()
 skipSymbol [] = return ()

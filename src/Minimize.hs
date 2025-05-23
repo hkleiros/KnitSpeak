@@ -1,4 +1,4 @@
-module Minimize (minimize, minimize2) where
+module Minimize (minimize, minimize2, possibiblities) where
 
 import Control.Applicative (ZipList (ZipList, getZipList))
 import Control.Monad (join)
@@ -28,6 +28,13 @@ minimize2 = mini . unroll
     cm (Course r is c) = Course r (m is) c
     cm e = e
 
+possibiblities :: Pattern -> Int
+possibiblities = length . mini . unroll
+    where
+      mini (Pattern p) = join $ map cm p
+      cm (Course r is c) = m' is
+      cm e = []
+
 {- NOTE: can minimize patterns that don't contain multiline repeats or comments. 
 verticallyMinimize :: Pattern -> Pattern
 verticallyMinimize (Pattern p) = Pattern $ sortBy (\(Course r is cm) (Course r2 is2 cm2) -> rowN r r2) (c (sortBy (\(Course _ is cm) (Course r2 is2 cm2) -> compare is is2) p))
@@ -50,7 +57,8 @@ verticallyMinimize (Pattern p) = Pattern $ sortBy (\(Course r is cm) (Course r2 
 ma :: Instructions -> Instructions
 ma [] = []
 ma is =
-    case allRepetitions is of -- Get all repeating substructures 
+    -- Get all repeating substructures 
+    case allRepetitions is of 
         [] -> is
         r  ->
           --- Choose the substructure with largest number of repeats 
@@ -65,26 +73,28 @@ ma is =
 
 m :: Instructions -> Instructions
 m [] = []
-m is = minimumBy (compare `on` len) (m'' is)
+m is = minimumBy (compare `on` len) (m' is)
   where len :: Instructions -> Integer
         len [] = 0
         len (Knittel _ : xs) = 1 + len xs
-        len (Rep  i _ : xs) = len i + len xs
-        len (Loop i _ : xs) = len i + len xs
+        len (Rep  si _ : xs) = len si + len xs
+        len (Loop si _ : xs) = len si + len xs
 
 m' :: Instructions -> [Instructions]
 m' [] = []
 m' is =
-    case allRepetitions is of -- Get all repeating substructures 
+    -- Get all repeating substructures 
+    case allRepetitions is of 
         [] -> [is]
         r  -> r >>= allOptions
 
-    where allOptions (structure, times, index, len) = --- Choose the substructure with largest number of repeats 
-             case structure of
-              -- Call m' again on the list and repeating structure
-              [Knittel (KInst k _ a tbl)] ->
-                    m' (join [take index is, [Knittel (KInst k times a tbl)], drop (index + (len * times)) is])
-              p ->  m' $ join [take index is, [Rep (m p) times], drop (index + (len * times)) is]
+    --- Choose the substructure with largest number of repeats 
+    where allOptions (structure, times, index, len) = 
+            case structure of
+            -- Call m' again on the list and repeating structure
+            [Knittel (KInst k _ a tbl)] ->
+                  m' (join [take index is, [Knittel (KInst k times a tbl)], drop (index + (len * times)) is])
+            p ->  m' $ join [take index is, [Rep (m p) times], drop (index + (len * times)) is]
 
 m'' :: Instructions -> [Instructions]
 m'' [] = []

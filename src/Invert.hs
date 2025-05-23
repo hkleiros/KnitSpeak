@@ -10,24 +10,19 @@ import KSSyntax
       Instruction(..),
       Instructions,
       Course(..) )
-import Mirror (stitchLength)
-
 
 invert :: Pattern -> Pattern
 invert (Pattern p) = Pattern $ map fl p
-    where fl (Course l is c) = Course l (invertInstructions (is, 0)) c
+    where fl (Course l is c) = Course l (invertInstructions is) c
           fl x = x
 
+invertInstructions :: Instructions -> Instructions
+invertInstructions = map invertInstruction
 
-invertInstructions :: (Instructions, Int) -> Instructions
-invertInstructions (i: is, len) = invertInstruction (i, len) : invertInstructions (is, len + stitchLength i)
-invertInstructions ([], _)      = []
-
-invertInstruction :: (Instruction, Int) -> Instruction
-invertInstruction (Rep is times,  _) = Rep     (invertInstructions (is, 0)) times
-invertInstruction (Loop  is _1, len) = Loop    (invertInstructions (is, 0)) len
-invertInstruction (Knittel    k,  _) = Knittel (invertKnittel   k)
-
+invertInstruction :: Instruction -> Instruction
+invertInstruction (Rep is times) = Rep     (invertInstructions is) times
+invertInstruction (Loop    is e) = Loop    (invertInstructions is) e
+invertInstruction (Knittel    k) = Knittel (invertKnittel   k)
 
 invertKnittel :: Knittel -> Knittel
 invertKnittel (KInst Sssp r a _)             = KInst (KNtog 3) r a (Just TBL)
@@ -88,5 +83,4 @@ invertKName (SlN_pN_psso n m) = SlN_kN_psso n m
 
 
 -- Others 
-
 invertKName k = k

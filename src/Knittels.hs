@@ -11,7 +11,7 @@ instance Show Knittel where
     | k ==  K || k == P = join [show k, show n, showTBL t]
     | otherwise = join [show k, showINum n, showTBL t]
 
-showINum :: Int -> String
+showINum :: InstructionNum -> String
 showINum 1 = ""
 showINum n = " " ++ show n
 
