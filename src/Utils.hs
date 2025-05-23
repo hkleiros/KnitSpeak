@@ -1,4 +1,4 @@
-module Utils  where 
+module Utils  where
 import KSSyntax
 import Knittels
 
@@ -12,9 +12,9 @@ patternLength :: Pattern -> Integer
 patternLength (Pattern p) = sum $ map courseLength p
 
 courseLengths :: Pattern -> [Integer]
-courseLengths (Pattern p) = map courseLength p 
+courseLengths (Pattern p) = map courseLength p
 
-courseLength :: Course -> Integer 
+courseLength :: Course -> Integer
 courseLength (Course _ is _) = instructionsLen is
 courseLength (MultilineRepeat {}) = 0
 courseLength (Comment _) = 0

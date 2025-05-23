@@ -7,11 +7,11 @@ import Knittels
     TBL (..),
   )
 import Utils (stitchLength)
-import Data.Either 
+import Data.Either
 
 newtype LoopError = LoopError String deriving (Eq, Read)
 instance Show LoopError where
-  show (LoopError m) = m 
+  show (LoopError m) = m
 
 
 countLoops :: Pattern -> Maybe LoopError
@@ -38,7 +38,7 @@ mirror (Pattern p) = case countLoops (Pattern p) of
   Just e -> Left e
   Nothing -> Right $ Pattern $ map mir p
   where
-    mir (Course l is c) = Course l (mirrorInstructions (is, 0)) c 
+    mir (Course l is c) = Course l (mirrorInstructions (is, 0)) c
     mir c = c
 
 -- Mirror functions

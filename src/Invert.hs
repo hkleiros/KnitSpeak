@@ -25,9 +25,9 @@ invertInstruction (Loop    is e) = Loop    (invertInstructions is) e
 invertInstruction (Knittel    k) = Knittel (invertKnittel   k)
 
 invertKnittel :: Knittel -> Knittel
-invertKnittel (KInst Sssp r a _)             = KInst (KNtog 3) r a (Just TBL)
+invertKnittel (KInst Sssp r a _)               = KInst (KNtog 3) r a (Just TBL)
 invertKnittel (KInst (KNtog 3) r a (Just TBL)) = KInst Sssp r a Nothing
-invertKnittel (KInst k r a t)                = KInst (invertKName k) r a t
+invertKnittel (KInst k r a t)                  = KInst (invertKName k) r a t
 
 invertKName :: KName -> KName
 invertKName K  =  P

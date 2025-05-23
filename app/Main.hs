@@ -8,8 +8,8 @@ import Unroll               (unroll, unrollRows)
 import System.Environment   (getArgs)
 import System.Exit          (die)
 import Control.Monad        (join)
-import Utils                
-import Knittels 
+import Utils
+import Knittels
 import KSSyntax
 import Data.List.Extra (lower)
 
@@ -17,7 +17,7 @@ main :: IO ()
 main = do
   args <- getArgs
   case args of
-    [f] | f == "-h" || lower f == "--help" -> die usage 
+    [f] | f == "-h" || lower f == "--help" -> die usage
 
     [file] -> do
         s <- readFile file
@@ -48,8 +48,8 @@ main = do
             s <- readFile file
             case parseString s of
                 Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                Right p  -> 
-                    let fp = flipPattern p in 
+                Right p  ->
+                    let fp = flipPattern p in
                         putStrLn $ join ["Pattern is equal? ", show (p == fp), "\n\n", show p, "\n\nFlipped:\n", show fp]
 
         | f == "-i" || lower f == "--invert" -> do
@@ -62,30 +62,30 @@ main = do
             s <- readFile file
             case parseString s of
                 Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                Right p  -> 
-                    let m = minimize p in 
+                Right p  ->
+                    let m = minimize p in
                         putStrLn $ join ["Pattern is minimal? ", show (patternLength p == patternLength m), "\n\n", show p, "\n\nMinimized:\n", show m]
                         --"\n", show (map show (courseLengths p)), "\n", show (map show (courseLengths m))]
         | f == "-m2" -> do
             s <- readFile file
             case parseString s of
                 Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                Right p  -> 
+                Right p  ->
                         putStrLn $ join ["\n\n", show p, "\n", show (patternLength p), "\n", show (patternLength (unroll p)), "\n\nMinimized:\n", {- show (minimize2 p), -} "\n", show (possibiblities p)]
-                        
+
         | f == "-u" || lower f == "--unroll" -> do
             s <- readFile file
             case parseString s of
                 Left e   -> putStrLn $ "*** Parse error: " ++ show e
                 Right p  -> putStrLn $ join [ show p, "\n\nUnrolled:\n", show $ unrollRows p]
-        
+
         | f == "-ua" || lower f == "--unrollall" -> do
             s <- readFile file
             case parseString s of
                 Left e   -> putStrLn $ "*** Parse error: " ++ show e
                 Right p  -> putStrLn $ join [ show p, "\n\nUnrolled:\n", show $ unroll p]
 
-    [f, file, file2] | f == "-c" || f == "--compare" -> do
+    [f, file, file2] | f == "-c" || lower f == "--compare" -> do
         s <- readFile file
         sm <- readFile file2
         case parseString s of
@@ -129,5 +129,6 @@ usage =
   \ knitSpeak -i   PATTERN.ks            (invert pattern)\n\
   \ knitSpeak -f   PATTERN.ks            (flip operations)\n\
   \ knitSpeak -m   PATTERN.ks            (minimize pattern)\n\
+  \ knitSpeak -u   PATTERN.ks            (unroll pattern)\n\
   \ knitSpeak -p   PATTERN.ks            (parse & assert output is equal)\n\
   \ knitSpeak      PATTERN.ks OUTPUT     (write to file)"

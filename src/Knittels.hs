@@ -3,11 +3,11 @@
 module Knittels (Knittel (..), KName (..), KArity (..), TBL (..), InstructionNum, YarnPlacement (..)) where
 import Control.Monad (join)
 
-data Knittel = KInst KName InstructionNum KArity (Maybe TBL) 
+data Knittel = KInst KName InstructionNum KArity (Maybe TBL)
     deriving (Eq, Read, Ord)
 
 instance Show Knittel where
-  show (KInst k n (KArity _) t) 
+  show (KInst k n (KArity _) t)
     | k ==  K || k == P = join [show k, show n, showTBL t]
     | otherwise = join [show k, showINum n, showTBL t]
 
@@ -44,25 +44,25 @@ data KName
   | Turn
     -- Generated from `generate_parser.py`
   | WAndt
-  | Sssp --
-  | Ssp --
-  | Ssk --
-  | Pfb 
+  | Sssp
+  | Ssp
+  | Ssk
+  | Pfb
   | Kfb
-  | IncRp --
-  | IncR --
-  | IncLp --
-  | IncL  --
-  | DropSt 
+  | IncRp
+  | IncR
+  | IncLp
+  | IncL
+  | DropSt
   | DipSt
   | CtrDblInc
-  | CddpTwisted 
-  | Cddp 
-  | CddTwisted 
+  | CddpTwisted
+  | Cddp
+  | CddTwisted
   | BunnyEarsYo
   | BunnyEarsDec
   | BunnyEarsBackYo
-  | BunnyEarsBackDec 
+  | BunnyEarsBackDec
   | BrSl
   | SB
   | PBsl
@@ -71,15 +71,15 @@ data KName
   | PB
   | MK
   | MB
-  | KBR --
-  | KBL --
+  | KBR
+  | KBL
   | CO
-  | BO --30
+  | BO
 
-  | Yo_pN_pyo InstructionNum --
-  | Yo_kN_pyo InstructionNum --
+  | Yo_pN_pyo InstructionNum
+  | Yo_kN_pyo InstructionNum
   | WrapNSts InstructionNum
-  | Sl1_p3so_k2tog_yo_k1 -- Mirror of: P3so_k1_yo_ssk
+  | Sl1_p3so_k2tog_yo_k1
   | SlN_pN_psso InstructionNum InstructionNum
   | Sl1_k2tog_psso
   | SlN_kN_yo_psso InstructionNum InstructionNum
@@ -87,10 +87,10 @@ data KName
   | SlN_kN_psso InstructionNum InstructionNum
   | Sl2_k1_p2sso
   | Sl1Wb
-  | PNtogTwisted InstructionNum --
-  | PNtog InstructionNum --
+  | PNtogTwisted InstructionNum
+  | PNtog InstructionNum
   | P2so_yo_k1
-  | P3so_k1_yo_ssk -- mirror of: Sl1_p3so_k2tog_yo_k1
+  | P3so_k1_yo_ssk
   | P3so_k1_yo_k1
   | P1Below
   | N_to_NInc InstructionNum InstructionNum
@@ -140,7 +140,7 @@ instance Show KName where
   show Yo                               = "yo"
   show Turn                             = "turn"
 
-  -- Generated from `generate_parser.py
+  -- Generated from `generate_parser.py`
   show WAndt                            = "w&t"
   show Sssp                             = "sssp"
   show Ssp                              = "ssp"

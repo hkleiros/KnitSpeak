@@ -163,7 +163,7 @@ numbs :: Parser LineNums
 numbs = nums `chainl1` separator
     where separator = (try (symbol "," >> symbol "and") <|> symbol "," <|> symbol "and")   $> (++)
 
-nums :: Parser LineNums 
+nums :: Parser LineNums
 nums = try (do  ds <- num
                 notFollowedBy (symbol "-")
                 return [ds])
