@@ -38,21 +38,20 @@ mirror (Pattern p) = case countLoops (Pattern p) of
   Just e -> Left e
   Nothing -> Right $ Pattern $ map mir p
   where
-    mir (Course l is c) = Course l (mirrorInstructions (is, 0)) c
+    mir (Course l is c) = Course l (mirrorInstructions is) c
     mir c = c
 
--- Mirror functions
-mirrorInstructions :: (Instructions, Int) -> Instructions
-mirrorInstructions (i : is, len) = mirrorInstructions (is, len + stitchLength i) ++ [mirrorInstruction (i, len)]
-mirrorInstructions ([], _) = []
+mirrorInstructions :: Instructions -> Instructions
+mirrorInstructions is = reverse $ zipWith mirrorInstruction is lengths
+     where lengths = scanl (+) 0 (map stitchLength is)
 
-mirrorInstruction :: (Instruction, Int) -> Instruction
-mirrorInstruction (Rep is times, _) = Rep (mirrorInstructions (is, 0)) times
-mirrorInstruction (Loop is _, len) = Loop (mirrorInstructions (is, 0)) len
-mirrorInstruction (Knittel k, _) = Knittel (mirrorKnittel k)
+mirrorInstruction :: Instruction -> Int -> Instruction
+mirrorInstruction (Rep is times) _ = Rep (mirrorInstructions is) times
+mirrorInstruction (Loop is _) len = Loop (mirrorInstructions is) len
+mirrorInstruction (Knittel k) _ = Knittel (mirrorKnittel k)
 
 mirrorKnittel :: Knittel -> Knittel
--- The operations which mirror images are:
+-- The operations which are mirror images are:
 mirrorKnittel (KInst (KNtog n) r a (Just TBL)) = KInst (KNtogTwisted n) r a Nothing
 mirrorKnittel (KInst (KNtogTwisted n) r a Nothing)
   | n == 2 || n == 3 = KInst (KNtog n) r a (Just TBL)
