@@ -35,12 +35,12 @@ possibiblities = length . mini . unroll
       cm (Course r is c) = m' is
       cm e = []
 
-{- NOTE: can minimize patterns that don't contain multiline repeats or comments. 
+{- NOTE: can minimize patterns that don't contain multiline repeats or comments.
 verticallyMinimize :: Pattern -> Pattern
 verticallyMinimize (Pattern p) = Pattern $ sortBy (\(Course r is cm) (Course r2 is2 cm2) -> rowN r r2) (c (sortBy (\(Course _ is cm) (Course r2 is2 cm2) -> compare is is2) p))
-          
+
     where c :: [Course] -> [Course]
-          c ((Course r is cm) : ((Course r2 is2 cm2): iss)) 
+          c ((Course r is cm) : ((Course r2 is2 cm2): iss))
               | (is == is2) && rt r r2 = c ((Course (cr r r2) is "") : iss)
           c (i : is) = i : (c is)
           c [] = []
@@ -51,17 +51,17 @@ verticallyMinimize (Pattern p) = Pattern $ sortBy (\(Course r is cm) (Course r2 
           rowN (Row rn s) (Round rn2 s2) = compare (head rn)  (head rn2)
           rowN (Round rn s) (Row rn2 s2) =   compare (head rn) (head rn2)
           rowN (Row rn s) (Row rn2 s2) =     compare (head rn) (head rn2)
-          rowN (Round rn s) (Round rn2 s2) = compare (head rn) (head rn2) 
+          rowN (Round rn s) (Round rn2 s2) = compare (head rn) (head rn2)
 -}
 
 ma :: Instructions -> Instructions
 ma [] = []
 ma is =
-    -- Get all repeating substructures 
-    case allRepetitions is of 
+    -- Get all repeating substructures
+    case allRepetitions is of
         [] -> is
         r  ->
-          --- Choose the substructure with largest number of repeats 
+          --- Choose the substructure with largest number of repeats
           let (s, t, i, l) = maximumBy (compare `on` snd4) r
             in case s of
               -- Call ma again on the list and repeating structure
@@ -83,13 +83,13 @@ m is = minimumBy (compare `on` len) (m' is)
 m' :: Instructions -> [Instructions]
 m' [] = []
 m' is =
-    -- Get all repeating substructures 
-    case allRepetitions is of 
+    -- Get all repeating substructures
+    case allRepetitions is of
         [] -> [is]
         r  -> r >>= allOptions
 
-    --- Choose the substructure with largest number of repeats 
-    where allOptions (structure, times, index, len) = 
+    --- Choose the substructure with largest number of repeats
+    where allOptions (structure, times, index, len) =
             case structure of
             -- Call m' again on the list and repeating structure
             [Knittel (KInst k _ a tbl)] ->
@@ -99,11 +99,11 @@ m' is =
 m'' :: Instructions -> [Instructions]
 m'' [] = []
 m'' is =
-    case allRepetitions is of -- Get all repeating substructures 
+    case allRepetitions is of -- Get all repeating substructures
         [] -> [is]
         r  ->  nub $ join $ map allOptions (nub r) -- >>= allOptions
 
-    where allOptions (structure, times, index, len) = --- Choose the substructure with largest number of repeats 
+    where allOptions (structure, times, index, len) = --- Choose the substructure with largest number of repeats
              case structure of
               -- Call m'' again on the list and repeating structure
               [Knittel (KInst k _ a tbl)] ->
