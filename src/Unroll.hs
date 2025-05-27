@@ -1,4 +1,4 @@
-module Unroll (unroll, unrollRows) where 
+module Unroll (unroll, unrollLines) where 
 import KSSyntax  (Pattern(..), Instructions, Instruction(..), Course(..), Line(..))
 import Knittels (Knittel(..))
 import Control.Monad (join)
@@ -10,8 +10,8 @@ unroll (Pattern p) = Pattern $ map u p
     u (Course r is c) = Course r (unrollInstructions is) c
     u c = c
 
-unrollRows :: Pattern -> Pattern
-unrollRows (Pattern p) = Pattern $ join $ map u p
+unrollLines :: Pattern -> Pattern
+unrollLines (Pattern p) = Pattern $ join $ map u p
   where
     u (Course l is c) = map (\r -> Course r is c) (allLines l)
     -- TODO: also unroll multiline repeats; need lookup function to do this.
@@ -20,11 +20,13 @@ unrollRows (Pattern p) = Pattern $ join $ map u p
     allLines (Round ln s) = map (\l -> Round [l] s) ln
 
 unrollInstructions :: Instructions -> Instructions
-unrollInstructions ((Knittel k) : is) = unrollKnittel k ++ unrollInstructions is
-unrollInstructions ((Rep r t) : is)   = join (replicate t (unrollInstructions r)) ++  unrollInstructions is
-unrollInstructions ((Loop l e) : is) = Loop (unrollInstructions l) e : unrollInstructions is
--- only unroll instructions within a loop
-unrollInstructions [] = []
+unrollInstructions is = is >>= unrollInstruction 
+
+unrollInstruction :: Instruction -> Instructions
+unrollInstruction (Knittel k) = unrollKnittel k 
+unrollInstruction (Rep r t) = join $ replicate t (unrollInstructions r)
+unrollInstruction (Loop l e) = [Loop (unrollInstructions l) e] 
+
 
 unrollKnittel :: Knittel -> Instructions
 unrollKnittel (KInst kn r a t) = replicate r (Knittel (KInst kn 1 a t))

@@ -4,7 +4,7 @@ import Mirror               (mirror)
 import Flip                 (flipPattern)
 import Invert               (invert)
 import Minimize             (minimize, minimize2, possibiblities)
-import Unroll               (unroll, unrollRows)
+import Unroll               (unroll, unrollLines)
 import System.Environment   (getArgs)
 import System.Exit          (die)
 import Control.Monad        (join)
@@ -12,6 +12,7 @@ import Utils
 import Knittels
 import KSSyntax
 import Data.List.Extra (lower)
+import Data.List (intercalate)
 
 main :: IO ()
 main = do
@@ -65,25 +66,39 @@ main = do
                 Right p  ->
                     let m = minimize p in
                         putStrLn $ join ["Pattern is minimal? ", show (patternLength p == patternLength m), "\n\n", show p, "\n\nMinimized:\n", show m]
-                        --"\n", show (map show (courseLengths p)), "\n", show (map show (courseLengths m))]
+        
+        | f == "-u" || lower f == "--unroll" -> do
+            s <- readFile file
+            case parseString s of
+                Left e   -> putStrLn $ "*** Parse error: " ++ show e
+                Right p  -> putStrLn $ join [ show p, "\n\nUnrolled:\n", show $ unrollLines p]
+
+        | f == "-ui" || lower f == "--unrolli" -> do
+            s <- readFile file
+            case parseString s of
+                Left e   -> putStrLn $ "*** Parse error: " ++ show e
+                Right p  -> putStrLn $ join [ show p, "\n\nUnrolled instructions:\n", show $ unroll p]
+
+        -- NOTE: for testing
+        | f == "-tm" -> do
+            s <- readFile file
+            case parseString s of
+                Left e   -> putStrLn $ "*** Parse error: " ++ show e
+                Right p  ->
+                        let pos = possibiblities p in 
+                        putStrLn $ join ["\n\n", show p, "\n", show (patternLength p), "\n", show (patternLength (unroll p)), "\n\nMinimized:\n", {- show (minimize2 p), -} "\n", 
+                        --intercalate "\n" (map show (pos)), 
+                        "\n", show $ length pos]
+
+        -- NOTE: for testing
         | f == "-m2" -> do
             s <- readFile file
             case parseString s of
                 Left e   -> putStrLn $ "*** Parse error: " ++ show e
                 Right p  ->
-                        putStrLn $ join ["\n\n", show p, "\n", show (patternLength p), "\n", show (patternLength (unroll p)), "\n\nMinimized:\n", {- show (minimize2 p), -} "\n", show (possibiblities p)]
-
-        | f == "-u" || lower f == "--unroll" -> do
-            s <- readFile file
-            case parseString s of
-                Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                Right p  -> putStrLn $ join [ show p, "\n\nUnrolled:\n", show $ unrollRows p]
-
-        | f == "-ua" || lower f == "--unrollall" -> do
-            s <- readFile file
-            case parseString s of
-                Left e   -> putStrLn $ "*** Parse error: " ++ show e
-                Right p  -> putStrLn $ join [ show p, "\n\nUnrolled:\n", show $ unroll p]
+                    let m = minimize2 p in
+                        putStrLn $ join ["Pattern is minimal? ", show (patternLength p == patternLength m), "\n\n", show p, "\n\nMinimized:\n", show m]
+        
 
     [f, file, file2] | f == "-c" || lower f == "--compare" -> do
         s <- readFile file
@@ -124,11 +139,13 @@ usage :: String
 usage =
   "Usage:\n\
   \ knitSpeak      PATTERN.ks            (parse only)\n\
-  \ knitSpeak -s   PATTERN.ks            (mirror pattern)\n\
+  \ knitSpeak      PATTERN.ks OUTPUT     (write output to file)\n\
+  \ knitSpeak -p   PATTERN.ks            (parse & assert output is equal)\n\
   \ knitSpeak -c   PATTERN.ks PATTERN.ks (mirror first pattern and compare with second)\n\
+  \ knitSpeak -m   PATTERN.ks            (minimize pattern)\n\
+  \ knitSpeak -u   PATTERN.ks            (unroll rows in pattern)\n\
+  \ knitSpeak -ui   PATTERN.ks           (unroll instructions in pattern)\n\
+  \ knitSpeak -s   PATTERN.ks            (mirror pattern)\n\
   \ knitSpeak -i   PATTERN.ks            (invert pattern)\n\
   \ knitSpeak -f   PATTERN.ks            (flip operations)\n\
-  \ knitSpeak -m   PATTERN.ks            (minimize pattern)\n\
-  \ knitSpeak -u   PATTERN.ks            (unroll pattern)\n\
-  \ knitSpeak -p   PATTERN.ks            (parse & assert output is equal)\n\
-  \ knitSpeak      PATTERN.ks OUTPUT     (write to file)"
+  \"

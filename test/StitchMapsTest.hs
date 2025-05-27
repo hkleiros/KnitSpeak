@@ -24,7 +24,7 @@ import Data.List.Extra (replace)
 
 -- import Data.List (filter, intercalate)
 resultsFile :: String
-resultsFile = "../results5.tsv"
+resultsFile = "../results6.tsv"
 
 testStitchMapsKnitSpeaks :: IO ()
 testStitchMapsKnitSpeaks = do
@@ -66,6 +66,8 @@ testStitchMapsKnitSpeaks = do
                           m2 = minimize p
                           s = mirror p
                           u = unique
+                          flipP = flipPattern p
+                          invertP = invert p
                           in
                            case s of
                             Left e ->    appendFile resultsFile $ intercalate "\t" [
@@ -76,11 +78,11 @@ testStitchMapsKnitSpeaks = do
                               show (patternLength m2),
                               show (unroll p == unroll m2),
                               "None",
-                              show (p == invert (invert p)),
-                              show (p == flipPattern (flipPattern p)),
+                              show (p == invert invertP),
+                              show (p == flipPattern flipP),
                               "None",
-                              show (invert p `elem` corpus),
-                              show (flipPattern p `elem` corpus) ] ++ "\n"
+                              show (invertP `elem` corpus),
+                              show (flipP `elem` corpus) ] ++ "\n"
                             Right mir ->
                               case mirror mir of
                                 Left e ->
@@ -92,11 +94,11 @@ testStitchMapsKnitSpeaks = do
                                     show ( patternLength m2),
                                     show (unroll p == unroll m2),
                                     "None",
-                                    show (p == invert (invert p)),
-                                    show (p == flipPattern (flipPattern p)),
+                                    show (p == invert invertP),
+                                    show (p == flipPattern flipP),
                                     show (mir `elem` corpus),
-                                    show (invert p `elem` corpus),
-                                    show (flipPattern p `elem` corpus) ] ++ "\n"
+                                    show (invertP `elem` corpus),
+                                    show (flipP `elem` corpus) ] ++ "\n"
                                 Right mir2 ->
                                   appendFile resultsFile $ intercalate "\t" [
                                     takeBaseName f,
@@ -106,11 +108,11 @@ testStitchMapsKnitSpeaks = do
                                     show ( patternLength m2),
                                     show (unroll p == unroll m2),
                                     show (p == mir2),
-                                    show (p == invert (invert p)),
-                                    show (p == flipPattern (flipPattern p)),
+                                    show (p == invert invertP),
+                                    show (p == flipPattern flipP),
                                     show (mir `elem` corpus),
-                                    show (invert p `elem` corpus),
-                                    show (flipPattern p `elem` corpus) ] ++ "\n"
+                                    show (invertP `elem` corpus),
+                                    show (flipP `elem` corpus) ] ++ "\n"
             where unique  =
                     fromMaybe False (p `isUnique` corpus )
 

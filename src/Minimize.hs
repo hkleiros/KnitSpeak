@@ -1,4 +1,8 @@
-module Minimize (minimize, minimize2, possibiblities) where
+module Minimize (
+  minimize, 
+  minimize2, 
+  possibiblities
+  ) where
 
 import Control.Applicative (ZipList (ZipList, getZipList))
 import Control.Monad (join)
@@ -21,6 +25,7 @@ minimize p =
     cm (Course r is c) = Course r (ma is) c
     cm e = e
 
+-- The real minimzation function
 minimize2 :: Pattern -> Pattern
 minimize2 = mini . unroll
   where
@@ -28,8 +33,8 @@ minimize2 = mini . unroll
     cm (Course r is c) = Course r (m is) c
     cm e = e
 
-possibiblities :: Pattern -> Int
-possibiblities = length . mini . unroll
+possibiblities :: Pattern -> [Instructions]
+possibiblities = nub . mini . unroll
     where
       mini (Pattern p) = join $ map cm p
       cm (Course r is c) = m' is
@@ -86,14 +91,14 @@ m' is =
     -- Get all repeating substructures
     case allRepetitions is of
         [] -> [is]
-        r  -> r >>= allOptions
-
-    --- Choose the substructure with largest number of repeats
+        r  -> r >>= allOptions 
+        
+    --- Examine the substructures structure, and chose the case accordingly 
     where allOptions (structure, times, index, len) =
             case structure of
             -- Call m' again on the list and repeating structure
-            [Knittel (KInst k _ a tbl)] ->
-                  m' (join [take index is, [Knittel (KInst k times a tbl)], drop (index + (len * times)) is])
+            [Knittel (KInst k t a tbl)] ->
+                  m' (join [take index is, [Knittel (KInst k (times * t) a tbl)], drop (index + (len * times)) is])
             p ->  m' $ join [take index is, [Rep (m p) times], drop (index + (len * times)) is]
 
 m'' :: Instructions -> [Instructions]
@@ -136,10 +141,10 @@ numberOfTimes rep w p
 snd4 :: (a, b, c, d) -> b
 snd4 (_, x, _, _) = x
 
--- Fra https://stackoverflow.com/a/27733778
+-- From https://stackoverflow.com/a/27733778
 transpose' :: [[a]] -> [[a]]
 transpose' = getZipList . traverse ZipList
 
--- O(n*m)
 windows :: Int -> [a] -> [[a]]
 windows s = transpose' . take s . tails
+-- windows s = foldr (zipWith (:)) (repeat []) . take s . tails
