@@ -7,9 +7,13 @@ data Knittel = KInst KName InstructionNum KArity (Maybe TBL)
     deriving (Eq, Read, Ord)
 
 instance Show Knittel where
-  show (KInst k n (KArity _) t)
-    | k ==  K || k == P = join [show k, show n, showTBL t]
-    | otherwise = join [show k, showINum n, showTBL t]
+  show (KInst k n _ t) = 
+    case k of 
+        K -> join [show k, show n, showTBL t]
+        P -> 
+          join [show k, show n, showTBL t]
+        Slip _ yp -> join ["slip ", show n, show yp]
+        kname -> join [show k, showINum n, showTBL t]
 
 showINum :: InstructionNum -> String
 showINum 1 = ""
