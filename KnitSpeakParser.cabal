@@ -10,7 +10,7 @@ description:    Please see the README on GitHub at <https://github.com/hkleiros/
 homepage:       https://github.com/hkleiros/KnitSpeakParser#readme
 bug-reports:    https://github.com/hkleiros/KnitSpeakParser/issues
 author:         Hanne-Kristin Schørder Leiros
-maintainer:     hkleiros@uio.com
+maintainer:     hkleiros@uio.no
 copyright:      2024 Hanne-Kristin Schrøder leiros
 license:        BSD-3-Clause
 build-type:     Simple
