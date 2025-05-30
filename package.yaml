@@ -3,7 +3,7 @@ version:             0.1.0.0
 github:              "hkleiros/KnitSpeakParser"
 license:             BSD-3-Clause
 author:              "Hanne-Kristin Schørder Leiros"
-maintainer:          "hkleiros@uio.com"
+maintainer:          "hkleiros@uio.no"
 copyright:           "2024 Hanne-Kristin Schrøder leiros"
 
 extra-source-files:
