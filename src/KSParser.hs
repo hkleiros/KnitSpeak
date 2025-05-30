@@ -60,7 +60,7 @@ course =
     try (
     do  skipSymbol "Repeat"
         r <- try (symbol "rows") <|> try (symbol "rounds") <|> try (symbol "row") <|> try (symbol "round")
-        ln <- nums
+        ln <- numbs
         t <- try times <|> return 0
         void (symbol ".")
         return (MultilineRepeat r ln t))

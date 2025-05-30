@@ -58,7 +58,7 @@ instance Show Course where
   show (Course l i c)
     | c == "" = join [unwords [show l ++ ":", intercalate ", " (map show i)], "."]
     | otherwise = join [unwords [show l ++ ":", intercalate ", " (map show i), showComment c], "."]
-  show (MultilineRepeat r l t) = unwords ["Repeat", r, showLineNums l, showTimes t]
+  show (MultilineRepeat r l t) = unwords ["Repeat", r, showLineNums l, showTimes t, "."]
   show (Comment s) = showComment s
 
 showComment :: String -> String

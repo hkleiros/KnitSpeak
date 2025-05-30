@@ -13,11 +13,11 @@ instance Show Knittel where
         P -> 
           join [show k, show n, showTBL t]
         Slip _ yp -> join ["slip ", show n, show yp]
-        kname -> join [show k, showINum n, showTBL t]
+        _ -> join [show k, showINum n, showTBL t]
 
 showINum :: InstructionNum -> String
-showINum 1 = ""
-showINum n = " " ++ show n
+showINum n | n < 2 = ""
+           | otherwise =  " " ++ show n
 
 showTBL :: Maybe TBL -> String
 showTBL (Just TBL) = " tbl"

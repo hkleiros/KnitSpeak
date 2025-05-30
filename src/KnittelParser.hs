@@ -62,7 +62,7 @@ knittel =
     <|>
     try (
     do  skipSymbol "turn"
-        KInst Purl 0 (KArity 0) <$> tbl)
+        KInst Turn 1 (KArity 0) <$> tbl)
     
     -- Generated from `generate_parser.py
     <|>
