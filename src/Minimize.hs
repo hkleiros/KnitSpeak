@@ -8,8 +8,8 @@ import Control.Applicative (ZipList (ZipList, getZipList))
 import Control.Monad (join)
 import Data.Foldable (minimumBy, maximumBy)
 import Data.Function (on)
-import Data.List (tails, nub, sortBy, head)
-import KSSyntax (Course (..), Instruction (..), Instructions, Pattern (..), Line(..))
+import Data.List (tails, nub)
+import KSSyntax (Course (..), Instruction (..), Instructions, Pattern (..))
 import Knittels (Knittel (..))
 import Unroll (unroll)
 import Utils (patternLength)
@@ -37,8 +37,8 @@ possibiblities :: Pattern -> [Instructions]
 possibiblities = nub . mini . unroll
     where
       mini (Pattern p) = join $ map cm p
-      cm (Course r is c) = m' is
-      cm e = []
+      cm (Course _ is _) = m' is
+      cm _ = []
 
 {- NOTE: can minimize patterns that don't contain multiline repeats or comments.
 verticallyMinimize :: Pattern -> Pattern
@@ -101,19 +101,6 @@ m' is =
                   m' (join [take index is, [Knittel (KInst k (times * t) a tbl)], drop (index + (len * times)) is])
             p ->  m' $ join [take index is, [Rep (m p) times], drop (index + (len * times)) is]
 
-m'' :: Instructions -> [Instructions]
-m'' [] = []
-m'' is =
-    case allRepetitions is of -- Get all repeating substructures
-        [] -> [is]
-        r  ->  nub $ join $ map allOptions (nub r) -- >>= allOptions
-
-    where allOptions (structure, times, index, len) = --- Choose the substructure with largest number of repeats
-             case structure of
-              -- Call m'' again on the list and repeating structure
-              [Knittel (KInst k _ a tbl)] ->
-                    m'' (join [take index is, [Knittel (KInst k times a tbl)], drop (index + (len * times)) is])
-              p ->  m'' $ join [take index is, [Rep (m p) times], drop (index + (len * times)) is]
 
 allRepetitions :: (Eq a) => [a] -> [([a], Int, Int, Int)] -- Repeating sublist, times it repeats, index of sublist, size of sublist
 allRepetitions [] = [([], 1, 0, 0)]

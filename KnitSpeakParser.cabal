@@ -82,7 +82,6 @@ test-suite KnitSpeak-test
   main-is: Test.hs
   other-modules:
       Spec
-      StitchMapsTest
       Paths_KnitSpeakParser
   autogen-modules:
       Paths_KnitSpeakParser

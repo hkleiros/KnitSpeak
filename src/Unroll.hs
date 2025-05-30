@@ -2,7 +2,6 @@ module Unroll (unroll, unrollLines) where
 import KSSyntax  (Pattern(..), Instructions, Instruction(..), Course(..), Line(..), LineNums)
 import Knittels (Knittel(..))
 import Control.Monad (join)
-import Data.Ord (Ordering)
 import Data.List (sortBy)
 import Data.Function (on)
 
@@ -23,12 +22,13 @@ unrollLines (Pattern p) = Pattern $ sortBy (compare `on` lineNums) (join $ map u
     allLines (Round ln s) = map (\l -> Round [l] s) ln
 
 lineNums :: Course -> LineNums
-lineNums (Course r _ _) = lines r
-  where lines (Row ln _) = ln
-        lines (Round ln _) = ln
+lineNums (Course r _ _) = lineN r
+lineNums _  = []
 
--- compareCourses :: Course -> Course -> Ordering
--- compareCourses (Course r is cm) (Course r2 is2 cm2) =  compare r r2
+lineN :: Line -> LineNums
+lineN (Row ln _) = ln
+lineN (Round ln _) = ln
+
 
 unrollInstructions :: Instructions -> Instructions
 unrollInstructions is = is >>= unrollInstruction

@@ -1,12 +1,11 @@
-module Spec (testFolder, testRep, testDirKnitspeaks) where
+module Spec (testFolder, testRep, testDirKnitspeaks, parseFile) where
 
 import Control.Monad (filterM, join)
-import Data.Either (isLeft, isRight)
-import Data.Either.Extra (fromLeft')
+import Data.Either (isRight)
 import KSParser (ParseError, parseString)
 import KSSyntax (Pattern)
-import System.Directory.Extra (createDirectoryIfMissing, listDirectory)
-import System.FilePath (replaceDirectory, takeExtension, (</>))
+import System.Directory.Extra (listDirectory)
+import System.FilePath (takeExtension, (</>))
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit
 

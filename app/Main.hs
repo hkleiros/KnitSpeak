@@ -5,14 +5,11 @@ import Flip                 (flipPattern)
 import Invert               (invert)
 import Minimize             (minimize, minimize2, possibiblities)
 import Unroll               (unroll, unrollLines)
+import Utils
 import System.Environment   (getArgs)
 import System.Exit          (die)
 import Control.Monad        (join)
-import Utils
-import Knittels
-import KSSyntax
 import Data.List.Extra (lower)
-import Data.List (intercalate)
 
 main :: IO ()
 main = do
@@ -87,7 +84,6 @@ main = do
                 Right p  ->
                         let pos = possibiblities p in 
                         putStrLn $ join ["\n\n", show p, "\n", show (patternLength p), "\n", show (patternLength (unroll p)), "\n\nMinimized:\n", {- show (minimize2 p), -} "\n", 
-                        --intercalate "\n" (map show (pos)), 
                         "\n", show $ length pos]
 
         -- NOTE: for testing
